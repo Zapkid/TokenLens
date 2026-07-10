@@ -269,7 +269,11 @@ export const liveProvider: DataProvider = {
       ? Object.values(stableRow.totalCirculatingUSD ?? {}).reduce((a, b) => a + b, 0)
       : null;
 
+    // CEX entries are exchange custody balances, not ecosystem protocols, and
+    // are excluded from DeFiLlama's chain TVL: keeping them here would push
+    // the top-protocol concentration share past 100%.
     const chainProtocols: NetworkProtocol[] = (protocols ?? [])
+      .filter((p) => (p.category ?? "") !== "CEX")
       .map((p) => ({
         name: p.name,
         category: p.category ?? "Other",
