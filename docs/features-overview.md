@@ -14,6 +14,7 @@ wired yet.
 | Compare | /compare | Built: 2 to 4 saved reports, pillar radars, comparison table |
 | Portfolio and watchlist | /portfolio | Built: manual positions, tier allocation vs template, drift-band rebalancing suggestions |
 | Settings and methodology | /settings, /methodology | Built: weight editor with live re-scoring preview, risk profile, data freshness, written methodology |
+| Mobile and PWA | all routes | Built: no sideways scroll on phones, installable manifest and icons, service worker with offline fallback |
 
 ## Engine modules (lib/)
 

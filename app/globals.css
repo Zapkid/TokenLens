@@ -89,6 +89,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Horizontal scroll without a visible scrollbar (nav, chip strips). */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Print: the web report is the PDF template. Hide chrome, keep content. */
 @media print {
   .no-print {

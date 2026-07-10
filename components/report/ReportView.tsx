@@ -581,7 +581,8 @@ export function ReportView({ report }: { report: Report }) {
         subtitle="Decision calendar: dated, resolvable events only"
       >
         {report.events.length > 0 ? (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[540px] text-sm">
             <thead>
               <tr className="border-b border-hairline text-left text-xs text-faint">
                 <th className="py-1.5 pr-4 font-normal">Date</th>
@@ -617,7 +618,8 @@ export function ReportView({ report }: { report: Report }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         ) : (
           <p className="text-sm text-ink-2">
             No dated events inside the next 12 months.

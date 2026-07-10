@@ -16,6 +16,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Strategy engine](features/strategy-engine.md)
 - [Settings and methodology](features/settings-and-methodology.md)
 - [Data providers and caching](features/data-providers-and-caching.md)
+- [Mobile layout and PWA](features/mobile-and-pwa.md)
 
 ## Test plans
 
