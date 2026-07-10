@@ -34,8 +34,8 @@ function WeightRow({
   testId: string;
 }) {
   return (
-    <label className="flex items-center gap-3 text-sm">
-      <span className="w-56 shrink-0">{label}</span>
+    <label className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+      <span className="w-full sm:w-56 sm:shrink-0">{label}</span>
       <input
         type="range"
         min={0}

@@ -52,6 +52,16 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-050 | Two viewed reports compare with radars and score table | e2e |
 | TL-051 | Empty shelf explains how to obtain comparable reports | e2e |
 
+## Mobile and PWA
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-060 | Home, report, library, settings, portfolio have zero horizontal page overflow at iPhone viewport | e2e/mobile-pwa.spec.ts |
+| TL-061 | Every nav destination reachable on a phone (nav scrolls within itself); settings sliders stay in-viewport | e2e |
+| TL-062 | Manifest served with standalone display, 192/512 icons, and a maskable icon | e2e |
+| TL-063 | Service worker, all icon files, and the offline fallback page are served | e2e |
+| TL-064 | Service worker registers and reaches the active state on load | e2e |
+
 ## Unit and component coverage (vitest)
 
 | Suite | Covers |
