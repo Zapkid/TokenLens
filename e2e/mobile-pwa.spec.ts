@@ -11,7 +11,10 @@ async function horizontalOverflow(page: import("@playwright/test").Page) {
   );
 }
 
-const { defaultBrowserType: _ignored, ...iphone } = devices["iPhone 13"];
+// devices["iPhone 13"] carries defaultBrowserType, which Playwright forbids
+// inside a describe group; strip it and keep the viewport/touch emulation.
+const iphone: Partial<(typeof devices)["iPhone 13"]> = { ...devices["iPhone 13"] };
+delete iphone.defaultBrowserType;
 
 test.describe("Mobile layout", () => {
   test.use(iphone);
