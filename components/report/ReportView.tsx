@@ -373,7 +373,7 @@ export function ReportView({ report }: { report: Report }) {
           </div>
           <div>
             <h3 className="mb-2 text-sm font-medium text-ink-2">
-              Price history (2y)
+              Price history
             </h3>
             <PriceChart series={report.priceHistory} label="Price" />
             {report.warnings.length > 0 ? (

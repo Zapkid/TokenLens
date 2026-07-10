@@ -153,7 +153,7 @@ export function buildOpportunityPillars(
     const inputs = [
       describe("ATH distance headroom", athHeadroom),
       describe(
-        "Price percentile in own 2y history (inverted)",
+        "Price percentile in own trailing history (inverted)",
         ownHistory,
         "Low percentile means more headroom",
       ),

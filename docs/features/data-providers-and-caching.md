@@ -17,7 +17,9 @@ labeled so synthetic numbers are never mistaken for market data.
 
 ## Flow (live)
 
-- Tokens: CoinGecko coin detail + 730d market chart (2 calls); the peer
+- Tokens: CoinGecko coin detail + 365d market chart (2 calls; the free and
+  demo tiers cap history at 365 days and reserve the interval param, so the
+  request relies on automatic daily granularity); the peer
   cohort comes from a cached top-250 markets call. Dev activity rides along
   on the coin detail (developer_data), so no separate GitHub calls.
 - Chains: DeFiLlama chain list, historical chain TVL, fees and revenue

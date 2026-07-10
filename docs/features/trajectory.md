@@ -15,7 +15,8 @@ price target. Chain reports run the engine twice: on price and on TVL.
 
 ## Flow
 
-1. Annualized volatility from up to two years of daily closes; under 180
+1. Annualized volatility from the trailing daily closes (365 days on the
+   free CoinGecko tier, 730 in fixture mode); under 180
    observations the engine declares insufficient history and stops.
 2. Cone per horizon: base band is plus/minus 0.5 sigma, bear reaches -1.5
    sigma, bull +1.5 sigma (log space).

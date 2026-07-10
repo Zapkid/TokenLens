@@ -149,8 +149,10 @@ async function fetchTokenData(id: string): Promise<RawTokenData> {
   const detail = await cg<CgCoinDetail>(
     `/coins/${encodeURIComponent(id)}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=true&sparkline=false`,
   );
+  // Free and demo CoinGecko tiers cap history at 365 days and reserve the
+  // interval param for paid plans; days > 90 auto-selects daily granularity.
   const chart = await cg<{ prices: [number, number][] }>(
-    `/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=730&interval=daily`,
+    `/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=365`,
   );
   const md = detail.market_data ?? {};
   const dev = detail.developer_data;
@@ -336,7 +338,7 @@ export const liveProvider: DataProvider = {
     return cached("market:snapshot", MARKET_TTL_MS, async () => {
       const [btcChart, fng, global, trendingRes] = await Promise.all([
         cg<{ prices: [number, number][] }>(
-          `/coins/bitcoin/market_chart?vs_currency=usd&days=365&interval=daily`,
+          `/coins/bitcoin/market_chart?vs_currency=usd&days=365`,
         ),
         getJson<{ data?: { value?: string; value_classification?: string }[] }>(
           FNG,

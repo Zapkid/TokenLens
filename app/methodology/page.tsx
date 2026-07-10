@@ -29,7 +29,7 @@ export default function MethodologyPage() {
           <li>
             Valuation headroom (20%): distance from ATH conditioned on whether
             the asset is in freefall, and the price percentile within the
-            asset&apos;s own two-year history, inverted.
+            asset&apos;s own trailing history, inverted.
           </li>
           <li>
             Momentum and trend (20%): 50/200-day structure, 90-day return
@@ -86,8 +86,9 @@ export default function MethodologyPage() {
       <Card>
         <h2 className="text-lg font-semibold">Trajectory: scenarios, not predictions</h2>
         <p className="mt-2 text-sm text-ink-2">
-          No model reliably predicts crypto prices. From up to two years of
-          daily closes the engine computes realized volatility and a
+          No model reliably predicts crypto prices. From the trailing daily
+          closes (a year on the free CoinGecko tier) the engine computes
+          realized volatility and a
           volatility cone per horizon (3, 6, 12 months), then adjusts scenario
           probabilities with visible modifiers: market regime, the asset&apos;s
           valuation band within its own history, dilution pressure, trend

@@ -77,7 +77,7 @@ function buildModifiers(ctx: TrajectoryContext): {
         key: "valuation",
         label: "Valuation band",
         effect: "bull -6, bear +6",
-        note: "Trading in the top decile of its own 2 year range; bull case trimmed",
+        note: "Trading in the top decile of its own trailing range; bull case trimmed",
       });
     } else if (ctx.ownHistoryPercentile <= 10) {
       shift.bull += 6;
@@ -86,7 +86,7 @@ function buildModifiers(ctx: TrajectoryContext): {
         key: "valuation",
         label: "Valuation band",
         effect: "bull +6, bear -6",
-        note: "Trading in the bottom decile of its own 2 year range",
+        note: "Trading in the bottom decile of its own trailing range",
       });
     }
   }

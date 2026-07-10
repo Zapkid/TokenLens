@@ -28,7 +28,7 @@ export interface RawTokenData {
   maxSupply: number | null;
   categories: string[];
   genesisDate: string | null;
-  /** Daily closes, oldest first, target 730 days. */
+  /** Daily closes, oldest first. 730 days in fixture mode, 365 on the free live tier. */
   dailyCloses: SeriesPoint[];
   devActivity: RawDevActivity | null;
 }
