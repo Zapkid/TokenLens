@@ -16,6 +16,7 @@ import { formatAgo } from "@/lib/format";
 import { computeScores } from "@/lib/report/scoring";
 import { SEL } from "@/lib/selectors";
 import {
+  usePersonalToken,
   useRiskProfile,
   useSavedReports,
   useWeights,
@@ -56,6 +57,7 @@ function WeightRow({
 export default function SettingsPage() {
   const [weights, setWeights] = useWeights();
   const [profile, setProfile] = useRiskProfile();
+  const [personalToken, setPersonalToken] = usePersonalToken();
   const { saved } = useSavedReports();
 
   const previewReport = saved[0]?.report ?? null;
@@ -171,6 +173,31 @@ export default function SettingsPage() {
             </span>
           )}
         </div>
+      </SectionCard>
+
+      <SectionCard
+        id="personal-sync"
+        title="Personal sync"
+        subtitle="Share watchlist and portfolio with the MCP connector"
+      >
+        <p className="text-sm text-ink-2">
+          Paste the deployment&apos;s personal token to mirror your watchlist,
+          positions, and asset tiers to the server. Claude can then read and
+          update them through the MCP personal tools, and changes flow back to
+          this browser. Leave empty to keep everything local to this device.
+        </p>
+        <label className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <span className="w-full sm:w-56 sm:shrink-0">Personal token</span>
+          <input
+            type="password"
+            value={personalToken}
+            onChange={(e) => setPersonalToken(e.target.value.trim())}
+            placeholder="Not configured"
+            autoComplete="off"
+            data-testid={SEL.personalTokenInput}
+            className="min-w-0 flex-1 rounded border border-hairline bg-transparent px-2 py-1.5"
+          />
+        </label>
       </SectionCard>
 
       <SectionCard

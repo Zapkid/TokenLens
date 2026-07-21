@@ -18,6 +18,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Data providers and caching](features/data-providers-and-caching.md)
 - [Mobile layout and PWA](features/mobile-and-pwa.md)
 - [MCP connector](features/mcp-connector.md)
+- [Personal sync and MCP personal tools](features/personal-sync.md)
 
 ## Test plans
 

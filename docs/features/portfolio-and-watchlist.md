@@ -30,7 +30,11 @@ assets from any report page and surfaces on both home and portfolio pages.
 
 ## Data touched
 
-localStorage: positions, assetTiers, watchlist. No server persistence.
+localStorage: positions, assetTiers, watchlist. When a personal token is
+configured in Settings these keys additionally mirror to the server-side
+personal store so the MCP personal tools share the same state; see
+[Personal sync and MCP personal tools](personal-sync.md). Without a token
+there is no server persistence.
 
 ## Business rules / security
 

@@ -48,6 +48,7 @@ export const SEL = {
   weightSlider: "weight-slider",
   weightsReset: "weights-reset",
   riskProfileSelect: "risk-profile-select",
+  personalTokenInput: "personal-token-input",
   navHome: "nav-home",
   navLibrary: "nav-library",
   navCompare: "nav-compare",

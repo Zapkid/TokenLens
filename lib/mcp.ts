@@ -4,10 +4,14 @@
 // transport concerns so the projections are unit-testable like the rest
 // of lib/.
 
+import type { PortfolioAnalysis } from "./report/strategy";
 import type {
+  AssetRef,
   PillarScore,
+  PriceQuote,
   RegimeSnapshot,
   Report,
+  RiskProfile,
   ScenarioHorizon,
   Trajectory,
 } from "./types";
@@ -274,6 +278,111 @@ export interface ComparisonSummary {
   dataMode: string;
   warnings: Record<string, string[]>;
   disclaimer: string;
+}
+
+export interface PortfolioSummary {
+  totalValueUsd: number;
+  totalCostBasisUsd: number;
+  totalPnlUsd: number | null;
+  riskProfile: string;
+  positions: {
+    assetId: string;
+    assetType: string;
+    name: string;
+    symbol: string;
+    quantity: number;
+    costBasisUsd: number;
+    valueUsd: number | null;
+    pnlUsd: number | null;
+    pnlPct: number | null;
+    change24hPct: number | null;
+    tier: string;
+  }[];
+  tierAllocation: {
+    tier: string;
+    targetPct: number;
+    actualPct: number;
+    relativeDrift: number | null;
+    outsideBand: boolean;
+  }[];
+  rebalanceSuggestions: { action: string; tier: string; detail: string }[];
+  /** Symbols whose value is unknown because no price resolved. */
+  unpricedSymbols: string[];
+  disclaimer: string;
+}
+
+/**
+ * Project the tested portfolio analysis into an LLM answer, adding per
+ * position and total P&L. Unpriced positions keep null values rather than
+ * pretending a zero.
+ */
+export function summarizePortfolio(
+  analysis: PortfolioAnalysis,
+  quotes: PriceQuote[],
+  riskProfile: RiskProfile,
+): PortfolioSummary {
+  const quoteById = new Map(quotes.map((q) => [q.id, q]));
+  const positions = analysis.positions.map((p) => {
+    const pnlUsd = p.valueUsd === null ? null : p.valueUsd - p.costBasisUsd;
+    return {
+      assetId: p.assetId,
+      assetType: p.assetType,
+      name: p.name,
+      symbol: p.symbol,
+      quantity: p.quantity,
+      costBasisUsd: p.costBasisUsd,
+      valueUsd: p.valueUsd,
+      pnlUsd,
+      pnlPct:
+        pnlUsd === null || p.costBasisUsd <= 0
+          ? null
+          : Math.round((pnlUsd / p.costBasisUsd) * 1000) / 10,
+      change24hPct: quoteById.get(p.assetId)?.change24hPct ?? null,
+      tier: p.tier,
+    };
+  });
+  const allPriced = positions.every((p) => p.valueUsd !== null);
+  const totalCostBasisUsd = positions.reduce((sum, p) => sum + p.costBasisUsd, 0);
+  return {
+    totalValueUsd: analysis.totalValueUsd,
+    totalCostBasisUsd,
+    totalPnlUsd: allPriced ? analysis.totalValueUsd - totalCostBasisUsd : null,
+    riskProfile,
+    positions,
+    tierAllocation: analysis.tiers,
+    rebalanceSuggestions: analysis.suggestions,
+    unpricedSymbols: analysis.unpriced,
+    disclaimer: MCP_DISCLAIMER,
+  };
+}
+
+export interface WatchlistSummary {
+  watchlist: {
+    id: string;
+    type: string;
+    name: string;
+    symbol: string;
+    priceUsd: number | null;
+    change24hPct: number | null;
+  }[];
+}
+
+/** Watchlist entries joined with current quotes when available. */
+export function summarizeWatchlist(
+  watchlist: AssetRef[],
+  quotes: PriceQuote[],
+): WatchlistSummary {
+  const quoteById = new Map(quotes.map((q) => [q.id, q]));
+  return {
+    watchlist: watchlist.map((a) => ({
+      id: a.id,
+      type: a.type,
+      name: a.name,
+      symbol: a.symbol,
+      priceUsd: quoteById.get(a.id)?.priceUsd ?? null,
+      change24hPct: quoteById.get(a.id)?.change24hPct ?? null,
+    })),
+  };
 }
 
 function pillarMatrix(

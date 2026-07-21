@@ -6,17 +6,30 @@
 // state, and personal data (portfolio, watchlist) lives in the browser's
 // localStorage where this server cannot reach it.
 
-import { createMcpHandler } from "mcp-handler";
+import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import { z } from "zod";
 import {
   summarizeComparison,
+  summarizePortfolio,
   summarizeRegime,
   summarizeReportForLlm,
   summarizeScenarios,
+  summarizeWatchlist,
 } from "@/lib/mcp";
 import { getProvider } from "@/lib/providers";
+import { analyzePortfolio } from "@/lib/report/strategy";
 import { generateReport } from "@/lib/report/pipeline";
 import { computeRegime } from "@/lib/report/regime";
+import {
+  addPositionEntry,
+  addWatchlistEntry,
+  getPersonalState,
+  mutatePersonalState,
+  personalTokenConfigured,
+  removePositionEntries,
+  removeWatchlistEntry,
+  verifyPersonalToken,
+} from "@/lib/server/personal";
 
 const assetTypeSchema = z
   .enum(["token", "chain"])
@@ -61,6 +74,17 @@ async function withReportSlot<T>(fn: () => Promise<T>): Promise<T> {
   } finally {
     activeReports--;
     waiters.shift()?.();
+  }
+}
+
+// Personal tools require the deployment's bearer token. withMcpAuth
+// verifies it and exposes authInfo to tool callbacks; analysis tools stay
+// public (required: false), so only personal tools check this.
+function requirePersonalAuth(extra: { authInfo?: { token?: string } }) {
+  if (!extra.authInfo?.token) {
+    throw new Error(
+      "Personal tools require the TokenLens personal token as an Authorization bearer header",
+    );
   }
 }
 
@@ -162,6 +186,163 @@ const handler = createMcpHandler(
       },
     );
 
+    // Personal tools: registered only when the deployment configures a
+    // token, so an unconfigured instance exposes no personal surface at
+    // all. Registration is env-driven and therefore stable per deployment.
+    if (personalTokenConfigured()) {
+      const assetRefShape = {
+        id: z.string().min(1).describe("TokenLens asset id from search_assets"),
+        type: assetTypeSchema,
+        name: z.string().min(1).describe("Display name, e.g. Solana"),
+        symbol: z.string().min(1).describe("Ticker symbol, e.g. SOL"),
+      };
+
+      server.tool(
+        "get_watchlist",
+        "Read the user's TokenLens watchlist with current prices and 24h " +
+          "change. Call this when the user asks what they are watching or " +
+          "wants a status pass over their watched assets.",
+        {},
+        async (_args, extra) => {
+          try {
+            requirePersonalAuth(extra);
+            const state = await getPersonalState();
+            const ids = Array.from(new Set(state.watchlist.map((a) => a.id)));
+            const quotes = ids.length ? await getProvider().getPrices(ids) : [];
+            return jsonResult(summarizeWatchlist(state.watchlist, quotes));
+          } catch (e) {
+            return errorResult(e);
+          }
+        },
+      );
+
+      server.tool(
+        "add_to_watchlist",
+        "Add a token or chain to the user's TokenLens watchlist. Use " +
+          "search_assets first to resolve the id, name, and symbol. Adding " +
+          "an asset that is already watched is a no-op.",
+        assetRefShape,
+        async ({ id, type, name, symbol }, extra) => {
+          try {
+            requirePersonalAuth(extra);
+            const state = await mutatePersonalState((s) =>
+              addWatchlistEntry(s, { id, type, name, symbol }),
+            );
+            return jsonResult({ ok: true, watchlistSize: state.watchlist.length });
+          } catch (e) {
+            return errorResult(e);
+          }
+        },
+      );
+
+      server.tool(
+        "remove_from_watchlist",
+        "Remove a token or chain from the user's TokenLens watchlist.",
+        {
+          id: z.string().min(1).describe("TokenLens asset id"),
+          type: assetTypeSchema,
+        },
+        async ({ id, type }, extra) => {
+          try {
+            requirePersonalAuth(extra);
+            const state = await mutatePersonalState((s) =>
+              removeWatchlistEntry(s, id, type),
+            );
+            return jsonResult({ ok: true, watchlistSize: state.watchlist.length });
+          } catch (e) {
+            return errorResult(e);
+          }
+        },
+      );
+
+      server.tool(
+        "get_portfolio",
+        "Read the user's TokenLens portfolio: positions valued at current " +
+          "prices with P&L, tier allocation versus the risk profile target, " +
+          "drift flags, and rebalancing suggestions. Call this when the user " +
+          "asks how their portfolio is doing or whether to rebalance.",
+        {
+          riskProfile: z
+            .enum(["conservative", "balanced", "aggressive"])
+            .optional()
+            .describe(
+              "Target allocation template to compare against; defaults to balanced",
+            ),
+        },
+        async ({ riskProfile }, extra) => {
+          try {
+            requirePersonalAuth(extra);
+            const state = await getPersonalState();
+            const ids = Array.from(new Set(state.positions.map((p) => p.assetId)));
+            const quotes = ids.length ? await getProvider().getPrices(ids) : [];
+            const profile = riskProfile ?? "balanced";
+            const analysis = analyzePortfolio(
+              state.positions,
+              quotes,
+              state.assetTiers,
+              profile,
+            );
+            return jsonResult(summarizePortfolio(analysis, quotes, profile));
+          } catch (e) {
+            return errorResult(e);
+          }
+        },
+      );
+
+      server.tool(
+        "add_position",
+        "Record a portfolio position (a lot) for a token or chain: quantity " +
+          "held and total cost basis in USD. Multiple lots per asset are " +
+          "allowed and are listed separately. Use search_assets first to " +
+          "resolve the asset id.",
+        {
+          ...assetRefShape,
+          quantity: z.number().positive().describe("Units held, e.g. 2.5"),
+          costBasisUsd: z
+            .number()
+            .min(0)
+            .describe("Total cost basis in USD for this lot, not per unit"),
+        },
+        async ({ id, type, name, symbol, quantity, costBasisUsd }, extra) => {
+          try {
+            requirePersonalAuth(extra);
+            const state = await mutatePersonalState((s) =>
+              addPositionEntry(s, {
+                assetId: id,
+                assetType: type,
+                name,
+                symbol,
+                quantity,
+                costBasisUsd,
+              }),
+            );
+            return jsonResult({ ok: true, positionCount: state.positions.length });
+          } catch (e) {
+            return errorResult(e);
+          }
+        },
+      );
+
+      server.tool(
+        "remove_position",
+        "Remove every recorded lot of one asset from the user's portfolio. " +
+          "Confirm with the user before calling this; it cannot be undone " +
+          "from the conversation.",
+        { id: z.string().min(1).describe("TokenLens asset id to remove") },
+        async ({ id }, extra) => {
+          try {
+            requirePersonalAuth(extra);
+            const state = await mutatePersonalState((s) =>
+              removePositionEntries(s, id),
+            );
+            return jsonResult({ ok: true, positionCount: state.positions.length });
+          } catch (e) {
+            return errorResult(e);
+          }
+        },
+      );
+    }
+
     server.tool(
       "get_market_regime",
       "Get the current crypto market regime: risk-on, neutral, or risk-off, " +
@@ -192,4 +373,21 @@ const handler = createMcpHandler(
   },
 );
 
-export { handler as GET, handler as POST, handler as DELETE };
+// Auth wrapper: verifies the personal bearer token when one is presented
+// and exposes it to tools as authInfo. required stays false so the public
+// analysis tools keep working with no credentials; the personal tools
+// enforce authInfo presence themselves.
+const authedHandler = withMcpAuth(
+  handler,
+  (_req, bearerToken) => {
+    if (!bearerToken || !verifyPersonalToken(bearerToken)) return undefined;
+    return {
+      token: bearerToken,
+      clientId: "tokenlens-personal",
+      scopes: ["personal"],
+    };
+  },
+  { required: false },
+);
+
+export { authedHandler as GET, authedHandler as POST, authedHandler as DELETE };

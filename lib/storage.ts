@@ -10,6 +10,11 @@ import type { AssetRef, Position, Report, RiskProfile, WeightSet } from "./types
 
 const NS = "tokenlens:v1:";
 
+/** Event name fired whenever a namespaced key is written. */
+export function changeEventName(key: string): string {
+  return `${NS}change:${key}`;
+}
+
 function read<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -28,6 +33,15 @@ function write<T>(key: string, value: T): void {
   } catch {
     // Storage full or blocked: state stays in memory for the session.
   }
+}
+
+/** Non-hook access for modules that sync storage outside React (personal-sync). */
+export function readStored<T>(key: string, fallback: T): T {
+  return read(key, fallback);
+}
+
+export function writeStored<T>(key: string, value: T): void {
+  write(key, value);
 }
 
 export function useStoredState<T>(key: string, fallback: T) {
@@ -82,6 +96,14 @@ export function useWeights() {
 
 export function useRiskProfile() {
   return useStoredState<RiskProfile>("riskProfile", "balanced");
+}
+
+/**
+ * Bearer token for server-side personal sync (and the MCP personal tools).
+ * Empty string means sync is off and state stays local to this browser.
+ */
+export function usePersonalToken() {
+  return useStoredState<string>("personalToken", "");
 }
 
 /**

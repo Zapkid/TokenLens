@@ -3,11 +3,14 @@ import { generateReport } from "../report/pipeline";
 import {
   MCP_DISCLAIMER,
   summarizeComparison,
+  summarizePortfolio,
   summarizeRegime,
   summarizeReportForLlm,
   summarizeScenarios,
+  summarizeWatchlist,
 } from "../mcp";
-import type { Report } from "../types";
+import { analyzePortfolio } from "../report/strategy";
+import type { Position, PriceQuote, Report } from "../types";
 
 beforeAll(() => {
   process.env.TOKENLENS_DATA_MODE = "fixture";
@@ -116,6 +119,74 @@ describe("summarizeComparison", () => {
     if (source!.score === null) {
       expect(narrativeRow!.scores.solana).toBeNull();
     }
+  });
+});
+
+describe("summarizePortfolio", () => {
+  const positions: Position[] = [
+    {
+      assetId: "solana",
+      assetType: "token",
+      name: "Solana",
+      symbol: "SOL",
+      quantity: 2,
+      costBasisUsd: 300,
+    },
+    {
+      assetId: "mystery",
+      assetType: "token",
+      name: "Mystery",
+      symbol: "MYS",
+      quantity: 10,
+      costBasisUsd: 100,
+    },
+  ];
+  const quotes: PriceQuote[] = [
+    { id: "solana", priceUsd: 200, change24hPct: 3.2 },
+    { id: "mystery", priceUsd: null, change24hPct: null },
+  ];
+
+  it("computes per-position P&L and keeps unpriced values null", () => {
+    const analysis = analyzePortfolio(positions, quotes, {}, "balanced");
+    const s = summarizePortfolio(analysis, quotes, "balanced");
+    const sol = s.positions.find((p) => p.assetId === "solana")!;
+    expect(sol.valueUsd).toBe(400);
+    expect(sol.pnlUsd).toBe(100);
+    expect(sol.pnlPct).toBeCloseTo(33.3, 1);
+    expect(sol.change24hPct).toBe(3.2);
+    const mystery = s.positions.find((p) => p.assetId === "mystery")!;
+    expect(mystery.valueUsd).toBeNull();
+    expect(mystery.pnlUsd).toBeNull();
+    expect(mystery.pnlPct).toBeNull();
+    // Total P&L is withheld when any position is unpriced, never guessed.
+    expect(s.totalPnlUsd).toBeNull();
+    expect(s.unpricedSymbols).toContain("MYS");
+    expect(s.disclaimer).toBe(MCP_DISCLAIMER);
+  });
+
+  it("reports total P&L when every position is priced", () => {
+    const priced = positions.slice(0, 1);
+    const analysis = analyzePortfolio(priced, quotes, {}, "aggressive");
+    const s = summarizePortfolio(analysis, quotes, "aggressive");
+    expect(s.totalPnlUsd).toBe(100);
+    expect(s.totalCostBasisUsd).toBe(300);
+    expect(s.riskProfile).toBe("aggressive");
+    expect(s.tierAllocation.length).toBeGreaterThan(0);
+  });
+});
+
+describe("summarizeWatchlist", () => {
+  it("joins entries with quotes and leaves missing quotes null", () => {
+    const s = summarizeWatchlist(
+      [
+        { id: "solana", type: "token", name: "Solana", symbol: "SOL" },
+        { id: "arbitrum", type: "chain", name: "Arbitrum", symbol: "ARB" },
+      ],
+      [{ id: "solana", priceUsd: 200, change24hPct: -1.5 }],
+    );
+    expect(s.watchlist).toHaveLength(2);
+    expect(s.watchlist[0].priceUsd).toBe(200);
+    expect(s.watchlist[1].priceUsd).toBeNull();
   });
 });
 

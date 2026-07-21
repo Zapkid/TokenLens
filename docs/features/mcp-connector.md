@@ -38,6 +38,12 @@ Connecting a client:
 | compare_assets | generateReport per asset | per-asset score map, pillar matrix, strategy tiers for 2 to 4 assets |
 | get_market_regime | getMarketSnapshot + computeRegime | regime state, composite score, components, fear and greed, trending assets |
 
+When the deployment configures TOKENLENS_PERSONAL_TOKEN, six personal
+tools are also registered (get_watchlist, add_to_watchlist,
+remove_from_watchlist, get_portfolio, add_position, remove_position).
+They require the token as an Authorization bearer header and are
+documented in [Personal sync and MCP personal tools](personal-sync.md).
+
 Tool descriptions are prescriptive about when to call them (not just what
 they do), because current Claude models trigger tools far more reliably
 with when-to-call guidance in the description.
@@ -64,12 +70,10 @@ deterministically.
 
 ## Business rules / security
 
-- Read-only surface: no tool mutates server state. There is no auth in v1
-  because every tool is a query over public market data on a personal
-  deployment.
-- Portfolio and watchlist are intentionally unreachable: they live in the
-  browser's localStorage, which this server cannot see. Exposing them
-  would require moving personal state server-side plus OAuth: out of scope.
+- The analysis tools are read-only queries over public market data and
+  require no auth. Personal tools (watchlist, portfolio) are env-gated
+  behind a bearer token and mutate only the personal state document; see
+  [Personal sync](personal-sync.md) for that security model.
 - Report generation fans out to CoinGecko and DeFiLlama on cache misses,
   so the route caps concurrent generations at 2 (queueing the rest) to
   protect free-tier API quotas from an enthusiastic agent session.
@@ -90,8 +94,8 @@ deterministically.
 
 ## Non-goals
 
-Write access (watchlist, portfolio, saved shelves), auth and multi-user
-scoping, MCP resources and prompts (tools only in v1), and the legacy SSE
+Multi-user scoping and OAuth, write access to saved report shelves and
+weights, MCP resources and prompts (tools only), and the legacy SSE
 transport (which would need a Redis backend; streamable HTTP covers
 current Claude clients).
 

@@ -26,6 +26,9 @@ export default defineConfig({
     url: "http://127.0.0.1:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
-    env: { TOKENLENS_DATA_MODE: "fixture" },
+    env: {
+      TOKENLENS_DATA_MODE: "fixture",
+      TOKENLENS_PERSONAL_TOKEN: "e2e-personal-token",
+    },
   },
 });

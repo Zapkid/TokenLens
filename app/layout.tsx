@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
+import { PersonalSync } from "@/components/PersonalSync";
 import { PwaRegister } from "@/components/PwaRegister";
 import { DISCLAIMER } from "@/lib/constants";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen antialiased">
         <PwaRegister />
+        <PersonalSync />
         <Nav />
         <main className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6">
           {children}
