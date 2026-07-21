@@ -17,6 +17,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Settings and methodology](features/settings-and-methodology.md)
 - [Data providers and caching](features/data-providers-and-caching.md)
 - [Mobile layout and PWA](features/mobile-and-pwa.md)
+- [MCP connector](features/mcp-connector.md)
 
 ## Test plans
 

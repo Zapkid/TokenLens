@@ -15,6 +15,7 @@ wired yet.
 | Portfolio and watchlist | /portfolio | Built: manual positions, tier allocation vs template, drift-band rebalancing suggestions |
 | Settings and methodology | /settings, /methodology | Built: weight editor with live re-scoring preview, risk profile, data freshness, written methodology |
 | Mobile and PWA | all routes | Built: no sideways scroll on phones, installable manifest and icons, service worker with offline fallback |
+| MCP connector | /api/mcp | Built: five read-only MCP tools (search, report, scenarios, compare, regime) over streamable HTTP for Claude and other MCP clients |
 
 ## Engine modules (lib/)
 

@@ -62,6 +62,16 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-063 | Service worker, all icon files, and the offline fallback page are served | e2e |
 | TL-064 | Service worker registers and reaches the active state on load | e2e |
 
+## MCP connector
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-065 | MCP initialize handshake succeeds and tools/list exposes exactly the five analysis tools | e2e/mcp.spec.ts |
+| TL-066 | search_assets resolves an id that generate_report accepts; the summary carries scores, grade, disclaimer, and no chart series | e2e |
+| TL-067 | Schema violations are rejected before any provider call; unknown asset ids return isError tool results, not protocol errors | e2e |
+| TL-068 | compare_assets returns a per-asset score map and pillar matrix; get_market_regime returns a valid regime state with components | e2e |
+| TL-069 | Static REST routes keep routing precedence over the dynamic MCP transport segment | e2e |
+
 ## Unit and component coverage (vitest)
 
 | Suite | Covers |
@@ -74,6 +84,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/report/__tests__/pipeline.test.ts | Full fixture generation for token/chain/no-native-token, cache TTL and refresh (idempotency), determinism, unknown-asset rejection |
 | lib/providers/__tests__/fixture.test.ts | Seeded determinism, search ranking and collisions, library ranking |
 | lib/__tests__/compare.test.ts | Radar data shape, fixed color slots, null flagging, 4-series cap, rescoring direction |
+| lib/__tests__/mcp.test.ts | LLM projections: identity and score fidelity, null-pillar honesty, chart-series exclusion, network section gating, scenario probability sums, comparison matrix, regime rounding |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 
 ## Known gaps (documented, not hidden)
