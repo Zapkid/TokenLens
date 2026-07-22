@@ -96,7 +96,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/providers/__tests__/fixture.test.ts | Seeded determinism, search ranking and collisions, library ranking |
 | lib/__tests__/compare.test.ts | Radar data shape, fixed color slots, null flagging, 4-series cap, rescoring direction |
 | lib/__tests__/mcp.test.ts | LLM projections: identity and score fidelity, null-pillar honesty, chart-series exclusion, network section gating, scenario probability sums, comparison matrix, regime rounding, portfolio P&L and unpriced honesty, watchlist quote joins |
-| lib/server/__tests__/personal.test.ts | Personal store: token verification (constant time, unset means off), bearer parsing, document validation, memory backend round trip, last-write-wins puts, watchlist and position mutations |
+| lib/server/__tests__/personal.test.ts | Personal store: token verification (constant time, unset means off), bearer parsing, document validation, memory backend round trip, last-write-wins puts, Supabase backend (PostgREST shapes, empty row, failure surfacing, precedence over Upstash), watchlist and position mutations |
 | lib/__tests__/personal-sync.test.ts | Sync reconcile decisions: pull, push, noop, unparseable timestamp handling |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 

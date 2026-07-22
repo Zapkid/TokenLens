@@ -8,10 +8,15 @@
 // the MCP personal tools are not registered. Never weaken this: personal
 // state must not be readable or writable anonymously.
 //
-// Backends, chosen at call time:
+// Backends, chosen at call time (first match wins):
 // - fixture data mode: in-memory (deterministic for tests, empty at boot)
+// - Supabase PostgREST when SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY
+//   are set: one row in the personal_state table (persistent state on
+//   serverless deployments such as Vercel). Schema lives in
+//   supabase/migrations/; RLS stays enabled with no policies, so only
+//   the service role key, which never leaves the server, can reach it.
 // - Upstash Redis REST when UPSTASH_REDIS_REST_URL and _TOKEN are set
-//   (persistent state on serverless deployments such as Vercel)
+//   (the alternative serverless persistence option)
 // - otherwise a JSON file under TOKENLENS_DATA_DIR (default .data/),
 //   which persists on local and self-hosted deployments
 
@@ -141,6 +146,44 @@ function fileStore(): PersonalStore {
   };
 }
 
+const SUPABASE_ROW_ID = "singleton";
+
+function supabaseStore(url: string, serviceRoleKey: string): PersonalStore {
+  const endpoint = `${url.replace(/\/$/, "")}/rest/v1/personal_state`;
+  const headers = {
+    apikey: serviceRoleKey,
+    authorization: `Bearer ${serviceRoleKey}`,
+    "content-type": "application/json",
+  };
+  return {
+    async get() {
+      const res = await fetch(
+        `${endpoint}?id=eq.${SUPABASE_ROW_ID}&select=doc`,
+        { headers, cache: "no-store" },
+      );
+      if (!res.ok) throw new Error(`Personal store unavailable (${res.status})`);
+      const rows = (await res.json()) as { doc?: unknown }[];
+      if (!rows.length) return emptyPersonalState();
+      try {
+        return parsePersonalState(rows[0].doc);
+      } catch {
+        return emptyPersonalState();
+      }
+    },
+    async put(state) {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          ...headers,
+          prefer: "resolution=merge-duplicates,return=minimal",
+        },
+        body: JSON.stringify([{ id: SUPABASE_ROW_ID, doc: state }]),
+      });
+      if (!res.ok) throw new Error(`Personal store write failed (${res.status})`);
+    },
+  };
+}
+
 const UPSTASH_KEY = "tokenlens:personal:v1";
 
 function upstashStore(url: string, token: string): PersonalStore {
@@ -177,6 +220,9 @@ function upstashStore(url: string, token: string): PersonalStore {
 
 function getStore(): PersonalStore {
   if (process.env.TOKENLENS_DATA_MODE === "fixture") return memoryStore;
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && supabaseKey) return supabaseStore(supabaseUrl, supabaseKey);
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (url && token) return upstashStore(url, token);

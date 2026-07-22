@@ -14,10 +14,13 @@ changes flowing back into the UI.
 
 - lib/server/personal.ts: the server store and auth. One state document
   (schemaVersion, watchlist, positions, assetTiers, updatedAt), backend
-  chosen at call time: in-memory in fixture mode, Upstash Redis REST when
-  UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set (needed for
-  persistence on Vercel), otherwise a JSON file under TOKENLENS_DATA_DIR
-  (default .data/).
+  chosen at call time, first match wins: in-memory in fixture mode;
+  Supabase PostgREST when SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are
+  set (the recommended persistence on Vercel; schema in
+  supabase/migrations/ with a snapshot in
+  docs/reference/supabase-schema.md); Upstash Redis REST when
+  UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set; otherwise
+  a JSON file under TOKENLENS_DATA_DIR (default .data/).
 - app/api/personal/route.ts: GET and PUT for the web UI sync loop.
 - app/api/[transport]/route.ts: the six MCP personal tools plus the
   withMcpAuth wrapper that verifies the bearer token.
@@ -31,9 +34,13 @@ changes flowing back into the UI.
 1. Set TOKENLENS_PERSONAL_TOKEN on the deployment (any long random
    string). Without it the personal surface does not exist: the REST
    route answers 501 and the MCP personal tools are not registered.
-2. On Vercel, also set the two Upstash variables; serverless filesystems
-   are ephemeral, so the file backend only persists on local or
-   self-hosted deployments.
+2. On Vercel, also configure a persistence backend; serverless
+   filesystems are ephemeral, so the file backend only persists on local
+   or self-hosted deployments. Recommended: a Supabase project with the
+   migration in supabase/migrations/ applied, plus SUPABASE_URL and
+   SUPABASE_SERVICE_ROLE_KEY set server-side (never NEXT_PUBLIC).
+   Alternative: the two Upstash variables. When both are configured,
+   Supabase wins.
 3. Paste the same token into Settings, Personal sync, on each browser
    that should participate.
 4. MCP clients send the token as an Authorization bearer header, for
@@ -59,10 +66,13 @@ changes flowing back into the UI.
 
 ## Data touched
 
-The personal state document, stored in memory (fixture), a local JSON
-file, or Upstash. Browser localStorage keys watchlist, positions,
-assetTiers, personalUpdatedAt, and personalToken. No schema migrations:
-the document carries schemaVersion 1 and is validated on every write.
+The personal state document, stored in memory (fixture), Supabase
+(public.personal_state, one row, RLS enabled with no policies so only
+the server-held service role key reaches it), Upstash, or a local JSON
+file. Browser localStorage keys watchlist, positions, assetTiers,
+personalUpdatedAt, and personalToken. The document carries schemaVersion
+1 and is validated on every read and write; the Supabase table schema is
+snapshotted in docs/reference/supabase-schema.md.
 
 ## Business rules / security
 

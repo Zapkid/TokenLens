@@ -20,6 +20,11 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [MCP connector](features/mcp-connector.md)
 - [Personal sync and MCP personal tools](features/personal-sync.md)
 
+## Reference snapshots
+
+- [Supabase schema](reference/supabase-schema.md): current state of
+  persistent storage after all migrations in supabase/migrations/.
+
 ## Test plans
 
 - [MVP test plan](test-plans/tokenlens-mvp.md): case ids TL-001 and up,

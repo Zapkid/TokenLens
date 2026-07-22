@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addPositionEntry,
   addWatchlistEntry,
@@ -98,6 +98,85 @@ describe("store operations (memory backend)", () => {
     const applied = await putPersonalState(fresh);
     expect(applied.applied).toBe(true);
     expect((await getPersonalState()).watchlist[0].id).toBe("chainlink");
+  });
+});
+
+describe("supabase backend", () => {
+  const doc = { ...emptyPersonalState(), watchlist: [SOL], updatedAt: "2026-07-22T09:00:00.000Z" };
+
+  beforeEach(() => {
+    delete process.env.TOKENLENS_DATA_MODE;
+    process.env.SUPABASE_URL = "https://example.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role-key";
+  });
+
+  afterEach(() => {
+    process.env.TOKENLENS_DATA_MODE = "fixture";
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    vi.unstubAllGlobals();
+  });
+
+  it("reads the singleton row via PostgREST with service role auth", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify([{ doc }]), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const state = await getPersonalState();
+    expect(state.watchlist[0].id).toBe("solana");
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe(
+      "https://example.supabase.co/rest/v1/personal_state?id=eq.singleton&select=doc",
+    );
+    const headers = init.headers as Record<string, string>;
+    expect(headers.apikey).toBe("service-role-key");
+    expect(headers.authorization).toBe("Bearer service-role-key");
+  });
+
+  it("returns the empty document when no row exists yet", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("[]", { status: 200 })),
+    );
+    const state = await getPersonalState();
+    expect(state.watchlist).toEqual([]);
+  });
+
+  it("writes via upsert and surfaces backend failures", async () => {
+    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => {
+      if (init?.method === "POST") return new Response(null, { status: 201 });
+      return new Response("[]", { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    await mutatePersonalState((s) => addWatchlistEntry(s, SOL));
+    const postCall = fetchMock.mock.calls.find(
+      (c) => (c[1] as RequestInit | undefined)?.method === "POST",
+    )!;
+    const init = postCall[1] as RequestInit;
+    const headers = init.headers as Record<string, string>;
+    expect(headers.prefer).toContain("resolution=merge-duplicates");
+    const body = JSON.parse(init.body as string) as { id: string; doc: unknown }[];
+    expect(body[0].id).toBe("singleton");
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("denied", { status: 401 })),
+    );
+    await expect(getPersonalState()).rejects.toThrow(/unavailable \(401\)/);
+  });
+
+  it("takes precedence over Upstash when both are configured", async () => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "upstash-token";
+    const fetchMock = vi.fn(async (url: string) => {
+      void url;
+      return new Response("[]", { status: 200 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    await getPersonalState();
+    expect(String(fetchMock.mock.calls[0][0])).toContain("supabase.co");
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
 });
 
