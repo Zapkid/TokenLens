@@ -11,3 +11,6 @@ test-results/
 playwright-report/
 .DS_Store
 npm-debug.log*
+
+# Server-side personal store (file backend)
+/.data/

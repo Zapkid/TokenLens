@@ -17,6 +17,13 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Settings and methodology](features/settings-and-methodology.md)
 - [Data providers and caching](features/data-providers-and-caching.md)
 - [Mobile layout and PWA](features/mobile-and-pwa.md)
+- [MCP connector](features/mcp-connector.md)
+- [Personal sync and MCP personal tools](features/personal-sync.md)
+
+## Reference snapshots
+
+- [Supabase schema](reference/supabase-schema.md): current state of
+  persistent storage after all migrations in supabase/migrations/.
 
 ## Test plans
 

@@ -15,6 +15,8 @@ wired yet.
 | Portfolio and watchlist | /portfolio | Built: manual positions, tier allocation vs template, drift-band rebalancing suggestions |
 | Settings and methodology | /settings, /methodology | Built: weight editor with live re-scoring preview, risk profile, data freshness, written methodology |
 | Mobile and PWA | all routes | Built: no sideways scroll on phones, installable manifest and icons, service worker with offline fallback |
+| MCP connector | /api/mcp | Built: five public analysis tools (search, report, scenarios, compare, regime) over streamable HTTP for Claude and other MCP clients |
+| Personal sync | /api/personal, /api/mcp | Built: token-gated server store for watchlist, positions, and tiers; web UI mirrors localStorage to it and six MCP personal tools read and mutate it |
 
 ## Engine modules (lib/)
 
