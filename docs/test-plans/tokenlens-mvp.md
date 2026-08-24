@@ -83,6 +83,15 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-074 | Portfolio round trip over MCP: multiple lots, valued analysis with P&L and tier allocation, remove clears all lots | e2e |
 | TL-075 | Server personal state appears in the web UI after the token is configured in Settings | e2e |
 
+## BDCC landing page
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-076 | /bdcc renders the RTL Hebrew landing: root has dir=rtl, logo shows BDCC, hero visible, primary CTA points at bdcc.co.il/courses | e2e/bdcc.spec.ts |
+| TL-077 | Exactly three course cards, each an external link into https://www.bdcc.co.il with rel noopener | e2e |
+| TL-078 | Contact block exposes normalized tel: and mailto: links (tel:+972552828741, mailto:support@bdcc.co.il) | e2e |
+| TL-079 | Link helpers: bdccUrl joins paths to the official origin, telHref strips formatting and keeps a leading +, mailHref trims; content has 3 courses and no em dashes; palette values are valid colors | lib/__tests__/bdcc.test.ts |
+
 ## Unit and component coverage (vitest)
 
 | Suite | Covers |
@@ -98,6 +107,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/__tests__/mcp.test.ts | LLM projections: identity and score fidelity, null-pillar honesty, chart-series exclusion, network section gating, scenario probability sums, comparison matrix, regime rounding, portfolio P&L and unpriced honesty, watchlist quote joins |
 | lib/server/__tests__/personal.test.ts | Personal store: token verification (constant time, unset means off), bearer parsing, document validation, memory backend round trip, last-write-wins puts, Supabase backend (PostgREST shapes, empty row, failure surfacing, precedence over Upstash), watchlist and position mutations |
 | lib/__tests__/personal-sync.test.ts | Sync reconcile decisions: pull, push, noop, unparseable timestamp handling |
+| lib/__tests__/bdcc.test.ts | BDCC landing helpers and content invariants: URL join, tel/mailto normalization, three courses, no em dashes, palette shape |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 
 ## Known gaps (documented, not hidden)
