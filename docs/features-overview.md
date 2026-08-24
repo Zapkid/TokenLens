@@ -17,6 +17,7 @@ wired yet.
 | Mobile and PWA | all routes | Built: no sideways scroll on phones, installable manifest and icons, service worker with offline fallback |
 | MCP connector | /api/mcp | Built: five public analysis tools (search, report, scenarios, compare, regime) over streamable HTTP for Claude and other MCP clients |
 | Personal sync | /api/personal, /api/mcp | Built: token-gated server store for watchlist, positions, and tiers; web UI mirrors localStorage to it and six MCP personal tools read and mutate it |
+| BDCC landing page | /bdcc | Built: standalone Hebrew RTL brand landing for www.bdcc.co.il (courses, about, contact), static content model in lib/bdcc.ts, all CTAs link to the official site |
 
 ## Engine modules (lib/)
 

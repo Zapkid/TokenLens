@@ -19,6 +19,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Mobile layout and PWA](features/mobile-and-pwa.md)
 - [MCP connector](features/mcp-connector.md)
 - [Personal sync and MCP personal tools](features/personal-sync.md)
+- [BDCC landing page](features/bdcc-landing.md)
 
 ## Reference snapshots
 
