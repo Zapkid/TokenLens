@@ -86,6 +86,20 @@ export const BDCC_CONTENT = {
     phone: "+972 55-282-8741",
     phoneDisplay: "055-282-8741",
   },
+  ticker: [
+    "Bitcoin ₿",
+    "Ethereum Ξ",
+    "בלוקצ'יין",
+    "DeFi",
+    "NFT",
+    "Web3",
+    "מסחר",
+    "השקעות",
+    "ארנקים",
+    "אבטחה",
+    "רגולציה",
+    "Smart Contracts",
+  ],
   disclaimer:
     "עמוד נחיתה זה נבנה כהדגמה ומפנה אל האתר הרשמי של BDCC. התכנים והזכויות שייכים ל-BDCC.",
 } as const;

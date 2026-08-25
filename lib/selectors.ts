@@ -56,6 +56,8 @@ export const SEL = {
   bdccCtaContact: "bdcc-cta-contact",
   bdccCourseCard: "bdcc-course-card",
   bdccContact: "bdcc-contact",
+  bdccMarquee: "bdcc-marquee",
+  bdccStatValue: "bdcc-stat-value",
   navHome: "nav-home",
   navLibrary: "nav-library",
   navCompare: "nav-compare",
