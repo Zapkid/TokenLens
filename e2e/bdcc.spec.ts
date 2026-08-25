@@ -45,4 +45,42 @@ test.describe("BDCC landing page", () => {
       contact.locator('a[href="mailto:support@bdcc.co.il"]'),
     ).toBeVisible();
   });
+
+  test("TL-080 course cards track the cursor with glow and tilt variables", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc");
+    const card = page.locator(t(SEL.bdccCourseCard)).first();
+    await card.scrollIntoViewIfNeeded();
+    await card.hover();
+    await expect(card).toHaveAttribute("style", /--mx/);
+    await expect(card).toHaveAttribute("style", /--my/);
+    await expect(card).toHaveAttribute("style", /--rx/);
+  });
+
+  test("TL-081 stats count up to their final values and the marquee loops", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc");
+    const stats = page.locator(t(SEL.bdccStatValue));
+    await stats.first().scrollIntoViewIfNeeded();
+    await expect(stats.filter({ hasText: "2017" })).toHaveCount(1);
+    await expect(stats.filter({ hasText: /^3$/ })).toHaveCount(1);
+    const marquee = page.locator(t(SEL.bdccMarquee));
+    await expect(marquee).toBeVisible();
+    await expect(marquee.locator('div[aria-hidden="true"]')).toHaveCount(1);
+  });
+
+  test("TL-082 hero and wordmark settle to real text after the scramble", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc");
+    await expect(page.locator(t(SEL.bdccLogo))).toContainText("BDCC", {
+      timeout: 5000,
+    });
+    await expect(page.locator(t(SEL.bdccHero))).toContainText(
+      "לומדים קריפטו נכון.",
+      { timeout: 5000 },
+    );
+  });
 });

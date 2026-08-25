@@ -91,6 +91,10 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-077 | Exactly three course cards, each an external link into https://www.bdcc.co.il with rel noopener | e2e |
 | TL-078 | Contact block exposes normalized tel: and mailto: links (tel:+972552828741, mailto:support@bdcc.co.il) | e2e |
 | TL-079 | Link helpers: bdccUrl joins paths to the official origin, telHref strips formatting and keeps a leading +, mailHref trims; content has 3 courses and no em dashes; palette values are valid colors | lib/__tests__/bdcc.test.ts |
+| TL-080 | Hovering a course card sets cursor-tracked glow and tilt CSS variables (--mx, --my, --rx) | e2e |
+| TL-081 | Stats count up to their exact final values on scroll into view; ticker marquee renders with an aria-hidden duplicate copy | e2e |
+| TL-082 | Scramble effects settle back to the real wordmark and hero headline text | e2e |
+| TL-083 | Effect math: scramble frames (reveal prefix, whitespace stable, pool bounds), easing clamp and monotonicity, count-up landing exactly on target, tilt zero at center and capped at edges, magnetic pull clamped | lib/__tests__/bdcc-fx.test.ts |
 
 ## Unit and component coverage (vitest)
 
@@ -108,6 +112,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/server/__tests__/personal.test.ts | Personal store: token verification (constant time, unset means off), bearer parsing, document validation, memory backend round trip, last-write-wins puts, Supabase backend (PostgREST shapes, empty row, failure surfacing, precedence over Upstash), watchlist and position mutations |
 | lib/__tests__/personal-sync.test.ts | Sync reconcile decisions: pull, push, noop, unparseable timestamp handling |
 | lib/__tests__/bdcc.test.ts | BDCC landing helpers and content invariants: URL join, tel/mailto normalization, three courses, no em dashes, palette shape |
+| lib/__tests__/bdcc-fx.test.ts | BDCC interaction math: scramble frames, easing, count-up display, pointer geometry, tilt and magnetic clamps |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 
 ## Known gaps (documented, not hidden)

@@ -1,0 +1,197 @@
+/* Hyperplexed-style interaction layer for the BDCC landing page:
+   cursor-tracked glow borders, hero spotlight, shimmer text, marquee,
+   floating shapes, and scroll reveals. Every animation is disabled under
+   prefers-reduced-motion at the bottom of this file. */
+
+.gridBg {
+  background-image:
+    linear-gradient(rgba(244, 246, 251, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 246, 251, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(70rem 40rem at 50% 0%, black 30%, transparent 90%);
+}
+
+.spotlight {
+  background: radial-gradient(
+    36rem 36rem at var(--hx, 75%) var(--hy, 25%),
+    rgba(242, 182, 50, 0.14),
+    transparent 62%
+  );
+}
+
+/* Shimmering gold gradient text. */
+.goldText {
+  background: linear-gradient(
+    100deg,
+    #f2b632 0%,
+    #ffd166 35%,
+    #fdf0c2 50%,
+    #ffd166 65%,
+    #f2b632 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 5.5s linear infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+/* Glow cards: the card itself is a 1px gradient-border shell whose ::before
+   paints a gold radial glow at the cursor (--mx/--my set from JS). The glow
+   lights up on every card while the pointer is anywhere over the grid, the
+   inner spotlight only on the hovered card. */
+.cardGrid {
+  perspective: 1100px;
+}
+
+.glowCard {
+  position: relative;
+  border-radius: 16px;
+  background: rgba(244, 246, 251, 0.1);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.15s ease;
+  transform-style: preserve-3d;
+}
+
+.glowCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    460px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(242, 182, 50, 0.95),
+    transparent 48%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.cardGrid:hover .glowCard::before {
+  opacity: 1;
+}
+
+.glowCard:hover {
+  box-shadow:
+    0 10px 36px rgba(0, 0, 0, 0.45),
+    0 0 28px rgba(242, 182, 50, 0.09);
+}
+
+.glowCardInner {
+  position: absolute;
+  inset: 1px;
+  border-radius: 15px;
+  background: var(--bdcc-card-bg, #121a30);
+  overflow: hidden;
+}
+
+.glowCardInner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    620px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(242, 182, 50, 0.16),
+    transparent 42%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.glowCard:hover .glowCardInner::before {
+  opacity: 1;
+}
+
+.cardContent {
+  position: relative;
+  z-index: 1;
+}
+
+/* Marquee separator strip. Track holds two copies of the items; moving by
+   exactly half its width loops seamlessly. Pauses on hover. */
+.marquee {
+  overflow: hidden;
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Floating hexagons in the hero. */
+.floatA {
+  animation: floaty 9s ease-in-out infinite;
+}
+
+.floatB {
+  animation: floaty 7s ease-in-out infinite reverse;
+}
+
+.floatC {
+  animation: floaty 11s ease-in-out 1.2s infinite;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(9deg);
+  }
+}
+
+/* Scroll reveal. */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.revealIn {
+  opacity: 1;
+  transform: none;
+}
+
+/* Magnetic buttons spring back when released. */
+.magnetic {
+  transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .goldText,
+  .marqueeTrack,
+  .floatA,
+  .floatB,
+  .floatC {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .glowCard,
+  .magnetic {
+    transform: none !important;
+    transition: none;
+  }
+}
