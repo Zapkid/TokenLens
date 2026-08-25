@@ -95,6 +95,23 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-081 | Stats count up to their exact final values on scroll into view; ticker marquee renders with an aria-hidden duplicate copy | e2e |
 | TL-082 | Scramble effects settle back to the real wordmark and hero headline text | e2e |
 | TL-083 | Effect math: scramble frames (reveal prefix, whitespace stable, pool bounds), easing clamp and monotonicity, count-up landing exactly on target, tilt zero at center and capped at edges, magnetic pull clamped | lib/__tests__/bdcc-fx.test.ts |
+| TL-084 | On a 1920px desktop viewport the landing spans the full viewport width, renders without the TokenLens nav or footer, and causes no horizontal overflow | e2e |
+| TL-085 | Media and scarcity: announcement bar, the vimeo embed, six CDN gallery images, cohort strip with two full cycles and exactly one pulsing few-spots CTA | e2e |
+| TL-086 | Lead form: invalid submit shows the error, a valid submit shows success with a mailto draft to support@bdcc.co.il carrying the encoded details | e2e |
+
+## Data attribution and providers
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-087 | Product footer credits CoinGecko (gecko mark plus dofollow link to coingecko.com), DeFiLlama, and alternative.me | e2e/attribution.spec.ts |
+
+## Onchain analytics with email OTP gate
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-088 | /api/onchain refuses requests without a session (401); /api/otp reports enabled but unauthenticated | e2e/onchain.spec.ts |
+| TL-089 | Full gate flow: request code (fixture devCode), wrong code rejected, right code sets the 10 minute session cookie, table renders, API calls succeed without re-auth, network switch works | e2e |
+| TL-090 | Onchain nav destination reaches the gate | e2e |
 
 ## Unit and component coverage (vitest)
 
@@ -111,9 +128,12 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/__tests__/mcp.test.ts | LLM projections: identity and score fidelity, null-pillar honesty, chart-series exclusion, network section gating, scenario probability sums, comparison matrix, regime rounding, portfolio P&L and unpriced honesty, watchlist quote joins |
 | lib/server/__tests__/personal.test.ts | Personal store: token verification (constant time, unset means off), bearer parsing, document validation, memory backend round trip, last-write-wins puts, Supabase backend (PostgREST shapes, empty row, failure surfacing, precedence over Upstash), watchlist and position mutations |
 | lib/__tests__/personal-sync.test.ts | Sync reconcile decisions: pull, push, noop, unparseable timestamp handling |
-| lib/__tests__/bdcc.test.ts | BDCC landing helpers and content invariants: URL join, tel/mailto normalization, three courses, no em dashes, palette shape |
+| lib/__tests__/bdcc.test.ts | BDCC landing helpers and content invariants: URL join, tel/mailto normalization, lead validation and mailto builder, media and cohort shapes, three courses, no em dashes, palette shape |
+| lib/server/__tests__/otp.test.ts | OTP gate: config gating, single-use 6 digit codes, expiry, concurrent codes, request rate limit, failed-attempt lockout, HMAC session mint/verify/tamper, Resend payload and failure paths |
+| lib/__tests__/onchain.test.ts | CoinGecko onchain client: demo/pro hosts and headers, response mapping, null-safe numbers, fixture determinism, 60s cache, HTTP failure surfacing |
 | lib/__tests__/bdcc-fx.test.ts | BDCC interaction math: scramble frames, easing, count-up display, pointer geometry, tilt and magnetic clamps |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
+| components/__tests__/ChunkReload.test.tsx | Chunk-load error detection: matches browser ChunkLoadError shapes, ignores unrelated errors |
 
 ## Known gaps (documented, not hidden)
 

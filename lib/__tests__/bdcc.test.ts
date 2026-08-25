@@ -4,9 +4,20 @@ import {
   BDCC_PALETTE,
   BDCC_SITE_URL,
   bdccUrl,
+  buildLeadMailto,
+  isValidLead,
   mailHref,
   telHref,
+  type BdccLead,
 } from "../bdcc";
+
+const validLead: BdccLead = {
+  name: "ישראל ישראלי",
+  phone: "055-282-8741",
+  email: "lead@example.com",
+  track: "קורס מסחר",
+  consent: true,
+};
 
 describe("bdcc link helpers", () => {
   it("bdccUrl joins paths to the official origin", () => {
@@ -40,6 +51,23 @@ describe("bdcc content model", () => {
     }
   });
 
+  it("isValidLead requires name, phone, email, track, and consent", () => {
+    expect(isValidLead(validLead)).toBe(true);
+    expect(isValidLead({ ...validLead, name: "א" })).toBe(false);
+    expect(isValidLead({ ...validLead, phone: "abc" })).toBe(false);
+    expect(isValidLead({ ...validLead, email: "not-an-email" })).toBe(false);
+    expect(isValidLead({ ...validLead, track: "" })).toBe(false);
+    expect(isValidLead({ ...validLead, consent: false })).toBe(false);
+  });
+
+  it("buildLeadMailto targets the team address and encodes the details", () => {
+    const href = buildLeadMailto("support@bdcc.co.il", validLead);
+    expect(href.startsWith("mailto:support@bdcc.co.il?subject=")).toBe(true);
+    expect(href).toContain(encodeURIComponent("ישראל ישראלי"));
+    expect(href).toContain(encodeURIComponent("קורס מסחר"));
+    expect(href).not.toContain("\n");
+  });
+
   it("contact phone and email produce valid hrefs", () => {
     expect(telHref(BDCC_CONTENT.contact.phone)).toMatch(/^tel:\+\d+$/);
     expect(mailHref(BDCC_CONTENT.contact.email)).toBe(
@@ -49,6 +77,23 @@ describe("bdcc content model", () => {
 
   it("copy contains no em dashes (repo-wide rule)", () => {
     expect(JSON.stringify(BDCC_CONTENT)).not.toContain("—");
+  });
+
+  it("media content is well-formed: vimeo embed and six https gallery images", () => {
+    expect(BDCC_CONTENT.video.src).toMatch(
+      /^https:\/\/player\.vimeo\.com\/video\/\d+/,
+    );
+    expect(BDCC_CONTENT.gallery.images).toHaveLength(6);
+    for (const src of BDCC_CONTENT.gallery.images) {
+      expect(src).toMatch(/^https:\/\/lwfiles\.mycourse\.app\//);
+    }
+  });
+
+  it("cohort scarcity has exactly one few-spots cycle and a sensible mix", () => {
+    const statuses = BDCC_CONTENT.cohorts.items.map((c) => c.status);
+    expect(statuses.filter((s) => s === "few")).toHaveLength(1);
+    expect(statuses.filter((s) => s === "full").length).toBeGreaterThan(0);
+    expect(BDCC_CONTENT.cohorts.items.length).toBeGreaterThanOrEqual(3);
   });
 
   it("palette tokens are well-formed colors", () => {

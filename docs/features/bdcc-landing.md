@@ -13,6 +13,11 @@ links out to the official site, https://www.bdcc.co.il.
 - Route: `app/bdcc/page.tsx` (thin server wrapper for metadata; static).
   The page is not linked from the TokenLens nav; it is reached directly at
   /bdcc.
+- Layout: /bdcc lives outside the `app/(site)/` route group that carries
+  the TokenLens shell (nav, width-capped main, attribution footer), so it
+  renders full-viewport directly under the root layout. Section
+  backgrounds bleed edge to edge on any screen; content inside each
+  section is centered in a max-w-6xl container.
 - Rendering and interactions: `components/bdcc/BdccLanding.tsx` (client)
   with its effect styles in `components/bdcc/bdcc.module.css`.
 - Content, palette, and link helpers: `lib/bdcc.ts`. Pure animation math
@@ -20,13 +25,29 @@ links out to the official site, https://www.bdcc.co.il.
 
 ## Flow(s)
 
-1. Visitor opens /bdcc. The page renders inside the app shell but overrides
-   the theme with scoped BDCC palette tokens, `dir="rtl"` and `lang="he"`.
+1. Visitor opens /bdcc. The page renders standalone (no TokenLens nav or
+   footer) with scoped BDCC palette tokens, `dir="rtl"` and `lang="he"`,
+   filling the full viewport at every screen size.
 2. Sections in order: top bar (logo plus "לאתר הרשמי" button), hero with two
    CTAs, stats strip, three course cards, about, contact footer.
 3. Course cards and the primary CTA open the matching page on
    www.bdcc.co.il in a new tab (`rel="noopener noreferrer"`). Contact links
    use normalized `tel:` and `mailto:` hrefs built by `telHref`/`mailHref`.
+   The secondary hero CTA scrolls to the lead form (#lead).
+4. Conversion layer (modeled on the official site):
+   - Gold urgency announcement bar above the header linking to the courses
+     page.
+   - Cohort scarcity strip for the Blockchain Expert track: full cycles are
+     dimmed, exactly one "few spots left" cycle carries a pulsing
+     "הרשם עכשיו!!" CTA, the next cycle shows enrollment open.
+   - Vimeo promo embed (lazy iframe) and a six-photo gallery hotlinked from
+     BDCC's public course CDN; images fade in on load and fall back to a
+     quiet branded tile if the CDN is unreachable.
+   - Lead form ("בדיקת התאמה"): name, phone, email, track radios, and a
+     marketing-consent checkbox. Validation is client side
+     (lib/bdcc.ts isValidLead); a valid submit opens a prefilled mailto
+     draft to support@bdcc.co.il (buildLeadMailto) and shows a success
+     note with the same link. Nothing is stored server side.
 4. Interaction layer (Hyperplexed-style micro-interactions):
    - Course cards carry cursor-tracked glow borders: one mousemove pass
      over the grid sets `--mx`/`--my` on every card, so all borders light
@@ -59,6 +80,13 @@ links out to the official site, https://www.bdcc.co.il.
 - External links always carry `rel="noopener noreferrer"`.
 - The footer states that the page is a demo pointing to the official site
   and that content rights belong to BDCC.
+- The lead form never stores or transmits lead details to any server: the
+  visitor's own mail client carries them. Cohort statuses and the
+  announcement are demo content modeled on the official site; refresh them
+  from bdcc.co.il when cycles change.
+- No fabricated testimonials, graduate counts, or guarantees: social proof
+  sticks to verifiable facts (founded 2017, CryptoJungle, official
+  certification).
 - No em dashes in any copy, per the repo-wide rule (unit-tested).
 - System font stack only: `next/font/google` would try to download fonts at
   build time, which the sandbox egress policy blocks.
@@ -68,8 +96,10 @@ links out to the official site, https://www.bdcc.co.il.
 - RTL inside an LTR app shell: the page root sets `dir` and `lang` locally;
   phone, email, URL fragments, and the marquee are wrapped with `dir="ltr"`
   so they do not render mirrored.
-- Mobile: the stats grid collapses to one column; the page bleeds to the
-  main container edges with negative margins.
+- Mobile: the stats grid collapses to one column. Desktop: sections bleed
+  full width while text and cards stay in a centered max-w-6xl column, and
+  the hero headline scales up (lg:text-6xl). The root uses min-h-dvh and
+  overflow-x-clip so no section can cause sideways scroll.
 - Reduced motion: every JS effect checks `prefers-reduced-motion` before
   animating (scramble and count-up snap to their final text) and the CSS
   module disables all keyframe animations, reveals, tilt, and magnetism

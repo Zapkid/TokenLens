@@ -3,6 +3,7 @@
 // Attribution: price and market data by CoinGecko, TVL data by DeFiLlama.
 
 import { cached } from "../cache";
+import { cgApiBase, cgApiHeaders } from "./coingecko";
 import { LIBRARY_TTL_MS, MARKET_TTL_MS } from "../constants";
 import type {
   AssetRef,
@@ -22,7 +23,6 @@ import type {
   RawTokenData,
 } from "./types";
 
-const CG = "https://api.coingecko.com/api/v3";
 const LLAMA = "https://api.llama.fi";
 const STABLES = "https://stablecoins.llama.fi";
 const FNG = "https://api.alternative.me/fng/?limit=1";
@@ -69,13 +69,8 @@ async function getJson<T>(url: string, headers?: Record<string, string>): Promis
   return (await res.json()) as T;
 }
 
-function cgHeaders(): Record<string, string> | undefined {
-  const key = process.env.COINGECKO_API_KEY;
-  return key ? { "x-cg-demo-api-key": key } : undefined;
-}
-
 async function cg<T>(path: string): Promise<T> {
-  return getJson<T>(`${CG}${path}`, cgHeaders());
+  return getJson<T>(`${cgApiBase()}${path}`, cgApiHeaders());
 }
 
 interface CgCoinDetail {

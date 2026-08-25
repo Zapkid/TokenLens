@@ -15,7 +15,10 @@ a home screen and opened standalone, with a graceful offline fallback.
   public/apple-touch-icon.png: install icons.
 - components/PwaRegister.tsx: registers the worker (production builds only),
   mounted in app/layout.tsx.
-- app/offline/page.tsx: the offline fallback page.
+- components/ChunkReload.tsx: mounted in app/layout.tsx; when a redeploy
+  invalidates the chunk files an open tab references (ChunkLoadError), it
+  reloads the page once to pick up fresh HTML, guarded against loops.
+- app/(site)/offline/page.tsx: the offline fallback page.
 - app/layout.tsx: viewport export (device width, safe-area cover, light and
   dark theme colors) and Apple web app metadata.
 

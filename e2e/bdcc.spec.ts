@@ -71,6 +71,71 @@ test.describe("BDCC landing page", () => {
     await expect(marquee.locator('div[aria-hidden="true"]')).toHaveCount(1);
   });
 
+  test("TL-085 media and scarcity: vimeo embed, six gallery images, cohort strip", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc");
+    await expect(page.locator(t(SEL.bdccAnnouncement))).toBeVisible();
+    const iframe = page.locator(`${t(SEL.bdccVideo)} iframe`);
+    await expect(iframe).toHaveAttribute(
+      "src",
+      /player\.vimeo\.com\/video\/1016720884/,
+    );
+    await expect(page.locator(`${t(SEL.bdccGallery)} img`)).toHaveCount(6);
+    const firstSrc = await page
+      .locator(`${t(SEL.bdccGallery)} img`)
+      .first()
+      .getAttribute("src");
+    expect(firstSrc).toMatch(/^https:\/\/lwfiles\.mycourse\.app\//);
+    const cohorts = page.locator(t(SEL.bdccCohorts));
+    await expect(cohorts.getByText("תפוסה מלאה")).toHaveCount(2);
+    await expect(cohorts.getByText("מקומות בודדים")).toBeVisible();
+    await expect(cohorts.getByText("הרשם עכשיו!!")).toHaveCount(1);
+  });
+
+  test("TL-086 lead form validates, then prepares a mailto draft to the team", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc");
+    const form = page.locator(t(SEL.bdccLeadForm));
+    await form.scrollIntoViewIfNeeded();
+    await form.locator(t(SEL.bdccLeadSubmit)).click();
+    await expect(form.locator(t(SEL.bdccLeadError))).toBeVisible();
+    await form.getByPlaceholder("שם מלא").fill("ישראל ישראלי");
+    await form.getByPlaceholder("טלפון").fill("055-282-8741");
+    await form.getByPlaceholder("מייל").fill("lead@example.com");
+    await form.getByRole("radio").first().check();
+    await form.getByRole("checkbox").check();
+    await form.locator(t(SEL.bdccLeadSubmit)).click();
+    const success = form.locator(t(SEL.bdccLeadSuccess));
+    await expect(success).toBeVisible();
+    const draft = await success.locator("a").getAttribute("href");
+    expect(draft).toContain("mailto:support@bdcc.co.il");
+    expect(draft).toContain(encodeURIComponent("ישראל ישראלי"));
+  });
+
+  test("TL-084 landing fills the viewport width on desktop without the app shell", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto("/bdcc");
+    const { rootWidth, clientWidth } = await page.evaluate(() => ({
+      rootWidth: document
+        .querySelector('[data-testid="bdcc-root"]')!
+        .getBoundingClientRect().width,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(clientWidth).toBeGreaterThan(1500);
+    expect(Math.abs(rootWidth - clientWidth)).toBeLessThanOrEqual(1);
+    await expect(page.locator(t(SEL.navHome))).toHaveCount(0);
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
   test("TL-082 hero and wordmark settle to real text after the scramble", async ({
     page,
   }) => {

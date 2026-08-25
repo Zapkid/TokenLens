@@ -11,9 +11,13 @@ import {
   BDCC_PALETTE,
   BDCC_SITE_URL,
   bdccUrl,
+  buildLeadMailto,
+  isValidLead,
   mailHref,
   telHref,
+  type BdccCohort,
   type BdccCourse,
+  type BdccLead,
 } from "@/lib/bdcc";
 import {
   HEBREW_POOL,
@@ -41,10 +45,16 @@ function reducedMotion(): boolean {
 function useScramble(target: string, pool: string, durationMs = 900) {
   const [display, setDisplay] = useState(target);
   const raf = useRef<number | null>(null);
+  const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const stop = useCallback(() => {
+    if (raf.current) cancelAnimationFrame(raf.current);
+    if (settle.current) clearTimeout(settle.current);
+  }, []);
 
   const play = useCallback(() => {
     if (reducedMotion()) return;
-    if (raf.current) cancelAnimationFrame(raf.current);
+    stop();
     const start = performance.now();
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / durationMs);
@@ -58,14 +68,18 @@ function useScramble(target: string, pool: string, durationMs = 900) {
       raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
-  }, [target, pool, durationMs]);
+    // rAF can be throttled in occluded or background tabs; this guarantees
+    // the text always settles to the target shortly after the duration.
+    settle.current = setTimeout(() => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+      setDisplay(target);
+    }, durationMs + 200);
+  }, [target, pool, durationMs, stop]);
 
   useEffect(() => {
     play();
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-  }, [play]);
+    return stop;
+  }, [play, stop]);
 
   return { display, play };
 }
@@ -400,6 +414,308 @@ function CourseCard({ course, delay }: { course: BdccCourse; delay: number }) {
   );
 }
 
+/** Remote image that fades in when loaded and keeps a quiet branded tile
+ * when the CDN is unreachable, so the grid never shows broken-image icons. */
+function SafeImg({ src, alt }: { src: string; alt: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div
+      className="aspect-[4/3] overflow-hidden rounded-xl"
+      style={{ background: P.surfaceRaised, border: `1px solid ${P.line}` }}
+    >
+      {/* Hotlinked from BDCC's public course CDN; next/image optimization is
+          skipped on purpose so the demo has no image-proxy dependency. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        className={`h-full w-full object-cover transition-opacity duration-700 ${
+          loaded ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    </div>
+  );
+}
+
+function VideoSection() {
+  const v = BDCC_CONTENT.video;
+  return (
+    <section
+      data-testid={SEL.bdccVideo}
+      style={{ background: P.surface, borderTop: `1px solid ${P.line}` }}
+    >
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+        <Reveal>
+          <h2 className="text-2xl font-bold">{v.title}</h2>
+          <p className="mt-1 text-sm" style={{ color: P.textMuted }}>
+            {v.subtitle}
+          </p>
+        </Reveal>
+        <Reveal delay={120}>
+          <div
+            className="mx-auto mt-6 aspect-video w-full max-w-3xl overflow-hidden rounded-xl"
+            style={{ background: P.bg, border: `1px solid ${P.line}` }}
+          >
+            <iframe
+              src={v.src}
+              title={v.title}
+              loading="lazy"
+              allow="autoplay; fullscreen; picture-in-picture"
+              allowFullScreen
+              className="h-full w-full"
+            />
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function GallerySection() {
+  const g = BDCC_CONTENT.gallery;
+  return (
+    <section data-testid={SEL.bdccGallery}>
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+        <Reveal>
+          <h2 className="text-2xl font-bold">{g.title}</h2>
+          <p className="mt-1 text-sm" style={{ color: P.textMuted }}>
+            {g.subtitle}
+          </p>
+        </Reveal>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+          {g.images.map((src, i) => (
+            <Reveal key={src} delay={i * 80}>
+              <SafeImg src={src} alt={`${g.title} ${i + 1}`} />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CohortCard({ cohort }: { cohort: BdccCohort }) {
+  const few = cohort.status === "few";
+  const statusLabel =
+    cohort.status === "full"
+      ? "תפוסה מלאה"
+      : few
+        ? "מקומות בודדים"
+        : "ההרשמה בעיצומה";
+  return (
+    <div
+      className="flex flex-col items-center gap-1 rounded-xl px-4 pb-4 pt-5 text-center"
+      style={{
+        background: P.surfaceRaised,
+        border: `1px solid ${few ? P.gold : P.line}`,
+        opacity: cohort.status === "full" ? 0.55 : 1,
+      }}
+    >
+      <div className="text-lg font-bold">{cohort.cycle}</div>
+      <div className="text-xs" style={{ color: P.textMuted }}>
+        {cohort.when}
+      </div>
+      <div
+        className="mt-2 text-xl font-extrabold leading-tight"
+        style={{ color: few ? P.goldSoft : P.text }}
+      >
+        {statusLabel}
+      </div>
+      {few ? (
+        <a
+          href={bdccUrl("/courses")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${styles.pulse} mt-3 w-full rounded-lg px-3 py-2 text-sm font-bold`}
+          style={{ background: P.gold, color: P.bg }}
+        >
+          {BDCC_CONTENT.cohorts.fewSpotsCta}
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+function CohortsSection() {
+  const co = BDCC_CONTENT.cohorts;
+  return (
+    <section
+      data-testid={SEL.bdccCohorts}
+      style={{ background: P.surface, borderTop: `1px solid ${P.line}` }}
+    >
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+        <Reveal className="text-center">
+          <h2 className="text-2xl font-bold sm:text-3xl">{co.title}</h2>
+          <p
+            className="mx-auto mt-2 max-w-2xl text-sm"
+            style={{ color: P.textMuted }}
+          >
+            {co.subtitle}
+          </p>
+        </Reveal>
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {co.items.map((cohort, i) => (
+            <Reveal key={cohort.cycle} delay={i * 100} className="h-full">
+              <CohortCard cohort={cohort} />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function LeadFormSection() {
+  const f = BDCC_CONTENT.leadForm;
+  const email = BDCC_CONTENT.contact.email;
+  const [lead, setLead] = useState<BdccLead>({
+    name: "",
+    phone: "",
+    email: "",
+    track: "",
+    consent: false,
+  });
+  const [state, setState] = useState<"idle" | "invalid" | "sent">("idle");
+  const mailto = buildLeadMailto(email, lead);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isValidLead(lead)) {
+      setState("invalid");
+      return;
+    }
+    setState("sent");
+    try {
+      window.location.href = mailto;
+    } catch {
+      // The success panel still offers the draft link.
+    }
+  };
+
+  const inputStyle: React.CSSProperties = {
+    background: "#ffffff",
+    color: "#10151f",
+  };
+
+  return (
+    <section id="lead" style={{ borderTop: `1px solid ${P.line}` }}>
+      <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+        <Reveal className="text-center">
+          <h2 className="text-2xl font-bold sm:text-3xl">{f.title}</h2>
+          <p
+            className="mx-auto mt-2 max-w-2xl text-sm"
+            style={{ color: P.textMuted }}
+          >
+            {f.subtitle}
+          </p>
+        </Reveal>
+        <Reveal delay={120}>
+          <form
+            data-testid={SEL.bdccLeadForm}
+            onSubmit={submit}
+            noValidate
+            className="mx-auto mt-8 flex w-full max-w-md flex-col gap-3 rounded-2xl p-5 sm:p-6"
+            style={{ background: P.surfaceRaised, border: `1px solid ${P.gold}` }}
+          >
+            <input
+              type="text"
+              value={lead.name}
+              onChange={(e) => setLead({ ...lead, name: e.target.value })}
+              placeholder={f.namePlaceholder}
+              aria-label={f.namePlaceholder}
+              className="rounded-lg px-4 py-3 text-sm outline-none"
+              style={inputStyle}
+            />
+            <input
+              type="tel"
+              value={lead.phone}
+              onChange={(e) => setLead({ ...lead, phone: e.target.value })}
+              placeholder={f.phonePlaceholder}
+              aria-label={f.phonePlaceholder}
+              className="rounded-lg px-4 py-3 text-sm outline-none"
+              style={inputStyle}
+            />
+            <input
+              type="email"
+              value={lead.email}
+              onChange={(e) => setLead({ ...lead, email: e.target.value })}
+              placeholder={f.emailPlaceholder}
+              aria-label={f.emailPlaceholder}
+              className="rounded-lg px-4 py-3 text-sm outline-none"
+              style={inputStyle}
+            />
+            <fieldset className="mt-1">
+              <legend className="mb-2 text-sm font-medium">{f.trackLabel}</legend>
+              <div className="flex flex-col gap-2">
+                {f.tracks.map((track) => (
+                  <label
+                    key={track}
+                    className="flex cursor-pointer items-center gap-2 text-sm"
+                    style={{ color: P.textMuted }}
+                  >
+                    <input
+                      type="radio"
+                      name="bdcc-track"
+                      checked={lead.track === track}
+                      onChange={() => setLead({ ...lead, track })}
+                      className="accent-[#f2b632]"
+                    />
+                    {track}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <label
+              className="mt-1 flex cursor-pointer items-start gap-2 text-xs"
+              style={{ color: P.textMuted }}
+            >
+              <input
+                type="checkbox"
+                checked={lead.consent}
+                onChange={(e) => setLead({ ...lead, consent: e.target.checked })}
+                className="mt-0.5 accent-[#f2b632]"
+              />
+              {f.consent}
+            </label>
+            {state === "invalid" ? (
+              <p
+                data-testid={SEL.bdccLeadError}
+                className="text-sm font-medium"
+                style={{ color: "#ff9d9d" }}
+              >
+                {f.invalid}
+              </p>
+            ) : null}
+            {state === "sent" ? (
+              <p
+                data-testid={SEL.bdccLeadSuccess}
+                className="text-sm"
+                style={{ color: P.goldSoft }}
+              >
+                {f.success}{" "}
+                <a href={mailto} className="underline" dir="ltr">
+                  {email}
+                </a>
+              </p>
+            ) : (
+              <button
+                type="submit"
+                data-testid={SEL.bdccLeadSubmit}
+                className={`${styles.pulse} mt-2 rounded-lg px-5 py-3 text-sm font-bold`}
+                style={{ background: P.gold, color: P.bg }}
+              >
+                {f.submit}
+              </button>
+            )}
+          </form>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 /* --------------------------------- page ---------------------------------- */
 
 export function BdccLanding() {
@@ -444,18 +760,30 @@ export function BdccLanding() {
       data-testid={SEL.bdccRoot}
       dir="rtl"
       lang="he"
-      className="-mx-4 -mt-6 overflow-hidden rounded-none sm:-mx-6 sm:rounded-2xl"
+      className="min-h-dvh overflow-x-clip"
       style={{ background: P.bg, color: P.text }}
     >
-      {/* Top bar */}
-      <header
-        className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-8"
-        style={{ borderBottom: `1px solid ${P.line}` }}
+      {/* Urgency announcement bar */}
+      <a
+        href={bdccUrl("/courses")}
+        target="_blank"
+        rel="noopener noreferrer"
+        data-testid={SEL.bdccAnnouncement}
+        className="block px-4 py-2 text-center text-sm font-bold hover:opacity-90"
+        style={{ background: P.gold, color: P.bg }}
       >
-        <BdccLogo />
-        <MagneticLink href={bdccUrl("/courses")} solid={false}>
-          לאתר הרשמי
-        </MagneticLink>
+        {c.announcement.text}{" "}
+        <span className="underline">{c.announcement.cta}</span>
+      </a>
+
+      {/* Top bar */}
+      <header style={{ borderBottom: `1px solid ${P.line}` }}>
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-8">
+          <BdccLogo />
+          <MagneticLink href={bdccUrl("/courses")} solid={false}>
+            לאתר הרשמי
+          </MagneticLink>
+        </div>
       </header>
 
       {/* Hero */}
@@ -463,12 +791,13 @@ export function BdccLanding() {
         ref={heroRef}
         data-testid={SEL.bdccHero}
         onMouseMove={onHeroMove}
-        className="relative px-5 pb-14 pt-10 sm:px-8 sm:pb-20 sm:pt-16"
+        className="relative"
       >
         <div aria-hidden className={`absolute inset-0 ${styles.gridBg}`} />
         <div aria-hidden className={`absolute inset-0 ${styles.spotlight}`} />
         <FloatingHexes />
-        <div className="relative max-w-2xl">
+        <div className="relative mx-auto w-full max-w-6xl px-5 pb-14 pt-12 sm:px-8 sm:pb-24 sm:pt-20">
+          <div className="max-w-2xl lg:max-w-3xl">
           <Reveal>
             <p
               className="mb-3 inline-block rounded-full px-3 py-1 text-xs font-medium"
@@ -477,7 +806,7 @@ export function BdccLanding() {
               מבית CryptoJungle, מאז 2017
             </p>
           </Reveal>
-          <h1 className="text-3xl font-extrabold leading-tight sm:text-5xl">
+          <h1 className="text-3xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
             <span className="block">{scrambled.display}</span>
             {heroLine2 ? (
               <span className={`block ${styles.goldText}`}>{heroLine2}</span>
@@ -500,7 +829,7 @@ export function BdccLanding() {
                 לצפייה בקורסים
               </MagneticLink>
               <MagneticLink
-                href={mailHref(c.contact.email)}
+                href="#lead"
                 testId={SEL.bdccCtaContact}
                 solid={false}
               >
@@ -508,6 +837,7 @@ export function BdccLanding() {
               </MagneticLink>
             </div>
           </Reveal>
+          </div>
         </div>
       </section>
 
@@ -524,7 +854,7 @@ export function BdccLanding() {
       <Marquee />
 
       {/* Courses */}
-      <section className="px-5 py-12 sm:px-8">
+      <section className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
         <Reveal>
           <h2 className="text-2xl font-bold">מסלולי הלימוד</h2>
           <p className="mt-1 text-sm" style={{ color: P.textMuted }}>
@@ -542,28 +872,35 @@ export function BdccLanding() {
         </div>
       </section>
 
+      <CohortsSection />
+      <VideoSection />
+      <GallerySection />
+
       {/* About */}
       <section
-        className="px-5 py-12 sm:px-8"
         style={{ background: P.surface, borderTop: `1px solid ${P.line}` }}
       >
-        <Reveal>
-          <h2 className="text-2xl font-bold">על המכללה</h2>
-          <p
-            className="mt-3 max-w-3xl text-sm leading-relaxed"
-            style={{ color: P.textMuted }}
-          >
-            {c.about}
-          </p>
-        </Reveal>
+        <div className="mx-auto w-full max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+          <Reveal>
+            <h2 className="text-2xl font-bold">על המכללה</h2>
+            <p
+              className="mt-3 max-w-3xl text-sm leading-relaxed"
+              style={{ color: P.textMuted }}
+            >
+              {c.about}
+            </p>
+          </Reveal>
+        </div>
       </section>
+
+      <LeadFormSection />
 
       {/* Contact */}
       <footer
         data-testid={SEL.bdccContact}
-        className="px-5 py-10 sm:px-8"
         style={{ borderTop: `1px solid ${P.line}` }}
       >
+        <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8">
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
           <span style={{ color: P.textMuted }}>{c.contact.city}</span>
           <a
@@ -596,6 +933,7 @@ export function BdccLanding() {
         <p className="mt-5 text-xs" style={{ color: P.textMuted }}>
           {c.disclaimer}
         </p>
+        </div>
       </footer>
     </div>
   );

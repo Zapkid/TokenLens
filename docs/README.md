@@ -20,6 +20,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [MCP connector](features/mcp-connector.md)
 - [Personal sync and MCP personal tools](features/personal-sync.md)
 - [BDCC landing page](features/bdcc-landing.md)
+- [Onchain analytics with email OTP gate](features/onchain-analytics.md)
 
 ## Reference snapshots
 
