@@ -21,6 +21,21 @@ export const BDCC_PALETTE = {
   line: "rgba(244, 246, 251, 0.14)",
 } as const;
 
+export interface BdccCohort {
+  cycle: string;
+  when: string;
+  /** full: sold out; few: last spots (gets the urgency CTA); open: enrolling. */
+  status: "full" | "few" | "open";
+}
+
+export interface BdccLead {
+  name: string;
+  phone: string;
+  email: string;
+  track: string;
+  consent: boolean;
+}
+
 export interface BdccCourse {
   id: string;
   /** Path on the official site, joined by bdccUrl(). */
@@ -86,6 +101,58 @@ export const BDCC_CONTENT = {
     phone: "+972 55-282-8741",
     phoneDisplay: "055-282-8741",
   },
+  announcement: {
+    text: "מחזור 15 של הסמכת Blockchain Expert יוצא לדרך באוקטובר 2026. נותרו מקומות בודדים!",
+    cta: "להרשמה",
+  },
+  video: {
+    title: "הציצו פנימה: כך נראים הלימודים אצלנו",
+    subtitle: "דקה אחת שמסבירה למה אלפי ישראלים בוחרים ללמוד קריפטו איתנו.",
+    src: "https://player.vimeo.com/video/1016720884?h=4066582383&app_id=122963&byline=0&badge=0&portrait=0&title=0",
+  },
+  gallery: {
+    title: "רגעים מהמכללה",
+    subtitle: "שיעורים, מפגשי קהילה וכנסים של BDCC ו-CryptoJungle.",
+    images: [
+      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/c25485c203487e9806d8d1e6d56cf65c.jpg",
+      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/5f6af3e7d9e3af693d587066aae03cd5.png",
+      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/f76d457cb9ccff7148b1c5392ffefca8.jpg",
+      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/695e8e5d79416f756191434cd9a0d94f.jpg",
+      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/ed6d37d1c79d756c5f82a55ebb8ca245.jpg",
+      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/09053620519e7b2843d03c6c94a41dd3.jpg",
+    ],
+  },
+  cohorts: {
+    title: "בדוק התאמתך לקורס Blockchain Expert הקרוב",
+    subtitle:
+      "ההכשרה המקצועית ביותר בישראל והיחידה עם הסמכה רשמית מאת הלשכה לטכנולוגיות המידע. מספר המקומות מוגבל!",
+    fewSpotsCta: "הרשם עכשיו!!",
+    items: [
+      { cycle: "מחזור 13", when: "מרץ 2026", status: "full" },
+      { cycle: "מחזור 14", when: "יוני 2026", status: "full" },
+      { cycle: "מחזור 15", when: "אוקטובר 2026", status: "few" },
+      { cycle: "מחזור 16", when: "ינואר 2027", status: "open" },
+    ] satisfies BdccCohort[],
+  },
+  leadForm: {
+    title: "לבדיקת התאמה למסלולי הלימוד שלנו",
+    subtitle:
+      "אתה מעוניין להגדיל את הונך באמצעות השקעה או מסחר? או אולי להצמיח את ההזדמנויות הקריירה שלך? התייעץ כעת עם יועץ הלימודים שלנו ושריין את מקומך בהקדם!",
+    namePlaceholder: "שם מלא",
+    phonePlaceholder: "טלפון",
+    emailPlaceholder: "מייל",
+    trackLabel: "באיזה מסלול תתעניינ/י?",
+    tracks: [
+      "הכשרה מקצועית: מומחה בלוקצ'יין",
+      "תוכנית ליווי והדרכה להשקעה בקריפטו",
+      "קורס מסחר",
+    ],
+    consent: "אני מאשר/ת קבלת חומר פרסומי, שיווקי ועדכונים חדשותיים",
+    submit: "שליחה",
+    invalid: "נא למלא שם, טלפון, מייל תקין, מסלול ואישור קבלת עדכונים.",
+    success:
+      "מעולה! נפתחה טיוטת מייל עם הפרטים אל צוות המכללה. אפשר גם לכתוב לנו ישירות:",
+  },
   ticker: [
     "Bitcoin ₿",
     "Ethereum Ξ",
@@ -119,4 +186,29 @@ export function telHref(phone: string): string {
 /** mailto: href, trimmed. */
 export function mailHref(email: string): string {
   return `mailto:${email.trim()}`;
+}
+
+/** Minimal lead validation: real-looking name, phone, email, a chosen track,
+ * and marketing consent. Mirrored by the form UI and unit tests. */
+export function isValidLead(lead: BdccLead): boolean {
+  return (
+    lead.name.trim().length >= 2 &&
+    /^[+\d][\d\s()-]{7,}$/.test(lead.phone.trim()) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email.trim()) &&
+    lead.track.trim().length > 0 &&
+    lead.consent
+  );
+}
+
+/** mailto draft to the BDCC team carrying the lead details. The page stores
+ * nothing server-side; the visitor's own mail client does the sending. */
+export function buildLeadMailto(to: string, lead: BdccLead): string {
+  const subject = "בדיקת התאמה למסלולי הלימוד (מדף הנחיתה)";
+  const body = [
+    `שם מלא: ${lead.name.trim()}`,
+    `טלפון: ${lead.phone.trim()}`,
+    `מייל: ${lead.email.trim()}`,
+    `מסלול מבוקש: ${lead.track}`,
+  ].join("\n");
+  return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

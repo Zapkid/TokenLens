@@ -45,6 +45,12 @@ cache is per instance; a durable store is the plan's Supabase upgrade path.
 
 ## Business rules / security
 
+- CoinGecko key config is shared via lib/providers/coingecko.ts:
+  COINGECKO_API_KEY plus COINGECKO_API_TIER (demo default; pro switches to
+  the pro-api host and x-cg-pro-api-key header). The same config powers the
+  onchain analytics module.
+- Attribution: the app footer credits CoinGecko (linked, with logo mark),
+  DeFiLlama, and alternative.me per their attribution guidelines.
 - Provider keys (COINGECKO_API_KEY, GITHUB_TOKEN) are read server side only;
   nothing secret ships under NEXT_PUBLIC_.
 - Live fetches use no-store; our TTL cache is the single caching layer.
