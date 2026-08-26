@@ -110,6 +110,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-095 | Discovery files: llms.txt (H1, when-to-use section, MCP endpoint), OpenAPI 3.1 with the public paths, /.well-known/mcp manifest listing the tools | e2e |
 | TL-096 | Accept: text/markdown returns text/markdown with Vary: Accept on / and /bdcc; the HTML variant also carries Vary: Accept | e2e |
 | TL-097 | Trust pages (/about, /contact, /privacy, /developers) each render 500+ chars with one h1; homepage raw HTML carries h1, three h2s, JSON-LD Organization, canonical, og:type, og:image | e2e |
+| TL-098 | API conventions: invalid params return RFC 9457 problem+json with code, hint, and the legacy error alias; success responses carry X-API-Version and the RateLimit headers | e2e |
 
 ## Data attribution and providers
 
@@ -144,7 +145,8 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/server/__tests__/otp.test.ts | OTP gate: config gating, single-use 6 digit codes, expiry, concurrent codes, request rate limit, failed-attempt lockout, HMAC session mint/verify/tamper, Resend payload and failure paths |
 | lib/__tests__/onchain.test.ts | CoinGecko onchain client: demo/pro hosts and headers, response mapping, null-safe numbers, fixture determinism, 60s cache, HTTP failure surfacing |
 | lib/__tests__/analytics.test.ts | Ads plumbing: consent storage round trip, Consent Mode payload, configured detection, event fan-out to gtag/fbq/twq with the Meta Lead mapping |
-| lib/__tests__/agent-content.test.ts | Agent surfaces: llms.txt shape and entry points, markdown renditions and 404 recovery body, OpenAPI paths and params, MCP manifest tools, JSON-LD graph with optional contact email |
+| lib/__tests__/agent-content.test.ts | Agent surfaces: llms.txt shape and entry points, markdown renditions and 404 recovery body, OpenAPI paths, params, operationIds, problem schema, and versioning policy, MCP manifest tools, JSON-LD graph with optional contact and address |
+| lib/server/__tests__/api-http.test.ts | API conventions: fixed-window rate limiter (limit, isolation, reset), env-tuned max, client keying, RFC 9457 problem bodies with code/hint/error alias, 429 Retry-After and RateLimit headers, version header |
 | lib/__tests__/bdcc-fx.test.ts | BDCC interaction math: scramble frames, easing, count-up display, pointer geometry, tilt and magnetic clamps |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 | components/__tests__/ChunkReload.test.tsx | Chunk-load error detection: matches browser ChunkLoadError shapes, ignores unrelated errors |

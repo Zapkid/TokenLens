@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 import { cached } from "@/lib/cache";
 import { LIBRARY_TTL_MS } from "@/lib/constants";
 import { currentDataMode, getProvider } from "@/lib/providers";
+import {
+  apiHeaders,
+  checkRateLimit,
+  clientKey,
+  problemResponse,
+  rateLimitedResponse,
+} from "@/lib/server/api-http";
 import type { Library } from "@/lib/types";
+import type { NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const rate = checkRateLimit(clientKey(req));
+  if (!rate.allowed) return rateLimitedResponse(rate, "/api/library");
   try {
     const library = await cached<Library>(
       `library:${currentDataMode()}`,
@@ -23,11 +33,16 @@ export async function GET() {
         };
       },
     );
-    return NextResponse.json({ library });
+    return NextResponse.json({ library }, { headers: apiHeaders(rate) });
   } catch (e) {
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Library fetch failed" },
-      { status: 502 },
-    );
+    return problemResponse({
+      status: 502,
+      code: "upstream_unavailable",
+      title: "Upstream data provider failed",
+      detail: e instanceof Error ? e.message : "Library fetch failed",
+      hint: "Retry after a short delay; upstream market data providers are rate limited.",
+      instance: "/api/library",
+      rate,
+    });
   }
 }

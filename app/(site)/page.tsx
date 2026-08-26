@@ -17,10 +17,16 @@ export const metadata = {
   alternates: { canonical: "/" },
 };
 
-const identityJsonLd = tokenLensJsonLd(
-  siteUrl(),
-  process.env.NEXT_PUBLIC_CONTACT_EMAIL,
-);
+const identityJsonLd = tokenLensJsonLd(siteUrl(), {
+  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+  phone: process.env.NEXT_PUBLIC_CONTACT_PHONE,
+  address: {
+    streetAddress: process.env.NEXT_PUBLIC_ORG_STREET,
+    addressLocality: process.env.NEXT_PUBLIC_ORG_LOCALITY,
+    postalCode: process.env.NEXT_PUBLIC_ORG_POSTAL,
+    addressCountry: process.env.NEXT_PUBLIC_ORG_COUNTRY,
+  },
+});
 
 function RegimeBanner({ regime }: { regime: RegimeSnapshot }) {
   const tone =

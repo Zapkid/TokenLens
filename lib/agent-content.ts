@@ -45,6 +45,7 @@ TokenLens is a personal-use decision support tool, not financial advice. It runs
 - Use it to compare 2 to 4 crypto assets on the same scoring rubric, or to check the current global market regime (risk-on, neutral, risk-off).
 - Call the MCP server at ${base}/api/mcp (Streamable HTTP) with the tools search_assets, generate_report, get_scenarios, compare_assets, and get_market_regime. Resolve ids with search_assets first.
 - Prefer the REST API (${base}/openapi.json) for one-off HTTP calls: /api/search?q=..., /api/report?type=token|chain&id=..., /api/library, /api/market, /api/prices?ids=...
+- API conventions: version 1 (X-API-Version header; breaking changes only as /api/v2 with Deprecation and Sunset headers and 90 days notice), 60 requests per minute with RateLimit-* headers and Retry-After on 429, and all errors as RFC 9457 application/problem+json with a machine-readable code and a recovery hint.
 - Do not use it for live trading execution, order routing, or as a source of personalized financial advice.
 
 ## Docs
@@ -146,66 +147,256 @@ export function notFoundMarkdown(base: string, path?: string): string {
   ]);
 }
 
-/** Minimal but accurate OpenAPI 3.1 description of the public REST API. */
+const VERSIONING_POLICY =
+  "Versioning: the current API version is 1, echoed on every response as the X-API-Version header. " +
+  "Breaking changes ship only as new /api/v2 paths; the old paths then emit Deprecation and Sunset headers (RFC 8594) at least 90 days before removal, with the timeline documented at /developers and in the repository changelog. " +
+  "Additive changes (new optional fields) do not bump the version. " +
+  `Rate limits: 60 requests per client per 60 seconds. Every response carries RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset, and RateLimit-Policy headers; an exhausted window returns 429 with Retry-After. ` +
+  "Errors: all 4xx and 5xx responses are RFC 9457 application/problem+json with a stable machine-readable `code`, a human-readable `detail`, and a `hint` describing how to recover.";
+
+function problemRef(description: string) {
+  return {
+    description,
+    content: {
+      "application/problem+json": {
+        schema: { $ref: "#/components/schemas/Problem" },
+      },
+    },
+  };
+}
+
+function jsonResponse(description: string, schemaRef: string) {
+  return {
+    description,
+    content: { "application/json": { schema: { $ref: schemaRef } } },
+  };
+}
+
+/** OpenAPI 3.1 description of the public REST API, with unique operation
+ * ids, typed schemas, RFC 9457 error responses, and the versioning and
+ * rate limit policy in the description. */
 export function openApiSpec(base: string) {
-  const report = { $ref: "#/components/schemas/AnyJson" };
+  const rateLimited = problemRef(
+    "Rate limit exceeded; wait Retry-After seconds",
+  );
+  const upstreamFailed = problemRef("Upstream data provider failed");
   return {
     openapi: "3.1.0",
     info: {
       title: "TokenLens API",
       version: "1.0.0",
-      description:
-        "Public read-only endpoints behind the TokenLens crypto analysis app. No authentication. An MCP server with the same capabilities runs at /api/mcp (Streamable HTTP).",
+      description: `Public read-only endpoints behind the TokenLens crypto analysis app. No authentication. An MCP server with the same capabilities runs at ${base}/api/mcp (Streamable HTTP). ${VERSIONING_POLICY}`,
       contact: { url: "https://github.com/Zapkid/TokenLens/issues" },
     },
     servers: [{ url: base }],
     paths: {
       "/api/search": {
         get: {
+          operationId: "searchAssets",
           summary: "Resolve a free-text query to TokenLens asset ids",
+          description:
+            "Ranked token and chain matches for a name, symbol, or slug. Call this first: every other endpoint takes the ids it returns.",
           parameters: [
-            { name: "q", in: "query", required: true, schema: { type: "string" } },
+            {
+              name: "q",
+              in: "query",
+              required: true,
+              description: "Free-text query, e.g. 'solana' or 'uni'",
+              schema: { type: "string", minLength: 1 },
+            },
           ],
-          responses: { "200": { description: "Ranked matches", content: { "application/json": { schema: report } } } },
+          responses: {
+            "200": jsonResponse("Ranked matches", "#/components/schemas/SearchResponse"),
+            "429": rateLimited,
+            "502": upstreamFailed,
+          },
         },
       },
       "/api/report": {
         get: {
+          operationId: "generateReport",
           summary: "Full analysis report for one asset",
+          description:
+            "Opportunity and risk scores, pillar breakdowns, risk grade, scenario trajectories, and holding strategy for one token or chain. Unknown ids are rejected, never fabricated.",
           parameters: [
-            { name: "type", in: "query", required: true, schema: { type: "string", enum: ["token", "chain"] } },
-            { name: "id", in: "query", required: true, schema: { type: "string" } },
-            { name: "refresh", in: "query", required: false, schema: { type: "string", enum: ["1"] } },
+            {
+              name: "type",
+              in: "query",
+              required: true,
+              description: "Asset kind: 'token' for coins, 'chain' for blockchains",
+              schema: { type: "string", enum: ["token", "chain"] },
+            },
+            {
+              name: "id",
+              in: "query",
+              required: true,
+              description: "TokenLens asset id from /api/search",
+              schema: { type: "string" },
+            },
+            {
+              name: "refresh",
+              in: "query",
+              required: false,
+              description: "Set to 1 to bypass the report cache",
+              schema: { type: "string", enum: ["1"] },
+            },
           ],
           responses: {
-            "200": { description: "Report", content: { "application/json": { schema: report } } },
-            "400": { description: "Missing or invalid type/id" },
+            "200": jsonResponse("The report", "#/components/schemas/ReportResponse"),
+            "400": problemRef("Missing or invalid type/id (code: invalid_params)"),
+            "429": rateLimited,
+            "502": problemRef("Report generation failed (code: report_failed)"),
           },
         },
       },
       "/api/library": {
         get: {
+          operationId: "getLibrary",
           summary: "Top tokens by market cap and chains by TVL",
-          responses: { "200": { description: "Library lists", content: { "application/json": { schema: report } } } },
+          description: "Ten top tokens (stablecoins excluded) and ten top chains, recomputed on a cache interval.",
+          responses: {
+            "200": jsonResponse("Library lists", "#/components/schemas/LibraryResponse"),
+            "429": rateLimited,
+            "502": upstreamFailed,
+          },
         },
       },
       "/api/market": {
         get: {
+          operationId: "getMarketRegime",
           summary: "Global market regime snapshot",
-          responses: { "200": { description: "Regime", content: { "application/json": { schema: report } } } },
+          description: "Risk-on, neutral, or risk-off composite with its components plus trending assets.",
+          responses: {
+            "200": jsonResponse("Regime and trending", "#/components/schemas/MarketResponse"),
+            "429": rateLimited,
+            "502": upstreamFailed,
+          },
         },
       },
       "/api/prices": {
         get: {
+          operationId: "getPrices",
           summary: "Quotes for known asset ids",
+          description: "Current price and 24h change for up to 100 known ids.",
           parameters: [
-            { name: "ids", in: "query", required: true, schema: { type: "string", description: "Comma-separated TokenLens asset ids" } },
+            {
+              name: "ids",
+              in: "query",
+              required: true,
+              description: "Comma-separated TokenLens asset ids from /api/search",
+              schema: { type: "string" },
+            },
           ],
-          responses: { "200": { description: "Quotes", content: { "application/json": { schema: report } } } },
+          responses: {
+            "200": jsonResponse("Quotes", "#/components/schemas/PricesResponse"),
+            "400": problemRef("Missing ids (code: invalid_params)"),
+            "429": rateLimited,
+            "502": upstreamFailed,
+          },
         },
       },
     },
-    components: { schemas: { AnyJson: { description: "Response shapes are documented in the repository docs", type: "object", additionalProperties: true } } },
+    components: {
+      schemas: {
+        Problem: {
+          type: "object",
+          description:
+            "RFC 9457 problem details. code is stable and machine-readable; hint says how to recover; error mirrors detail for legacy clients.",
+          required: ["type", "title", "status", "code", "detail"],
+          properties: {
+            type: { type: "string", format: "uri" },
+            title: { type: "string" },
+            status: { type: "integer" },
+            code: {
+              type: "string",
+              enum: ["invalid_params", "rate_limited", "upstream_unavailable", "report_failed"],
+            },
+            detail: { type: "string" },
+            hint: { type: "string" },
+            instance: { type: "string" },
+            error: { type: "string", description: "Legacy alias of detail" },
+          },
+        },
+        Asset: {
+          type: "object",
+          required: ["id", "type", "name"],
+          properties: {
+            id: { type: "string", description: "TokenLens asset id" },
+            type: { type: "string", enum: ["token", "chain"] },
+            name: { type: "string" },
+            symbol: { type: "string" },
+          },
+          additionalProperties: true,
+        },
+        SearchResponse: {
+          type: "object",
+          required: ["results"],
+          properties: {
+            results: { type: "array", items: { $ref: "#/components/schemas/Asset" } },
+          },
+        },
+        ReportResponse: {
+          type: "object",
+          required: ["report"],
+          properties: {
+            report: {
+              type: "object",
+              description:
+                "Full report: asset identity, pillar scores, overall opportunity/risk/grade, scenarios, events, strategy. Field-level documentation lives in the repository docs.",
+              additionalProperties: true,
+            },
+          },
+        },
+        LibraryResponse: {
+          type: "object",
+          required: ["library"],
+          properties: {
+            library: {
+              type: "object",
+              properties: {
+                tokens: { type: "array", items: { $ref: "#/components/schemas/Asset" } },
+                chains: { type: "array", items: { $ref: "#/components/schemas/Asset" } },
+                asOf: { type: "string", format: "date-time" },
+                dataMode: { type: "string" },
+              },
+              additionalProperties: true,
+            },
+          },
+        },
+        MarketResponse: {
+          type: "object",
+          required: ["regime"],
+          properties: {
+            regime: {
+              type: "object",
+              properties: {
+                state: { type: "string", enum: ["risk-on", "neutral", "risk-off"] },
+                score: { type: "number" },
+              },
+              additionalProperties: true,
+            },
+            trending: { type: "array", items: { type: "object", additionalProperties: true } },
+          },
+        },
+        PricesResponse: {
+          type: "object",
+          required: ["quotes"],
+          properties: {
+            quotes: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  priceUsd: { type: ["number", "null"] },
+                },
+                additionalProperties: true,
+              },
+            },
+          },
+        },
+      },
+    },
   };
 }
 
@@ -233,15 +424,38 @@ export function mcpManifest(base: string) {
   };
 }
 
+export interface OrgContact {
+  email?: string;
+  phone?: string;
+  address?: {
+    streetAddress?: string;
+    addressLocality?: string;
+    postalCode?: string;
+    addressCountry?: string;
+  };
+}
+
 /** Homepage identity graph: WebSite + SoftwareApplication + Organization.
- * Contact email is optional and injected via NEXT_PUBLIC_CONTACT_EMAIL. */
-export function tokenLensJsonLd(base: string, contactEmail?: string) {
+ * Contact email, phone, and postal address are optional and injected via
+ * NEXT_PUBLIC_CONTACT_* and NEXT_PUBLIC_ORG_* env vars; nothing is
+ * fabricated when they are unset. */
+export function tokenLensJsonLd(base: string, contact: OrgContact = {}) {
   const contactPoint: Record<string, string> = {
     "@type": "ContactPoint",
     contactType: "technical support",
     url: "https://github.com/Zapkid/TokenLens/issues",
   };
-  if (contactEmail) contactPoint.email = contactEmail;
+  if (contact.email) contactPoint.email = contact.email;
+  if (contact.phone) contactPoint.telephone = contact.phone;
+  const address =
+    contact.address && Object.values(contact.address).some(Boolean)
+      ? {
+          "@type": "PostalAddress",
+          ...Object.fromEntries(
+            Object.entries(contact.address).filter(([, v]) => Boolean(v)),
+          ),
+        }
+      : undefined;
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -272,6 +486,7 @@ export function tokenLensJsonLd(base: string, contactEmail?: string) {
         logo: `${base}/icons/icon-512.png`,
         sameAs: ["https://github.com/Zapkid/TokenLens"],
         contactPoint: [contactPoint],
+        ...(address ? { address } : {}),
       },
     ],
   };

@@ -42,6 +42,40 @@ export default function DevelopersPage() {
         </ul>
       </Card>
       <Card>
+        <h2 className="font-semibold">Versioning, rate limits, and errors</h2>
+        <div className="mt-2 space-y-2 text-sm text-ink-2">
+          <p>
+            <span className="font-medium text-ink">Versioning:</span> the
+            current API version is 1 and every response carries an{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5 text-xs">X-API-Version</code>{" "}
+            header. Breaking changes ship only as new /api/v2 paths; the old
+            paths then emit Deprecation and Sunset headers (RFC 8594) at
+            least 90 days before removal, with the timeline announced here
+            and in the repository changelog. Additive optional fields do not
+            bump the version.
+          </p>
+          <p>
+            <span className="font-medium text-ink">Rate limits:</span> 60
+            requests per client per 60 seconds. Responses carry{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5 text-xs">RateLimit-Limit</code>,{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5 text-xs">RateLimit-Remaining</code>,{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5 text-xs">RateLimit-Reset</code>, and{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5 text-xs">RateLimit-Policy</code>{" "}
+            headers; an exhausted window returns 429 with Retry-After.
+            Self-throttle from the headers rather than retrying blindly.
+          </p>
+          <p>
+            <span className="font-medium text-ink">Errors:</span> all 4xx and
+            5xx responses are RFC 9457{" "}
+            <code className="rounded bg-surface px-1.5 py-0.5 text-xs">application/problem+json</code>{" "}
+            with a stable machine-readable <code className="rounded bg-surface px-1.5 py-0.5 text-xs">code</code>{" "}
+            (invalid_params, rate_limited, upstream_unavailable,
+            report_failed), a human-readable detail, and a hint describing
+            how to recover. The schema is in /openapi.json.
+          </p>
+        </div>
+      </Card>
+      <Card>
         <h2 className="font-semibold">MCP server (for AI agents)</h2>
         <p className="mt-2 text-sm text-ink-2">
           TokenLens doubles as a Model Context Protocol server over Streamable

@@ -84,6 +84,32 @@ test.describe("Agent readiness", () => {
     }
   });
 
+  test("TL-098 API conventions: problem+json errors, version and RateLimit headers", async ({
+    request,
+  }) => {
+    // Invalid params produce an RFC 9457 problem with code, hint, and the
+    // legacy error alias.
+    const bad = await request.get("/api/report");
+    expect(bad.status()).toBe(400);
+    expect(bad.headers()["content-type"]).toContain("application/problem+json");
+    const problem = (await bad.json()) as Record<string, unknown>;
+    expect(problem.code).toBe("invalid_params");
+    expect(problem.status).toBe(400);
+    expect(typeof problem.detail).toBe("string");
+    expect(typeof problem.hint).toBe("string");
+    expect(problem.error).toBe(problem.detail);
+
+    // Success responses carry the version and RateLimit headers.
+    const ok = await request.get("/api/library");
+    expect(ok.status()).toBe(200);
+    const headers = ok.headers();
+    expect(headers["x-api-version"]).toBe("1");
+    expect(Number(headers["ratelimit-limit"])).toBeGreaterThan(0);
+    expect(Number(headers["ratelimit-remaining"])).toBeGreaterThanOrEqual(0);
+    expect(Number(headers["ratelimit-reset"])).toBeGreaterThan(0);
+    expect(headers["ratelimit-policy"]).toContain(";w=60");
+  });
+
   test("TL-097 trust pages carry real content and the homepage serves headings and JSON-LD without JS", async ({
     page,
     request,
