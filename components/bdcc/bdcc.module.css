@@ -170,6 +170,15 @@
   transform: none;
 }
 
+/* Visible keyboard focus on the dark theme. */
+.focusRing a:focus-visible,
+.focusRing button:focus-visible,
+.focusRing input:focus-visible,
+.focusRing select:focus-visible {
+  outline: 2px solid #f2b632;
+  outline-offset: 2px;
+}
+
 /* Attention pulse for the primary conversion CTAs. */
 .pulse {
   animation: pulseGlow 2.2s ease-in-out infinite;

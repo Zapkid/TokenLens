@@ -25,11 +25,16 @@ test.describe("BDCC landing page", () => {
     await page.goto("/bdcc");
     const cards = page.locator(t(SEL.bdccCourseCard));
     await expect(cards).toHaveCount(3);
+    const hrefs: string[] = [];
     for (let i = 0; i < 3; i++) {
       const href = await cards.nth(i).getAttribute("href");
       expect(href).toMatch(/^https:\/\/www\.bdcc\.co\.il\//);
       await expect(cards.nth(i)).toHaveAttribute("rel", /noopener/);
+      if (href) hrefs.push(href);
     }
+    expect(hrefs).toContain(
+      "https://www.bdcc.co.il/blockchain-expert-course",
+    );
   });
 
   test("TL-078 contact block exposes normalized tel and mailto links", async ({
@@ -82,11 +87,14 @@ test.describe("BDCC landing page", () => {
       /player\.vimeo\.com\/video\/1016720884/,
     );
     await expect(page.locator(`${t(SEL.bdccGallery)} img`)).toHaveCount(6);
+    // Served through the Next image optimizer on our own domain, with the
+    // CDN origin encoded in the url param.
     const firstSrc = await page
       .locator(`${t(SEL.bdccGallery)} img`)
       .first()
       .getAttribute("src");
-    expect(firstSrc).toMatch(/^https:\/\/lwfiles\.mycourse\.app\//);
+    expect(firstSrc).toContain("/_next/image");
+    expect(firstSrc).toContain("lwfiles.mycourse.app");
     const cohorts = page.locator(t(SEL.bdccCohorts));
     await expect(cohorts.getByText("תפוסה מלאה")).toHaveCount(2);
     await expect(cohorts.getByText("מקומות בודדים")).toBeVisible();
@@ -97,6 +105,9 @@ test.describe("BDCC landing page", () => {
     page,
   }) => {
     await page.goto("/bdcc");
+    // Clear the consent banner (always shown on a fresh e2e context) so it
+    // cannot overlay the form controls.
+    await page.locator(t(SEL.bdccConsentDecline)).click();
     const form = page.locator(t(SEL.bdccLeadForm));
     await form.scrollIntoViewIfNeeded();
     await form.locator(t(SEL.bdccLeadSubmit)).click();
@@ -134,6 +145,59 @@ test.describe("BDCC landing page", () => {
         document.documentElement.clientWidth,
     );
     expect(overflow).toBeLessThanOrEqual(1);
+  });
+
+  test("TL-091 consent banner gates ad tags through Consent Mode", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc");
+    const banner = page.locator(t(SEL.bdccConsent));
+    await expect(banner).toBeVisible();
+    const defaults = await page.evaluate(() =>
+      JSON.stringify(
+        (window as unknown as { dataLayer?: unknown[] }).dataLayer ?? [],
+      ),
+    );
+    expect(defaults).toContain("denied");
+    await page.locator(t(SEL.bdccConsentAccept)).click();
+    await expect(banner).toHaveCount(0);
+    const state = await page.evaluate(() => ({
+      stored: localStorage.getItem("bdcc-ad-consent"),
+      layer: JSON.stringify(
+        (window as unknown as { dataLayer?: unknown[] }).dataLayer ?? [],
+      ),
+    }));
+    expect(state.stored).toBe("granted");
+    expect(state.layer).toContain("granted");
+    await page.reload();
+    await expect(page.locator(t(SEL.bdccConsent))).toHaveCount(0);
+  });
+
+  test("TL-092 SEO surface: metadata, structured data, robots, and sitemap", async ({
+    page,
+    request,
+  }) => {
+    await page.goto("/bdcc");
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      /BDCC/,
+    );
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/bdcc$/,
+    );
+    const ld = await page
+      .locator('script[type="application/ld+json"]')
+      .first()
+      .textContent();
+    expect(ld).toContain("EducationalOrganization");
+    expect(ld).toContain("blockchain-expert-course");
+    const robots = await request.get("/robots.txt");
+    expect(robots.status()).toBe(200);
+    expect(await robots.text()).toContain("Sitemap:");
+    const sitemap = await request.get("/sitemap.xml");
+    expect(sitemap.status()).toBe(200);
+    expect(await sitemap.text()).toContain("/bdcc");
   });
 
   test("TL-082 hero and wordmark settle to real text after the scramble", async ({

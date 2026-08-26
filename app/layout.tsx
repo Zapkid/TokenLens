@@ -3,8 +3,10 @@ import "./globals.css";
 import { ChunkReload } from "@/components/ChunkReload";
 import { PersonalSync } from "@/components/PersonalSync";
 import { PwaRegister } from "@/components/PwaRegister";
+import { siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: "TokenLens",
   description:
     "On-demand crypto token and blockchain analysis: scores, risk, scenarios, and strategy from public data.",
