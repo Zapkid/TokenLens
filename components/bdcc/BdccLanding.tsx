@@ -5,9 +5,16 @@
 // unit-tested in lib/bdcc-fx.ts. Every effect checks prefers-reduced-motion
 // and the CSS module disables the keyframe animations under it too.
 
-import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import {
+  MagneticLink as MagneticBase,
+  Reveal,
+  SafeImg,
+  reducedMotion,
+  useCountUp,
+  useInView,
+} from "./primitives";
 import {
   BDCC_CONTENT,
   BDCC_PALETTE,
@@ -24,8 +31,6 @@ import {
 import {
   HEBREW_POOL,
   LATIN_POOL,
-  countUpDisplay,
-  magneticOffset,
   pointerVars,
   scrambleFrame,
   tiltAngles,
@@ -34,13 +39,6 @@ import { SEL } from "@/lib/selectors";
 import styles from "./bdcc.module.css";
 
 const P = BDCC_PALETTE;
-
-function reducedMotion(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-}
 
 /* ------------------------------- hooks ---------------------------------- */
 
@@ -86,74 +84,7 @@ function useScramble(target: string, pool: string, durationMs = 900) {
   return { display, play };
 }
 
-function useInView<T extends HTMLElement>(threshold = 0.25) {
-  const ref = useRef<T | null>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === "undefined") {
-      setInView(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setInView(true);
-          io.disconnect();
-        }
-      },
-      { threshold },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [threshold]);
-  return { ref, inView };
-}
-
-function useCountUp(target: string, active: boolean, durationMs = 1400) {
-  const numeric = Number.isFinite(Number(target));
-  const [display, setDisplay] = useState(numeric ? "0" : target);
-  useEffect(() => {
-    if (!active) return;
-    if (!numeric || reducedMotion()) {
-      setDisplay(target);
-      return;
-    }
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const t = (now - start) / durationMs;
-      setDisplay(countUpDisplay(target, t));
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [active, target, numeric, durationMs]);
-  return display;
-}
-
 /* ---------------------------- building blocks ---------------------------- */
-
-function Reveal({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  const { ref, inView } = useInView<HTMLDivElement>();
-  return (
-    <div
-      ref={ref}
-      className={`${styles.reveal} ${inView ? styles.revealIn : ""} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
-      {children}
-    </div>
-  );
-}
 
 function MagneticLink({
   href,
@@ -168,32 +99,12 @@ function MagneticLink({
   solid?: boolean;
   onClick?: () => void;
 }) {
-  const ref = useRef<HTMLAnchorElement>(null);
-  const onMove = (e: React.MouseEvent) => {
-    const el = ref.current;
-    if (!el || reducedMotion()) return;
-    const { dx, dy } = magneticOffset(
-      el.getBoundingClientRect(),
-      e.clientX,
-      e.clientY,
-    );
-    el.style.transform = `translate(${dx}px, ${dy}px)`;
-  };
-  const onLeave = () => {
-    if (ref.current) ref.current.style.transform = "";
-  };
-  const external = href.startsWith("http");
   return (
-    <a
-      ref={ref}
+    <MagneticBase
       href={href}
-      data-testid={testId}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
+      testId={testId}
       onClick={onClick}
-      className={`${styles.magnetic} inline-block rounded-lg px-5 py-2.5 text-sm font-semibold`}
+      className="inline-block rounded-lg px-5 py-2.5 text-sm font-semibold"
       style={
         solid
           ? {
@@ -205,7 +116,7 @@ function MagneticLink({
       }
     >
       {children}
-    </a>
+    </MagneticBase>
   );
 }
 
@@ -421,35 +332,6 @@ function CourseCard({ course, delay }: { course: BdccCourse; delay: number }) {
   );
 }
 
-/** Gallery image served through the Next image optimizer (same-origin,
- * cached, resized; no hotlink referrer issues). Fades in on load: the
- * onLoad callback from next/image also covers images that completed before
- * hydration, which is what made direct img tags stay invisible sometimes.
- * On error the tile keeps its quiet branded background instead of a broken
- * image icon. */
-function SafeImg({ src, alt }: { src: string; alt: string }) {
-  const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(false);
-  return (
-    <div
-      className="relative aspect-[4/3] overflow-hidden rounded-xl"
-      style={{ background: P.surfaceRaised, border: `1px solid ${P.line}` }}
-    >
-      <Image
-        src={src}
-        alt={failed ? "" : alt}
-        fill
-        sizes="(max-width: 640px) 50vw, 33vw"
-        onLoad={() => setLoaded(true)}
-        onError={() => setFailed(true)}
-        className={`object-cover transition-opacity duration-700 ${
-          loaded && !failed ? "opacity-100" : "opacity-0"
-        }`}
-      />
-    </div>
-  );
-}
-
 function VideoSection() {
   const v = BDCC_CONTENT.video;
   return (
@@ -498,7 +380,14 @@ function GallerySection() {
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
           {g.images.map((image, i) => (
             <Reveal key={image.src} delay={i * 80}>
-              <SafeImg src={image.src} alt={image.alt} />
+              <SafeImg
+                src={image.src}
+                alt={image.alt}
+                tileStyle={{
+                  background: P.surfaceRaised,
+                  border: `1px solid ${P.line}`,
+                }}
+              />
             </Reveal>
           ))}
         </div>
@@ -650,11 +539,12 @@ function LeadFormSection() {
               type="tel"
               name="tel"
               autoComplete="tel"
+              dir="ltr"
               value={lead.phone}
               onChange={(e) => setLead({ ...lead, phone: e.target.value })}
               placeholder={f.phonePlaceholder}
               aria-label={f.phonePlaceholder}
-              className="rounded-lg px-4 py-3 text-sm outline-none"
+              className="rounded-lg px-4 py-3 text-right text-sm outline-none"
               style={inputStyle}
             />
             <input

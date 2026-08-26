@@ -158,18 +158,6 @@
   }
 }
 
-/* Scroll reveal. */
-.reveal {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
-}
-
-.revealIn {
-  opacity: 1;
-  transform: none;
-}
-
 /* Visible keyboard focus on the dark theme. */
 .focusRing a:focus-visible,
 .focusRing button:focus-visible,
@@ -194,12 +182,6 @@
   }
 }
 
-/* Magnetic buttons spring back when released. */
-.magnetic {
-  transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
-  will-change: transform;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .goldText,
   .marqueeTrack,
@@ -209,13 +191,7 @@
   .pulse {
     animation: none;
   }
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-  .glowCard,
-  .magnetic {
+  .glowCard {
     transform: none !important;
     transition: none;
   }

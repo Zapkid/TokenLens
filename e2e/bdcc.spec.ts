@@ -200,6 +200,41 @@ test.describe("BDCC landing page", () => {
     expect(await sitemap.text()).toContain("/bdcc");
   });
 
+  test("TL-093 /bdcc2 renders the isometric variant with the same content and funnel", async ({
+    page,
+  }) => {
+    await page.goto("/bdcc2");
+    const root = page.locator(t(SEL.bdccRoot));
+    await expect(root).toBeVisible();
+    await expect(root).toHaveAttribute("dir", "rtl");
+    await expect(page.locator(t(SEL.bdccHero))).toContainText(
+      "לומדים קריפטו נכון",
+    );
+    const cards = page.locator(t(SEL.bdccCourseCard));
+    await expect(cards).toHaveCount(3);
+    const hrefs = await cards.evaluateAll((els) =>
+      els.map((el) => el.getAttribute("href")),
+    );
+    expect(hrefs).toContain(
+      "https://www.bdcc.co.il/blockchain-expert-course",
+    );
+    await expect(
+      page.locator(t(SEL.bdccCohorts)).getByText("הרשם עכשיו!!"),
+    ).toHaveCount(1);
+    await expect(page.locator(`${t(SEL.bdccGallery)} img`)).toHaveCount(6);
+    await expect(page.locator(t(SEL.bdccLeadForm))).toBeAttached();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      /\/bdcc2$/,
+    );
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(1);
+  });
+
   test("TL-082 hero and wordmark settle to real text after the scramble", async ({
     page,
   }) => {

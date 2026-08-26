@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "",
     "/bdcc",
+    "/bdcc2",
     "/library",
     "/compare",
     "/portfolio",
@@ -15,7 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
   return routes.map((path) => ({
     url: `${base}${path || "/"}`,
-    changeFrequency: path === "/bdcc" ? "weekly" : "daily",
-    priority: path === "" || path === "/bdcc" ? 1 : 0.6,
+    changeFrequency: path.startsWith("/bdcc") ? "weekly" : "daily",
+    priority: path === "" || path.startsWith("/bdcc") ? 1 : 0.6,
   }));
 }

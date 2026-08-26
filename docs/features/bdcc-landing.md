@@ -1,4 +1,4 @@
-# BDCC landing page
+# BDCC landing pages (/bdcc and /bdcc2)
 
 ## Summary
 
@@ -7,6 +7,16 @@ A standalone, Hebrew, right-to-left landing page at /bdcc that presents BDCC
 College from CryptoJungle) in its own brand look: deep navy surfaces with
 gold accents and a recreated BDCC block-motif logo. Every call to action
 links out to the official site, https://www.bdcc.co.il.
+
+A second visual variant lives at /bdcc2: identical content model, styled
+as a light isometric "crypto academy" look (pastel gradient hero over an
+isometric grid, floating crystal and coin SVG art, extruded gradient
+headline, green pill CTAs, navy course cards). Both variants share the
+content in lib/bdcc.ts, the primitives in components/bdcc/primitives.tsx
+(reveals, count-up, magnetic links, optimizer-backed images), the consent
+and tag loader (BdccAnalytics), and the JSON-LD builder, so copy or
+funnel changes apply to both automatically. Having two designs on
+separate URLs also enables ad A/B testing by landing page.
 
 ## Entry Points
 
@@ -19,7 +29,10 @@ links out to the official site, https://www.bdcc.co.il.
   backgrounds bleed edge to edge on any screen; content inside each
   section is centered in a max-w-6xl container.
 - Rendering and interactions: `components/bdcc/BdccLanding.tsx` (client)
-  with its effect styles in `components/bdcc/bdcc.module.css`.
+  with its effect styles in `components/bdcc/bdcc.module.css`. The /bdcc2
+  variant: `app/bdcc2/page.tsx` and `components/bdcc2/Bdcc2Landing.tsx`
+  with `components/bdcc2/bdcc2.module.css`. Shared building blocks:
+  `components/bdcc/primitives.tsx`.
 - Content, palette, and link helpers: `lib/bdcc.ts`. Pure animation math
   (scramble frames, tilt, magnetism, count-up easing): `lib/bdcc-fx.ts`.
 - Ads and analytics: `components/bdcc/BdccAnalytics.tsx` (consent banner
