@@ -45,6 +45,43 @@ developers).
    optional NEXT_PUBLIC_CONTACT_EMAIL) and full metadata (canonical,
    og:type, og:site_name, og:image, twitter card).
 
+## API conventions
+
+- Version: 1, echoed as X-API-Version on every public API response.
+  Breaking changes ship only as new /api/v2 paths; old paths then emit
+  Deprecation and Sunset headers (RFC 8594) at least 90 days before
+  removal, announced on /developers and in this repository. Additive
+  optional fields do not bump the version.
+- Rate limits: fixed window of 60 requests per client per 60 seconds
+  (env-tunable via TOKENLENS_RATE_LIMIT; relaxed in fixture mode so e2e
+  never trips it). Responses carry RateLimit-Limit, RateLimit-Remaining,
+  RateLimit-Reset, and RateLimit-Policy; 429 adds Retry-After. The
+  limiter is in-memory per instance, so it is best effort on serverless.
+- Errors: RFC 9457 application/problem+json with extension members
+  `code` (stable, machine readable), `hint` (how to recover), and
+  `error` (legacy alias of detail for existing clients). Codes:
+
+### invalid_params
+
+Missing or malformed query parameters. Fix the request; the hint names
+the expected parameters and where ids come from (/api/search).
+
+### rate_limited
+
+The 60 requests per minute window is exhausted. Wait Retry-After
+seconds; self-throttle using the RateLimit headers.
+
+### upstream_unavailable
+
+An upstream market data provider (CoinGecko, DeFiLlama, alternative.me)
+failed or throttled us. Retry after a short delay.
+
+### report_failed
+
+Report generation failed: the id is unknown (TokenLens rejects unknown
+assets rather than fabricating data) or upstream data was unavailable.
+Resolve the id with /api/search and retry.
+
 ## Data Touched
 
 - None. Every surface is computed from static content and lib/site.ts.

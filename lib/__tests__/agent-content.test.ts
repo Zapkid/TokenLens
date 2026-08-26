@@ -86,6 +86,37 @@ describe("openApiSpec", () => {
       enum: ["token", "chain"],
     });
   });
+
+  it("gives every operation a unique operationId and a description", () => {
+    const ops = Object.values(spec.paths).map((p) => p.get);
+    const ids = ops.map((op) => op.operationId);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toContain("searchAssets");
+    for (const op of ops) {
+      expect(op.description?.length ?? 0).toBeGreaterThan(20);
+    }
+  });
+
+  it("documents errors as RFC 9457 problem+json with a typed schema", () => {
+    const problem = spec.components.schemas.Problem;
+    expect(problem.required).toContain("code");
+    expect(problem.properties.code.enum).toContain("rate_limited");
+    const report = spec.paths["/api/report"].get;
+    const badRequest = report.responses["400"] as {
+      content: Record<string, unknown>;
+    };
+    expect(Object.keys(badRequest.content)).toContain(
+      "application/problem+json",
+    );
+    expect(report.responses["429"]).toBeDefined();
+  });
+
+  it("declares the versioning and rate limit policy in the description", () => {
+    expect(spec.info.description).toContain("X-API-Version");
+    expect(spec.info.description).toContain("Sunset");
+    expect(spec.info.description).toContain("60 requests");
+    expect(spec.info.description).toContain("problem+json");
+  });
 });
 
 describe("mcpManifest", () => {
@@ -103,7 +134,9 @@ describe("mcpManifest", () => {
 
 describe("tokenLensJsonLd", () => {
   it("emits WebSite, SoftwareApplication, and Organization with contact", () => {
-    const graph = tokenLensJsonLd(BASE, "owner@example.com")["@graph"];
+    const graph = tokenLensJsonLd(BASE, { email: "owner@example.com" })[
+      "@graph"
+    ];
     const types = graph.map((n) => n["@type"]);
     expect(types).toEqual(["WebSite", "SoftwareApplication", "Organization"]);
     const org = graph[2] as {
@@ -113,6 +146,25 @@ describe("tokenLensJsonLd", () => {
     expect(org.contactPoint[0].email).toBe("owner@example.com");
     expect(org.contactPoint[0].contactType).toBe("technical support");
     expect(org.sameAs[0]).toContain("github.com");
+  });
+
+  it("includes phone and a PostalAddress when configured, never fabricated", () => {
+    const withAddress = tokenLensJsonLd(BASE, {
+      email: "owner@example.com",
+      phone: "+972000000000",
+      address: { addressLocality: "Tel Aviv", addressCountry: "IL" },
+    })["@graph"][2] as Record<string, unknown>;
+    expect(
+      (withAddress.contactPoint as Array<Record<string, string>>)[0].telephone,
+    ).toBe("+972000000000");
+    expect(withAddress.address).toMatchObject({
+      "@type": "PostalAddress",
+      addressLocality: "Tel Aviv",
+      addressCountry: "IL",
+    });
+
+    const bare = tokenLensJsonLd(BASE)["@graph"][2] as Record<string, unknown>;
+    expect(bare.address).toBeUndefined();
   });
 
   it("omits email cleanly when not configured", () => {
