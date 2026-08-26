@@ -22,6 +22,11 @@ links out to the official site, https://www.bdcc.co.il.
   with its effect styles in `components/bdcc/bdcc.module.css`.
 - Content, palette, and link helpers: `lib/bdcc.ts`. Pure animation math
   (scramble frames, tilt, magnetism, count-up easing): `lib/bdcc-fx.ts`.
+- Ads and analytics: `components/bdcc/BdccAnalytics.tsx` (consent banner
+  plus tag loading) over `lib/analytics.ts` (ids, consent storage,
+  Consent Mode payloads, cross-network event fan-out).
+- SEO plumbing shared with the app: `app/robots.ts`, `app/sitemap.ts`,
+  `lib/site.ts` (canonical origin), `metadataBase` in the root layout.
 
 ## Flow(s)
 
@@ -40,9 +45,13 @@ links out to the official site, https://www.bdcc.co.il.
    - Cohort scarcity strip for the Blockchain Expert track: full cycles are
      dimmed, exactly one "few spots left" cycle carries a pulsing
      "הרשם עכשיו!!" CTA, the next cycle shows enrollment open.
-   - Vimeo promo embed (lazy iframe) and a six-photo gallery hotlinked from
-     BDCC's public course CDN; images fade in on load and fall back to a
-     quiet branded tile if the CDN is unreachable.
+   - Vimeo promo embed (lazy iframe) and a six-photo gallery served through
+     the Next image optimizer (same-origin URLs, cached and resized, no
+     hotlink referrer issues; the CDN host is allow-listed in
+     next.config.ts). Images fade in on load, with descriptive Hebrew alt
+     text, and fall back to a quiet branded tile on error. The optimizer
+     onLoad also covers images that finish before hydration, which is what
+     previously left loaded photos invisible.
    - Lead form ("בדיקת התאמה"): name, phone, email, track radios, and a
      marketing-consent checkbox. Validation is client side
      (lib/bdcc.ts isValidLead); a valid submit opens a prefilled mailto
@@ -87,6 +96,29 @@ links out to the official site, https://www.bdcc.co.il.
 - No fabricated testimonials, graduate counts, or guarantees: social proof
   sticks to verifiable facts (founded 2017, CryptoJungle, official
   certification).
+- The Blockchain Expert funnel (course card, cohort CTA, announcement bar)
+  links to bdcc.co.il/blockchain-expert-course.
+- SEO: per-page title, description, canonical, Open Graph and Twitter
+  cards (he_IL locale, gallery image), JSON-LD EducationalOrganization
+  with the three Course offers, plus robots.txt and sitemap.xml.
+- Accessibility: scramble animations are aria-hidden with sr-only real
+  text, the ticker marquee is decorative (aria-hidden), form fields carry
+  labels, autocomplete, and role=alert/status messages, keyboard focus
+  gets a visible gold ring, and all motion respects
+  prefers-reduced-motion.
+- Security headers (site-wide via next.config.ts): nosniff, SAMEORIGIN
+  framing, strict-origin-when-cross-origin referrer, Permissions-Policy
+  lockdown, HSTS. An enforced CSP is deliberately omitted so ad and
+  analytics tags cannot be silently broken; revisit once the final tag
+  set is stable.
+- Ads and analytics readiness: tag ids come from NEXT_PUBLIC_GA_ID,
+  NEXT_PUBLIC_GTM_ID, NEXT_PUBLIC_META_PIXEL_ID, NEXT_PUBLIC_X_PIXEL_ID
+  (public identifiers, not secrets; nothing renders when unset). Google
+  tags bootstrap with Consent Mode v2 defaults denied; Meta and X pixels
+  load only after the visitor accepts the Hebrew consent banner, and the
+  choice persists in localStorage. Conversion events: generate_lead on a
+  valid form submit, select_promotion on announcement and cohort CTAs,
+  select_content on the hero CTA.
 - No em dashes in any copy, per the repo-wide rule (unit-tested).
 - System font stack only: `next/font/google` would try to download fonts at
   build time, which the sandbox egress policy blocks.

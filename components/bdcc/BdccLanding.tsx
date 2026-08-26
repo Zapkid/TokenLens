@@ -5,7 +5,9 @@
 // unit-tested in lib/bdcc-fx.ts. Every effect checks prefers-reduced-motion
 // and the CSS module disables the keyframe animations under it too.
 
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import {
   BDCC_CONTENT,
   BDCC_PALETTE,
@@ -158,11 +160,13 @@ function MagneticLink({
   children,
   testId,
   solid = true,
+  onClick,
 }: {
   href: string;
   children: React.ReactNode;
   testId?: string;
   solid?: boolean;
+  onClick?: () => void;
 }) {
   const ref = useRef<HTMLAnchorElement>(null);
   const onMove = (e: React.MouseEvent) => {
@@ -188,6 +192,7 @@ function MagneticLink({
       rel={external ? "noopener noreferrer" : undefined}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
+      onClick={onClick}
       className={`${styles.magnetic} inline-block rounded-lg px-5 py-2.5 text-sm font-semibold`}
       style={
         solid
@@ -237,7 +242,8 @@ function BdccLogo() {
           className="font-mono text-xl font-extrabold tracking-wide"
           style={{ color: P.text }}
         >
-          {display}
+          <span aria-hidden>{display}</span>
+          <span className="sr-only">BDCC</span>
         </div>
         <div className="text-[11px]" style={{ color: P.textMuted }}>
           {BDCC_CONTENT.nameHe}
@@ -332,6 +338,7 @@ function Marquee() {
     <div
       data-testid={SEL.bdccMarquee}
       dir="ltr"
+      aria-hidden
       className={`${styles.marquee} py-3`}
       style={{
         borderTop: `1px solid ${P.line}`,
@@ -414,25 +421,29 @@ function CourseCard({ course, delay }: { course: BdccCourse; delay: number }) {
   );
 }
 
-/** Remote image that fades in when loaded and keeps a quiet branded tile
- * when the CDN is unreachable, so the grid never shows broken-image icons. */
+/** Gallery image served through the Next image optimizer (same-origin,
+ * cached, resized; no hotlink referrer issues). Fades in on load: the
+ * onLoad callback from next/image also covers images that completed before
+ * hydration, which is what made direct img tags stay invisible sometimes.
+ * On error the tile keeps its quiet branded background instead of a broken
+ * image icon. */
 function SafeImg({ src, alt }: { src: string; alt: string }) {
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   return (
     <div
-      className="aspect-[4/3] overflow-hidden rounded-xl"
+      className="relative aspect-[4/3] overflow-hidden rounded-xl"
       style={{ background: P.surfaceRaised, border: `1px solid ${P.line}` }}
     >
-      {/* Hotlinked from BDCC's public course CDN; next/image optimization is
-          skipped on purpose so the demo has no image-proxy dependency. */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={src}
-        alt={alt}
-        loading="lazy"
+        alt={failed ? "" : alt}
+        fill
+        sizes="(max-width: 640px) 50vw, 33vw"
         onLoad={() => setLoaded(true)}
-        className={`h-full w-full object-cover transition-opacity duration-700 ${
-          loaded ? "opacity-100" : "opacity-0"
+        onError={() => setFailed(true)}
+        className={`object-cover transition-opacity duration-700 ${
+          loaded && !failed ? "opacity-100" : "opacity-0"
         }`}
       />
     </div>
@@ -485,9 +496,9 @@ function GallerySection() {
           </p>
         </Reveal>
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-          {g.images.map((src, i) => (
-            <Reveal key={src} delay={i * 80}>
-              <SafeImg src={src} alt={`${g.title} ${i + 1}`} />
+          {g.images.map((image, i) => (
+            <Reveal key={image.src} delay={i * 80}>
+              <SafeImg src={image.src} alt={image.alt} />
             </Reveal>
           ))}
         </div>
@@ -510,7 +521,7 @@ function CohortCard({ cohort }: { cohort: BdccCohort }) {
       style={{
         background: P.surfaceRaised,
         border: `1px solid ${few ? P.gold : P.line}`,
-        opacity: cohort.status === "full" ? 0.55 : 1,
+        opacity: cohort.status === "full" ? 0.7 : 1,
       }}
     >
       <div className="text-lg font-bold">{cohort.cycle}</div>
@@ -525,9 +536,12 @@ function CohortCard({ cohort }: { cohort: BdccCohort }) {
       </div>
       {few ? (
         <a
-          href={bdccUrl("/courses")}
+          href={bdccUrl(BDCC_CONTENT.cohorts.path)}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() =>
+            trackEvent("select_promotion", { promotion: "cohort_few_spots" })
+          }
           className={`${styles.pulse} mt-3 w-full rounded-lg px-3 py-2 text-sm font-bold`}
           style={{ background: P.gold, color: P.bg }}
         >
@@ -587,6 +601,7 @@ function LeadFormSection() {
       return;
     }
     setState("sent");
+    trackEvent("generate_lead", { track: lead.track });
     try {
       window.location.href = mailto;
     } catch {
@@ -621,15 +636,20 @@ function LeadFormSection() {
           >
             <input
               type="text"
+              name="name"
+              autoComplete="name"
               value={lead.name}
               onChange={(e) => setLead({ ...lead, name: e.target.value })}
               placeholder={f.namePlaceholder}
               aria-label={f.namePlaceholder}
+              aria-invalid={state === "invalid" && lead.name.trim().length < 2}
               className="rounded-lg px-4 py-3 text-sm outline-none"
               style={inputStyle}
             />
             <input
               type="tel"
+              name="tel"
+              autoComplete="tel"
               value={lead.phone}
               onChange={(e) => setLead({ ...lead, phone: e.target.value })}
               placeholder={f.phonePlaceholder}
@@ -639,11 +659,14 @@ function LeadFormSection() {
             />
             <input
               type="email"
+              name="email"
+              autoComplete="email"
+              dir="ltr"
               value={lead.email}
               onChange={(e) => setLead({ ...lead, email: e.target.value })}
               placeholder={f.emailPlaceholder}
               aria-label={f.emailPlaceholder}
-              className="rounded-lg px-4 py-3 text-sm outline-none"
+              className="rounded-lg px-4 py-3 text-right text-sm outline-none"
               style={inputStyle}
             />
             <fieldset className="mt-1">
@@ -682,6 +705,7 @@ function LeadFormSection() {
             {state === "invalid" ? (
               <p
                 data-testid={SEL.bdccLeadError}
+                role="alert"
                 className="text-sm font-medium"
                 style={{ color: "#ff9d9d" }}
               >
@@ -691,6 +715,7 @@ function LeadFormSection() {
             {state === "sent" ? (
               <p
                 data-testid={SEL.bdccLeadSuccess}
+                role="status"
                 className="text-sm"
                 style={{ color: P.goldSoft }}
               >
@@ -760,15 +785,16 @@ export function BdccLanding() {
       data-testid={SEL.bdccRoot}
       dir="rtl"
       lang="he"
-      className="min-h-dvh overflow-x-clip"
+      className={`${styles.focusRing} min-h-dvh overflow-x-clip`}
       style={{ background: P.bg, color: P.text }}
     >
       {/* Urgency announcement bar */}
       <a
-        href={bdccUrl("/courses")}
+        href={bdccUrl(c.announcement.path)}
         target="_blank"
         rel="noopener noreferrer"
         data-testid={SEL.bdccAnnouncement}
+        onClick={() => trackEvent("select_promotion", { promotion: "announcement" })}
         className="block px-4 py-2 text-center text-sm font-bold hover:opacity-90"
         style={{ background: P.gold, color: P.bg }}
       >
@@ -807,7 +833,10 @@ export function BdccLanding() {
             </p>
           </Reveal>
           <h1 className="text-3xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-            <span className="block">{scrambled.display}</span>
+            <span className="block" aria-hidden>
+              {scrambled.display}
+            </span>
+            <span className="sr-only">{heroLine1}</span>
             {heroLine2 ? (
               <span className={`block ${styles.goldText}`}>{heroLine2}</span>
             ) : null}
@@ -825,6 +854,9 @@ export function BdccLanding() {
               <MagneticLink
                 href={bdccUrl("/courses")}
                 testId={SEL.bdccCtaCourses}
+                onClick={() =>
+                  trackEvent("select_content", { content: "hero_courses" })
+                }
               >
                 לצפייה בקורסים
               </MagneticLink>

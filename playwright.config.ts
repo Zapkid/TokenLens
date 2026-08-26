@@ -29,6 +29,9 @@ export default defineConfig({
     env: {
       TOKENLENS_DATA_MODE: "fixture",
       TOKENLENS_PERSONAL_TOKEN: "e2e-personal-token",
+      // Public tag id (not a secret) so the consent banner and dataLayer
+      // bootstrap are exercised by e2e without loading real ad scripts.
+      NEXT_PUBLIC_GA_ID: "G-E2ETEST123",
     },
   },
 });

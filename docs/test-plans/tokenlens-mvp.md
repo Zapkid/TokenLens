@@ -98,6 +98,8 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-084 | On a 1920px desktop viewport the landing spans the full viewport width, renders without the TokenLens nav or footer, and causes no horizontal overflow | e2e |
 | TL-085 | Media and scarcity: announcement bar, the vimeo embed, six CDN gallery images, cohort strip with two full cycles and exactly one pulsing few-spots CTA | e2e |
 | TL-086 | Lead form: invalid submit shows the error, a valid submit shows success with a mailto draft to support@bdcc.co.il carrying the encoded details | e2e |
+| TL-091 | Consent banner: dataLayer boots with Consent Mode denied, accepting stores the choice, pushes granted, and hides the banner across reloads | e2e |
+| TL-092 | SEO surface: og:title, canonical, JSON-LD EducationalOrganization with the expert course URL, robots.txt with sitemap, sitemap.xml listing /bdcc | e2e |
 
 ## Data attribution and providers
 
@@ -131,6 +133,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/__tests__/bdcc.test.ts | BDCC landing helpers and content invariants: URL join, tel/mailto normalization, lead validation and mailto builder, media and cohort shapes, three courses, no em dashes, palette shape |
 | lib/server/__tests__/otp.test.ts | OTP gate: config gating, single-use 6 digit codes, expiry, concurrent codes, request rate limit, failed-attempt lockout, HMAC session mint/verify/tamper, Resend payload and failure paths |
 | lib/__tests__/onchain.test.ts | CoinGecko onchain client: demo/pro hosts and headers, response mapping, null-safe numbers, fixture determinism, 60s cache, HTTP failure surfacing |
+| lib/__tests__/analytics.test.ts | Ads plumbing: consent storage round trip, Consent Mode payload, configured detection, event fan-out to gtag/fbq/twq with the Meta Lead mapping |
 | lib/__tests__/bdcc-fx.test.ts | BDCC interaction math: scramble frames, easing, count-up display, pointer geometry, tilt and magnetic clamps |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 | components/__tests__/ChunkReload.test.tsx | Chunk-load error detection: matches browser ChunkLoadError shapes, ignores unrelated errors |

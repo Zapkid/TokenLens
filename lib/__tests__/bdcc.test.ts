@@ -79,14 +79,22 @@ describe("bdcc content model", () => {
     expect(JSON.stringify(BDCC_CONTENT)).not.toContain("—");
   });
 
-  it("media content is well-formed: vimeo embed and six https gallery images", () => {
+  it("media content is well-formed: vimeo embed and six described gallery images", () => {
     expect(BDCC_CONTENT.video.src).toMatch(
       /^https:\/\/player\.vimeo\.com\/video\/\d+/,
     );
     expect(BDCC_CONTENT.gallery.images).toHaveLength(6);
-    for (const src of BDCC_CONTENT.gallery.images) {
-      expect(src).toMatch(/^https:\/\/lwfiles\.mycourse\.app\//);
+    for (const image of BDCC_CONTENT.gallery.images) {
+      expect(image.src).toMatch(/^https:\/\/lwfiles\.mycourse\.app\//);
+      expect(image.alt.length).toBeGreaterThan(5);
     }
+  });
+
+  it("the Blockchain Expert funnel links point at the dedicated course page", () => {
+    const expert = BDCC_CONTENT.courses.find((c) => c.id === "expert");
+    expect(expert?.path).toBe("/blockchain-expert-course");
+    expect(BDCC_CONTENT.cohorts.path).toBe("/blockchain-expert-course");
+    expect(BDCC_CONTENT.announcement.path).toBe("/blockchain-expert-course");
   });
 
   it("cohort scarcity has exactly one few-spots cycle and a sensible mix", () => {

@@ -82,7 +82,7 @@ export const BDCC_CONTENT = {
     },
     {
       id: "expert",
-      path: "/courses",
+      path: "/blockchain-expert-course",
       title: "הסמכת Blockchain Expert",
       tagline: "התוכנית המקצועית עם הסמכה רשמית",
       badge: "הסמכה רשמית",
@@ -104,6 +104,7 @@ export const BDCC_CONTENT = {
   announcement: {
     text: "מחזור 15 של הסמכת Blockchain Expert יוצא לדרך באוקטובר 2026. נותרו מקומות בודדים!",
     cta: "להרשמה",
+    path: "/blockchain-expert-course",
   },
   video: {
     title: "הציצו פנימה: כך נראים הלימודים אצלנו",
@@ -114,12 +115,30 @@ export const BDCC_CONTENT = {
     title: "רגעים מהמכללה",
     subtitle: "שיעורים, מפגשי קהילה וכנסים של BDCC ו-CryptoJungle.",
     images: [
-      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/c25485c203487e9806d8d1e6d56cf65c.jpg",
-      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/5f6af3e7d9e3af693d587066aae03cd5.png",
-      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/f76d457cb9ccff7148b1c5392ffefca8.jpg",
-      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/695e8e5d79416f756191434cd9a0d94f.jpg",
-      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/ed6d37d1c79d756c5f82a55ebb8ca245.jpg",
-      "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/09053620519e7b2843d03c6c94a41dd3.jpg",
+      {
+        src: "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/c25485c203487e9806d8d1e6d56cf65c.jpg",
+        alt: "בוגרים מקבלים תעודת הסמכה בטקס סיום של המכללה",
+      },
+      {
+        src: "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/5f6af3e7d9e3af693d587066aae03cd5.png",
+        alt: "מפגש קהילת הקריפטו של BDCC",
+      },
+      {
+        src: "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/f76d457cb9ccff7148b1c5392ffefca8.jpg",
+        alt: "הרצאה בכנס Blockchain Expert מול קהל",
+      },
+      {
+        src: "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/695e8e5d79416f756191434cd9a0d94f.jpg",
+        alt: "פאנל מומחים על הבמה באירוע של המכללה",
+      },
+      {
+        src: "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/ed6d37d1c79d756c5f82a55ebb8ca245.jpg",
+        alt: "מפגש נטוורקינג של קהילת CryptoJungle",
+      },
+      {
+        src: "https://lwfiles.mycourse.app/665da46393d9513408ea79ea-public/09053620519e7b2843d03c6c94a41dd3.jpg",
+        alt: "הענקת תעודת Blockchain Expert לבוגרת",
+      },
     ],
   },
   cohorts: {
@@ -127,6 +146,7 @@ export const BDCC_CONTENT = {
     subtitle:
       "ההכשרה המקצועית ביותר בישראל והיחידה עם הסמכה רשמית מאת הלשכה לטכנולוגיות המידע. מספר המקומות מוגבל!",
     fewSpotsCta: "הרשם עכשיו!!",
+    path: "/blockchain-expert-course",
     items: [
       { cycle: "מחזור 13", when: "מרץ 2026", status: "full" },
       { cycle: "מחזור 14", when: "יוני 2026", status: "full" },
@@ -167,6 +187,11 @@ export const BDCC_CONTENT = {
     "רגולציה",
     "Smart Contracts",
   ],
+  consent: {
+    text: "האתר משתמש בעוגיות למדידת ביצועים ופרסום (Google, Meta, X) רק לאחר אישור. פרטי הטופס נשלחים דרך תוכנת המייל שלך בלבד ואינם נשמרים אצלנו.",
+    accept: "אישור",
+    decline: "דחייה",
+  },
   disclaimer:
     "עמוד נחיתה זה נבנה כהדגמה ומפנה אל האתר הרשמי של BDCC. התכנים והזכויות שייכים ל-BDCC.",
 } as const;
