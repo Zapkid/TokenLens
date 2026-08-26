@@ -23,6 +23,20 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-touch-icon.png",
   },
+  openGraph: {
+    type: "website",
+    siteName: "TokenLens",
+    title: "TokenLens",
+    description:
+      "On-demand crypto token and blockchain analysis: scores, risk, scenarios, and strategy from public data.",
+    images: [{ url: "/icons/icon-512.png", width: 512, height: 512 }],
+  },
+  twitter: {
+    card: "summary",
+    title: "TokenLens",
+    description:
+      "On-demand crypto token and blockchain analysis: scores, risk, scenarios, and strategy from public data.",
+  },
 };
 
 export const viewport: Viewport = {

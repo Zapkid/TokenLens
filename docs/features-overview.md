@@ -19,6 +19,7 @@ wired yet.
 | Personal sync | /api/personal, /api/mcp | Built: token-gated server store for watchlist, positions, and tiers; web UI mirrors localStorage to it and six MCP personal tools read and mutate it |
 | BDCC landing pages | /bdcc, /bdcc2 | Built: two full-viewport Hebrew RTL brand landings sharing one content model; /bdcc is the dark gold Hyperplexed-style take, /bdcc2 the light isometric crypto-academy take; both carry the vimeo embed, gallery, cohort scarcity strip, lead form, consent-gated ad tags, and SEO surface |
 | Onchain analytics | /onchain | Built: CoinGecko onchain trending pools per network behind an email OTP gate (6 digit code, 10 minute HMAC session cookie); key and transport env-gated server side |
+| Agent readiness | /llms.txt, /openapi.json, /.well-known/mcp, markdown negotiation, 404, trust pages | Built: llms.txt with when-to-use guidance, Accept: text/markdown renditions with Vary, recovery 404, OpenAPI 3.1, MCP manifest, homepage JSON-LD identity, about/contact/privacy/developers pages |
 
 ## Engine modules (lib/)
 

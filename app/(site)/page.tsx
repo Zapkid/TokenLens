@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { tokenLensJsonLd } from "@/lib/agent-content";
+import { siteUrl } from "@/lib/site";
 import { SearchBox } from "@/components/SearchBox";
 import { WatchlistSection } from "@/components/WatchlistSection";
 import { Badge, Card, Delta } from "@/components/ui";
@@ -10,6 +12,15 @@ import { SEL } from "@/lib/selectors";
 import type { RegimeSnapshot, TrendingItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
+const identityJsonLd = tokenLensJsonLd(
+  siteUrl(),
+  process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+);
 
 function RegimeBanner({ regime }: { regime: RegimeSnapshot }) {
   const tone =
@@ -144,6 +155,61 @@ export default async function HomePage() {
           away.
         </p>
       </Card>
+      {/* Server-rendered site summary: gives crawlers and agents meaningful
+          content and a real heading structure without JavaScript. */}
+      <section className="mx-auto max-w-2xl space-y-4 border-t border-hairline pt-6 text-sm text-ink-2">
+        <div>
+          <h2 className="text-base font-semibold text-ink">
+            What TokenLens does
+          </h2>
+          <p className="mt-1.5">
+            TokenLens builds an on-demand analysis report for any crypto token
+            or blockchain: opportunity and risk scores across defined pillars,
+            a letter risk grade, bear, base, and bull scenario trajectories
+            over three horizons, and a disciplined holding strategy with
+            tiers, DCA schedules, and exit ladders. Reports for two to four
+            assets can be compared side by side on the same rubric.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-ink">
+            Data sources and method
+          </h2>
+          <p className="mt-1.5">
+            Market data comes from CoinGecko, TVL from DeFiLlama, and
+            sentiment from the alternative.me Fear and Greed index. Every
+            score is computed from public data with the method documented on
+            the{" "}
+            <Link href="/methodology" className="underline">
+              methodology page
+            </Link>
+            . TokenLens is decision support for personal use, not financial
+            advice.
+          </p>
+        </div>
+        <div>
+          <h2 className="text-base font-semibold text-ink">
+            For AI agents and developers
+          </h2>
+          <p className="mt-1.5">
+            TokenLens exposes a public REST API and an MCP server so agents
+            can search assets, generate reports, and read the market regime
+            programmatically. Start at the{" "}
+            <Link href="/developers" className="underline">
+              developer guide
+            </Link>
+            , <a href="/llms.txt" className="underline">/llms.txt</a>, or the{" "}
+            <a href="/openapi.json" className="underline">
+              OpenAPI description
+            </a>
+            .
+          </p>
+        </div>
+      </section>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(identityJsonLd) }}
+      />
     </div>
   );
 }

@@ -13,6 +13,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/onchain",
     "/settings",
     "/methodology",
+    "/developers",
+    "/about",
+    "/contact",
+    "/privacy",
   ];
   return routes.map((path) => ({
     url: `${base}${path || "/"}`,
