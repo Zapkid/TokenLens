@@ -17,6 +17,9 @@ const securityHeaders = [
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains",
   },
+  // Pages content-negotiate markdown via Accept (middleware.ts), so caches
+  // must key on it. Next merges its own framework Vary values with this.
+  { key: "Vary", value: "Accept" },
 ];
 
 const nextConfig: NextConfig = {
