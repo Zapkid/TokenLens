@@ -100,6 +100,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-086 | Lead form: invalid submit shows the error, a valid submit shows success with a mailto draft to support@bdcc.co.il carrying the encoded details | e2e |
 | TL-091 | Consent banner: dataLayer boots with Consent Mode denied, accepting stores the choice, pushes granted, and hides the banner across reloads | e2e |
 | TL-092 | SEO surface: og:title, canonical, JSON-LD EducationalOrganization with the expert course URL, robots.txt with sitemap, sitemap.xml listing /bdcc | e2e |
+| TL-093 | /bdcc2 isometric variant: RTL render, same hero copy, three course cards with the expert link, one few-spots CTA, six gallery images, lead form, canonical /bdcc2, no horizontal overflow | e2e |
 
 ## Data attribution and providers
 

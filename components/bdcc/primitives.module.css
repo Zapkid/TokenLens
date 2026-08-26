@@ -1,0 +1,29 @@
+/* Shared effect classes for the BDCC landing variants. */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.revealIn {
+  opacity: 1;
+  transform: none;
+}
+
+.magnetic {
+  transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .magnetic {
+    transform: none !important;
+    transition: none;
+  }
+}

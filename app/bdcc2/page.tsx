@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { BdccAnalytics } from "@/components/bdcc/BdccAnalytics";
-import { BdccLanding } from "@/components/bdcc/BdccLanding";
+import { Bdcc2Landing } from "@/components/bdcc2/Bdcc2Landing";
 import { BDCC_CONTENT, bdccStructuredData } from "@/lib/bdcc";
 
 const title = `BDCC · ${BDCC_CONTENT.nameHe}`;
@@ -10,11 +10,11 @@ const ogImage = BDCC_CONTENT.gallery.images[0].src;
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: "/bdcc" },
+  alternates: { canonical: "/bdcc2" },
   openGraph: {
     title,
     description,
-    url: "/bdcc",
+    url: "/bdcc2",
     siteName: "BDCC",
     locale: "he_IL",
     type: "website",
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
 
 const structuredData = bdccStructuredData();
 
-export default function BdccLandingPage() {
+export default function Bdcc2LandingPage() {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
-      <BdccLanding />
+      <Bdcc2Landing />
       <BdccAnalytics />
     </>
   );

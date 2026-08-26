@@ -17,7 +17,7 @@ wired yet.
 | Mobile and PWA | all routes | Built: no sideways scroll on phones, installable manifest and icons, service worker with offline fallback |
 | MCP connector | /api/mcp | Built: five public analysis tools (search, report, scenarios, compare, regime) over streamable HTTP for Claude and other MCP clients |
 | Personal sync | /api/personal, /api/mcp | Built: token-gated server store for watchlist, positions, and tiers; web UI mirrors localStorage to it and six MCP personal tools read and mutate it |
-| BDCC landing page | /bdcc | Built: full-viewport Hebrew RTL brand landing for www.bdcc.co.il rendered outside the app shell; interactive glow/scramble/marquee layer, vimeo embed, photo gallery, cohort scarcity strip, and a lead form that drafts a mailto to the team |
+| BDCC landing pages | /bdcc, /bdcc2 | Built: two full-viewport Hebrew RTL brand landings sharing one content model; /bdcc is the dark gold Hyperplexed-style take, /bdcc2 the light isometric crypto-academy take; both carry the vimeo embed, gallery, cohort scarcity strip, lead form, consent-gated ad tags, and SEO surface |
 | Onchain analytics | /onchain | Built: CoinGecko onchain trending pools per network behind an email OTP gate (6 digit code, 10 minute HMAC session cookie); key and transport env-gated server side |
 
 ## Engine modules (lib/)

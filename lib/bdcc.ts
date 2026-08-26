@@ -21,6 +21,26 @@ export const BDCC_PALETTE = {
   line: "rgba(244, 246, 251, 0.14)",
 } as const;
 
+// Light isometric "crypto academy" theme for the /bdcc2 variant: pastel
+// gradients, purple/cyan/teal accents, deep navy cards, green pill CTAs.
+export const BDCC2_PALETTE = {
+  bg: "#f7f8fc",
+  text: "#22263c",
+  textMuted: "#5b6478",
+  navy: "#1e2340",
+  navyRaised: "#272d52",
+  navyText: "#f4f6ff",
+  navyMuted: "#a6adce",
+  purple: "#8b5cf6",
+  purpleDeep: "#6d3fd6",
+  cyan: "#4cd7e8",
+  teal: "#2f9e77",
+  tealDeep: "#25835f",
+  gold: "#e0c069",
+  silver: "#e3e5f0",
+  line: "rgba(34, 38, 60, 0.12)",
+} as const;
+
 export interface BdccCohort {
   cycle: string;
   when: string;
@@ -211,6 +231,37 @@ export function telHref(phone: string): string {
 /** mailto: href, trimmed. */
 export function mailHref(email: string): string {
   return `mailto:${email.trim()}`;
+}
+
+/** JSON-LD structured data shared by both landing variants: the
+ * organization and its three course tracks, pointing at the official site. */
+export function bdccStructuredData() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    name: "BDCC",
+    alternateName: BDCC_CONTENT.nameHe,
+    url: BDCC_SITE_URL,
+    foundingDate: "2017",
+    email: BDCC_CONTENT.contact.email,
+    telephone: BDCC_CONTENT.contact.phone,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Ramat Gan",
+      addressCountry: "IL",
+    },
+    parentOrganization: { "@type": "Organization", name: "CryptoJungle" },
+    makesOffer: BDCC_CONTENT.courses.map((course) => ({
+      "@type": "Offer",
+      itemOffered: {
+        "@type": "Course",
+        name: course.title,
+        description: course.tagline,
+        url: bdccUrl(course.path),
+        provider: { "@type": "EducationalOrganization", name: "BDCC" },
+      },
+    })),
+  };
 }
 
 /** Minimal lead validation: real-looking name, phone, email, a chosen track,

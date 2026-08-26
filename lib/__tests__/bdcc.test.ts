@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  BDCC2_PALETTE,
   BDCC_CONTENT,
   BDCC_PALETTE,
   BDCC_SITE_URL,
@@ -104,8 +105,11 @@ describe("bdcc content model", () => {
     expect(BDCC_CONTENT.cohorts.items.length).toBeGreaterThanOrEqual(3);
   });
 
-  it("palette tokens are well-formed colors", () => {
-    for (const value of Object.values(BDCC_PALETTE)) {
+  it("palette tokens are well-formed colors in both variants", () => {
+    for (const value of [
+      ...Object.values(BDCC_PALETTE),
+      ...Object.values(BDCC2_PALETTE),
+    ]) {
       expect(value).toMatch(/^(#[0-9a-f]{6}|rgba?\(.+\))$/i);
     }
   });

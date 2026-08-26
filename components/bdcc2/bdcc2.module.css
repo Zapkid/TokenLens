@@ -1,0 +1,170 @@
+/* Light isometric "crypto academy" theme for /bdcc2: pastel gradient hero
+   over an isometric grid, extruded 3D headline, floating gems and coins,
+   green pill CTAs, navy cards. Motion is disabled under
+   prefers-reduced-motion at the bottom. */
+
+.heroBg {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(197, 240, 221, 0.9) 0%,
+      rgba(233, 238, 251, 0.9) 45%,
+      rgba(240, 229, 250, 0.9) 72%,
+      rgba(250, 232, 242, 0.9) 100%
+    ),
+    #f7f8fc;
+}
+
+/* Isometric grid: two sets of thin parallel lines at +/-30deg, fading out
+   toward the edges. */
+.isoGrid {
+  background-image:
+    repeating-linear-gradient(
+      60deg,
+      rgba(34, 38, 60, 0.07) 0 1px,
+      transparent 1px 56px
+    ),
+    repeating-linear-gradient(
+      -60deg,
+      rgba(34, 38, 60, 0.07) 0 1px,
+      transparent 1px 56px
+    );
+  mask-image: radial-gradient(75rem 40rem at 50% 30%, black 35%, transparent 85%);
+}
+
+/* Extruded 3D headline: gradient fill with a stacked shadow staircase that
+   reads as isometric depth. */
+.title3d {
+  background: linear-gradient(115deg, #2f9e77 5%, #4cd7e8 45%, #8b5cf6 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(1px 2px 0 #c9cbe0) drop-shadow(2px 3px 0 #d5d7e8)
+    drop-shadow(4px 6px 10px rgba(109, 63, 214, 0.25));
+}
+
+.floatA {
+  animation: floaty 8s ease-in-out infinite;
+}
+
+.floatB {
+  animation: floaty 6.5s ease-in-out infinite reverse;
+}
+
+.floatC {
+  animation: floaty 10s ease-in-out 1s infinite;
+}
+
+.floatD {
+  animation: floaty 7.5s ease-in-out 0.5s infinite reverse;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(4deg);
+  }
+}
+
+/* Green pill CTA with a soft neon lift. */
+.pill {
+  border-radius: 9999px;
+  box-shadow: 0 8px 22px rgba(47, 158, 119, 0.35);
+  transition: box-shadow 0.25s ease, filter 0.25s ease;
+}
+
+.pill:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 10px 28px rgba(47, 158, 119, 0.45);
+}
+
+/* Navy cards with a soft purple neon glow on hover. */
+.navyCard {
+  border-radius: 18px;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 10px 30px rgba(30, 35, 64, 0.18);
+}
+
+.navyCard:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 16px 40px rgba(30, 35, 64, 0.22),
+    0 0 28px rgba(139, 92, 246, 0.35);
+}
+
+/* Light cards. */
+.lightCard {
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(34, 38, 60, 0.1);
+  box-shadow: 0 8px 24px rgba(30, 35, 64, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.lightCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(30, 35, 64, 0.14);
+}
+
+/* Marquee (same mechanics as v1, light styling). */
+.marquee {
+  overflow: hidden;
+}
+
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee:hover .marqueeTrack {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Attention pulse for the conversion CTAs (green). */
+.pulse {
+  animation: pulseGreen 2.2s ease-in-out infinite;
+}
+
+@keyframes pulseGreen {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(47, 158, 119, 0.4);
+  }
+  55% {
+    box-shadow: 0 0 0 12px rgba(47, 158, 119, 0);
+  }
+}
+
+/* Visible keyboard focus on the light theme. */
+.focusRing a:focus-visible,
+.focusRing button:focus-visible,
+.focusRing input:focus-visible,
+.focusRing select:focus-visible {
+  outline: 2px solid #6d3fd6;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floatA,
+  .floatB,
+  .floatC,
+  .floatD,
+  .marqueeTrack,
+  .pulse {
+    animation: none;
+  }
+  .navyCard,
+  .lightCard {
+    transition: none;
+  }
+}
