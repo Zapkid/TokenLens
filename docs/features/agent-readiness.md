@@ -82,6 +82,21 @@ Report generation failed: the id is unknown (TokenLens rejects unknown
 assets rather than fabricating data) or upstream data was unavailable.
 Resolve the id with /api/search and retry.
 
+### not_found
+
+No API endpoint at that path (unknown paths never return HTML). The
+hint lists the public endpoints; /openapi.json is the full description.
+
+### not_configured, verification_required, invalid_code, email_failed, otp_request_failed
+
+Owner-gated surfaces (/api/otp, /api/onchain): the deployment lacks the
+required server env, or the email OTP session is missing, wrong, or
+could not be issued. Follow the hint in the response; these surfaces
+are not publicly usable by design.
+
+Developer-resource aliases: /docs and /api-docs redirect permanently to
+/developers, and /openapi.yaml to /openapi.json.
+
 ## Data Touched
 
 - None. Every surface is computed from static content and lib/site.ts.

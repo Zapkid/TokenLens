@@ -37,6 +37,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // Predictable names for developer resources.
+  async redirects() {
+    return [
+      { source: "/docs", destination: "/developers", permanent: true },
+      { source: "/api-docs", destination: "/developers", permanent: true },
+      { source: "/openapi.yaml", destination: "/openapi.json", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

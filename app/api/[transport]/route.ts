@@ -7,6 +7,7 @@
 // localStorage where this server cannot reach it.
 
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
+import { apiNotFoundResponse } from "@/lib/server/api-http";
 import { z } from "zod";
 import {
   summarizeComparison,
@@ -390,4 +391,19 @@ const authedHandler = withMcpAuth(
   { required: false },
 );
 
-export { authedHandler as GET, authedHandler as POST, authedHandler as DELETE };
+// Only real MCP transport segments reach the handler; anything else gets a
+// structured JSON 404 instead of mcp-handler's plain-text fallback.
+const KNOWN_TRANSPORTS = new Set(["mcp", "sse", "message"]);
+
+async function routed(
+  req: Request,
+  ctx: { params: Promise<{ transport: string }> },
+) {
+  const { transport } = await ctx.params;
+  if (!KNOWN_TRANSPORTS.has(transport)) {
+    return apiNotFoundResponse(`/api/${transport}`);
+  }
+  return authedHandler(req);
+}
+
+export { routed as GET, routed as POST, routed as DELETE };
