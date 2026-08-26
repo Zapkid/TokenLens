@@ -111,6 +111,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-096 | Accept: text/markdown returns text/markdown with Vary: Accept on / and /bdcc; the HTML variant also carries Vary: Accept | e2e |
 | TL-097 | Trust pages (/about, /contact, /privacy, /developers) each render 500+ chars with one h1; homepage raw HTML carries h1, three h2s, JSON-LD Organization, canonical, og:type, og:image | e2e |
 | TL-098 | API conventions: invalid params return RFC 9457 problem+json with code, hint, and the legacy error alias; success responses carry X-API-Version and the RateLimit headers | e2e |
+| TL-099 | Unknown API paths (single and nested segments) return problem+json 404 (never HTML), the real /api/mcp endpoint is not swallowed, and /docs redirects permanently to /developers | e2e |
 
 ## Data attribution and providers
 

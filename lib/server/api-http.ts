@@ -107,6 +107,18 @@ export function problemResponse(input: ProblemInput): NextResponse {
   return NextResponse.json(body, { status: input.status, headers });
 }
 
+/** JSON 404 for unknown API paths, so agents never get an HTML error page. */
+export function apiNotFoundResponse(instance: string): NextResponse {
+  return problemResponse({
+    status: 404,
+    code: "not_found",
+    title: "Unknown API endpoint",
+    detail: `There is no API endpoint at ${instance}.`,
+    hint: "Public endpoints: /api/search, /api/report, /api/library, /api/market, /api/prices. Full description: /openapi.json. MCP server: /api/mcp.",
+    instance,
+  });
+}
+
 /** 429 for an exhausted window. */
 export function rateLimitedResponse(rate: RateResult, instance?: string): NextResponse {
   return problemResponse({

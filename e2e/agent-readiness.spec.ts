@@ -110,6 +110,34 @@ test.describe("Agent readiness", () => {
     expect(headers["ratelimit-policy"]).toContain(";w=60");
   });
 
+  test("TL-099 unknown API paths return JSON problems, and doc aliases redirect", async ({
+    request,
+  }) => {
+    // Both single-segment and nested unknown API paths must be JSON, never
+    // an HTML error page.
+    for (const path of ["/api/nope", "/api/nope/deeper"]) {
+      const res = await request.get(path);
+      expect(res.status(), path).toBe(404);
+      expect(res.headers()["content-type"], path).toContain(
+        "application/problem+json",
+      );
+      const body = (await res.json()) as Record<string, unknown>;
+      expect(body.code).toBe("not_found");
+      expect(String(body.hint)).toContain("/openapi.json");
+    }
+    // The real MCP endpoint is not swallowed by the guard.
+    const mcp = await request.post("/api/mcp", {
+      headers: { "Content-Type": "application/json" },
+      data: { jsonrpc: "2.0", id: 1, method: "ping" },
+    });
+    expect(mcp.status()).not.toBe(404);
+
+    // Predictable developer-resource names.
+    const docs = await request.get("/docs", { maxRedirects: 0 });
+    expect([301, 308]).toContain(docs.status());
+    expect(docs.headers()["location"]).toContain("/developers");
+  });
+
   test("TL-097 trust pages carry real content and the homepage serves headings and JSON-LD without JS", async ({
     page,
     request,

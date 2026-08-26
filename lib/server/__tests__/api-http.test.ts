@@ -3,6 +3,7 @@ import {
   API_VERSION,
   _resetRateLimitForTests,
   apiHeaders,
+  apiNotFoundResponse,
   checkRateLimit,
   clientKey,
   problemResponse,
@@ -92,5 +93,17 @@ describe("problem responses", () => {
 
   it("apiHeaders always carries the version header", () => {
     expect(apiHeaders()["X-API-Version"]).toBe(API_VERSION);
+  });
+
+  it("unknown API endpoints get a JSON 404 with recovery hints", async () => {
+    const res = apiNotFoundResponse("/api/nope");
+    expect(res.status).toBe(404);
+    expect(res.headers.get("Content-Type")).toContain(
+      "application/problem+json",
+    );
+    const body = (await res.json()) as Record<string, unknown>;
+    expect(body.code).toBe("not_found");
+    expect(String(body.hint)).toContain("/openapi.json");
+    expect(body.instance).toBe("/api/nope");
   });
 });

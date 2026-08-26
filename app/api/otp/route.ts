@@ -5,6 +5,7 @@
 // (test-only behavior; fixture mode must never run in production).
 
 import { NextRequest, NextResponse } from "next/server";
+import { problemResponse } from "@/lib/server/api-http";
 import {
   OTP_COOKIE,
   SESSION_TTL_MS,
@@ -26,13 +27,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const cfg = otpConfig();
   if (!cfg.enabled) {
-    return NextResponse.json(
-      {
-        error:
-          "OTP gate not configured. Set TOKENLENS_OTP_EMAIL and TOKENLENS_OTP_SECRET.",
-      },
-      { status: 503 },
-    );
+    return problemResponse({
+      status: 503,
+      code: "not_configured",
+      title: "OTP gate not configured",
+      detail:
+        "OTP gate not configured. Set TOKENLENS_OTP_EMAIL and TOKENLENS_OTP_SECRET.",
+      hint: "This surface is owner-gated; see docs/features/onchain-analytics.md.",
+      instance: "/api/otp",
+    });
   }
   let body: { action?: string; code?: unknown } | null = null;
   try {
@@ -45,14 +48,29 @@ export async function POST(req: NextRequest) {
     // Fixture e2e runs many parallel workers; the strict limit is for prod.
     const issued = requestOtp(cfg.secret, Date.now(), cfg.fixture ? 50 : 3);
     if (!issued.ok) {
-      return NextResponse.json({ error: issued.error }, { status: issued.status });
+      return problemResponse({
+        status: issued.status,
+        code: issued.status === 429 ? "rate_limited" : "otp_request_failed",
+        title: "Code request refused",
+        detail: issued.error,
+        hint: "Wait a few minutes before requesting another code.",
+        instance: "/api/otp",
+        retryAfterSeconds: issued.status === 429 ? 300 : undefined,
+      });
     }
     if (cfg.fixture) {
       return NextResponse.json({ ok: true, devCode: issued.code });
     }
     const sent = await sendOtpEmail(issued.code, cfg);
     if (!sent.ok) {
-      return NextResponse.json({ error: sent.error }, { status: 503 });
+      return problemResponse({
+        status: 503,
+        code: "email_failed",
+        title: "Could not send the code",
+        detail: sent.error ?? "Email send failed.",
+        hint: "Check the RESEND_API_KEY server configuration, then retry.",
+        instance: "/api/otp",
+      });
     }
     return NextResponse.json({ ok: true });
   }
@@ -60,7 +78,14 @@ export async function POST(req: NextRequest) {
   if (body?.action === "verify") {
     const result = verifyOtp(String(body.code ?? ""), cfg.secret);
     if (!result.ok) {
-      return NextResponse.json({ error: result.error }, { status: 401 });
+      return problemResponse({
+        status: 401,
+        code: "invalid_code",
+        title: "Verification failed",
+        detail: result.error ?? "Verification failed.",
+        hint: "Enter the exact 6 digit code from the email; request a new one if it expired.",
+        instance: "/api/otp",
+      });
     }
     const res = NextResponse.json({
       ok: true,
@@ -77,5 +102,12 @@ export async function POST(req: NextRequest) {
     return res;
   }
 
-  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+  return problemResponse({
+    status: 400,
+    code: "invalid_params",
+    title: "Unknown action",
+    detail: "Unknown action",
+    hint: "POST {action:'request'} to get a code or {action:'verify', code} to redeem it.",
+    instance: "/api/otp",
+  });
 }
