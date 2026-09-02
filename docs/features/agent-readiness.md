@@ -18,7 +18,8 @@ developers).
 - `middleware.ts`: markdown negotiation and Vary headers.
 - `app/not-found.tsx`: the recovery 404 page.
 - Trust pages in the app shell: `app/(site)/about`, `contact`, `privacy`,
-  `developers`, linked from the site footer.
+  `developers`, linked from the site footer. The privacy page is the full
+  GDPR notice; see docs/features/privacy-and-consent.md.
 - Homepage additions in `app/(site)/page.tsx`: canonical, JSON-LD graph,
   and a server-rendered summary section with h2 headings.
 

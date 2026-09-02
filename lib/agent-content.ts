@@ -106,7 +106,7 @@ export function markdownForPath(
       ]),
     "/privacy": () =>
       mdPage("TokenLens privacy", [
-        "TokenLens has no user accounts. Preferences, watchlists, and portfolio entries stay in your browser localStorage unless you configure the optional personal sync token. Analytics and advertising tags load only after explicit consent. Full policy:",
+        "TokenLens has no user accounts. Preferences, watchlists, and portfolio entries stay in your browser localStorage unless you configure the optional personal sync token. No analytics or advertising script loads until explicit consent, which can be withdrawn at any time. Under the GDPR you can export or erase everything from Settings, Your data; the notice names the controller, legal bases, retention, third parties, and how to complain to a supervisory authority. Full notice:",
         `${base}/privacy`,
       ]),
     "/methodology": () =>

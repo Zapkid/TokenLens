@@ -147,28 +147,50 @@ test.describe("BDCC landing page", () => {
     expect(overflow).toBeLessThanOrEqual(1);
   });
 
-  test("TL-091 consent banner gates ad tags through Consent Mode", async ({
+  test("TL-091 consent banner: no third-party script before a choice, tags only after accept", async ({
     page,
   }) => {
     await page.goto("/bdcc");
     const banner = page.locator(t(SEL.bdccConsent));
     await expect(banner).toBeVisible();
-    const defaults = await page.evaluate(() =>
-      JSON.stringify(
-        (window as unknown as { dataLayer?: unknown[] }).dataLayer ?? [],
+    // Nothing from Google is on the page (no bootstrap, no dataLayer) and
+    // the banner links to the privacy notice.
+    const before = await page.evaluate(() => ({
+      scripts: [...document.querySelectorAll("script[src]")].map((s) =>
+        (s as HTMLScriptElement).src,
       ),
+      hasLayer: "dataLayer" in window,
+      hasGtag: typeof (window as unknown as { gtag?: unknown }).gtag,
+    }));
+    expect(before.scripts.some((s) => s.includes("googletagmanager"))).toBe(false);
+    expect(before.hasLayer).toBe(false);
+    expect(before.hasGtag).toBe("undefined");
+    await expect(page.locator(t(SEL.bdccConsentPrivacy))).toHaveAttribute(
+      "href",
+      "/privacy",
     );
-    expect(defaults).toContain("denied");
     await page.locator(t(SEL.bdccConsentAccept)).click();
     await expect(banner).toHaveCount(0);
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          [...document.querySelectorAll("script[src]")].some((s) =>
+            (s as HTMLScriptElement).src.includes("googletagmanager.com/gtag/js"),
+          ),
+        ),
+      )
+      .toBe(true);
     const state = await page.evaluate(() => ({
-      stored: localStorage.getItem("bdcc-ad-consent"),
+      stored: JSON.parse(localStorage.getItem("bdcc-ad-consent") ?? "null"),
       layer: JSON.stringify(
         (window as unknown as { dataLayer?: unknown[] }).dataLayer ?? [],
       ),
     }));
-    expect(state.stored).toBe("granted");
+    expect(state.stored.choice).toBe("granted");
+    expect(typeof state.stored.at).toBe("string");
+    expect(state.stored.version).toBeGreaterThanOrEqual(2);
     expect(state.layer).toContain("granted");
+    expect(state.layer).not.toContain("denied");
     await page.reload();
     await expect(page.locator(t(SEL.bdccConsent))).toHaveCount(0);
   });

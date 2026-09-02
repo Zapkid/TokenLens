@@ -98,7 +98,7 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-084 | On a 1920px desktop viewport the landing spans the full viewport width, renders without the TokenLens nav or footer, and causes no horizontal overflow | e2e |
 | TL-085 | Media and scarcity: announcement bar, the vimeo embed, six CDN gallery images, cohort strip with two full cycles and exactly one pulsing few-spots CTA | e2e |
 | TL-086 | Lead form: invalid submit shows the error, a valid submit shows success with a mailto draft to support@bdcc.co.il carrying the encoded details | e2e |
-| TL-091 | Consent banner: dataLayer boots with Consent Mode denied, accepting stores the choice, pushes granted, and hides the banner across reloads | e2e |
+| TL-091 | Consent banner: before a choice no Google script, gtag, or dataLayer exists and the banner links to /privacy; accept injects gtag.js, stores a {choice, at, version} record, dataLayer carries granted only, and the banner stays gone after reload | e2e |
 | TL-092 | SEO surface: og:title, canonical, JSON-LD EducationalOrganization with the expert course URL, robots.txt with sitemap, sitemap.xml listing /bdcc | e2e |
 | TL-093 | /bdcc2 isometric variant: RTL render, same hero copy, three course cards with the expert link, one few-spots CTA, six gallery images, lead form, canonical /bdcc2, no horizontal overflow | e2e |
 
@@ -112,6 +112,14 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-097 | Trust pages (/about, /contact, /privacy, /developers) each render 500+ chars with one h1; homepage raw HTML carries h1, three h2s, JSON-LD Organization, canonical, og:type, og:image | e2e |
 | TL-098 | API conventions: invalid params return RFC 9457 problem+json with code, hint, and the legacy error alias; success responses carry X-API-Version and the RateLimit headers | e2e |
 | TL-099 | Unknown API paths (single and nested segments) return problem+json 404 (never HTML), the real /api/mcp endpoint is not swallowed, and /docs redirects permanently to /developers | e2e |
+
+## Privacy and consent (GDPR)
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-100 | Withdrawal: after accept on /bdcc2 the footer cookie-settings control reopens the dialog; decline stores denied, expires a planted _ga cookie, reloads without any googletagmanager script, and stays declined after reload | e2e/privacy.spec.ts |
+| TL-101 | Settings, Your data: Export downloads tokenlens-data-<date>.json containing decoded watchlist, risk profile, and consent record; Erase (dialog accepted) removes every tokenlens:v1:* key, the consent record, and the sessionStorage guard; a dismissed dialog changes nothing | e2e |
+| TL-102 | Privacy notice: one h1, at least eight h2s, and the Art. 13 content (controller, legal basis, legitimate interest, retention, cookie table with tl_otp_session, withdrawal, transfers, rights incl. portability and erasure, supervisory authority, last updated); links to /settings#your-data, footer and BDCC lead form link to /privacy; markdown rendition mentions export and erase | e2e |
 
 ## Data attribution and providers
 
@@ -145,7 +153,8 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/__tests__/bdcc.test.ts | BDCC landing helpers and content invariants: URL join, tel/mailto normalization, lead validation and mailto builder, media and cohort shapes, three courses, no em dashes, palette shape |
 | lib/server/__tests__/otp.test.ts | OTP gate: config gating, single-use 6 digit codes, expiry, concurrent codes, request rate limit, failed-attempt lockout, HMAC session mint/verify/tamper, Resend payload and failure paths |
 | lib/__tests__/onchain.test.ts | CoinGecko onchain client: demo/pro hosts and headers, response mapping, null-safe numbers, fixture determinism, 60s cache, HTTP failure surfacing |
-| lib/__tests__/analytics.test.ts | Ads plumbing: consent storage round trip, Consent Mode payload, configured detection, event fan-out to gtag/fbq/twq with the Meta Lead mapping |
+| lib/__tests__/analytics.test.ts | Ads plumbing: timestamped and versioned consent record round trip, rejection of garbage, legacy strings, and stale versions, reopen event, tracking-cookie expiry expansion across parent domains, Consent Mode payload, configured detection, event fan-out to gtag/fbq/twq with the Meta Lead mapping |
+| lib/__tests__/privacy.test.ts | Data subject rights: export collects only our keys, decodes JSON, keeps raw strings, redacts the sync token; erase scope; server clear sends an empty freshly stamped document under the bearer token, is skipped without a token, and reports failure while still erasing locally |
 | lib/__tests__/agent-content.test.ts | Agent surfaces: llms.txt shape and entry points, markdown renditions and 404 recovery body, OpenAPI paths, params, operationIds, problem schema, and versioning policy, MCP manifest tools, JSON-LD graph with optional contact and address |
 | lib/server/__tests__/api-http.test.ts | API conventions: fixed-window rate limiter (limit, isolation, reset), env-tuned max, client keying, RFC 9457 problem bodies with code/hint/error alias, 429 Retry-After and RateLimit headers, version header |
 | lib/__tests__/bdcc-fx.test.ts | BDCC interaction math: scramble frames, easing, count-up display, pointer geometry, tilt and magnetic clamps |
