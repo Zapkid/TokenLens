@@ -65,8 +65,8 @@ separate URLs also enables ad A/B testing by landing page.
      text, and fall back to a quiet branded tile on error. The optimizer
      onLoad also covers images that finish before hydration, which is what
      previously left loaded photos invisible.
-   - Lead form ("בדיקת התאמה"): name, phone, email, track radios, and a
-     marketing-consent checkbox. Validation is client side
+   - Lead form ("בדיקת התאמה"): name, phone, email, track radios, a
+     marketing-consent checkbox, and a privacy note linking to /privacy. Validation is client side
      (lib/bdcc.ts isValidLead); a valid submit opens a prefilled mailto
      draft to support@bdcc.co.il (buildLeadMailto) and shows a success
      note with the same link. Nothing is stored server side.
@@ -126,12 +126,18 @@ separate URLs also enables ad A/B testing by landing page.
   set is stable.
 - Ads and analytics readiness: tag ids come from NEXT_PUBLIC_GA_ID,
   NEXT_PUBLIC_GTM_ID, NEXT_PUBLIC_META_PIXEL_ID, NEXT_PUBLIC_X_PIXEL_ID
-  (public identifiers, not secrets; nothing renders when unset). Google
-  tags bootstrap with Consent Mode v2 defaults denied; Meta and X pixels
-  load only after the visitor accepts the Hebrew consent banner, and the
-  choice persists in localStorage. Conversion events: generate_lead on a
-  valid form submit, select_promotion on announcement and cohort CTAs,
-  select_content on the hero CTA.
+  (public identifiers, not secrets; nothing renders when unset). No tag
+  loads until the visitor accepts the Hebrew consent banner (not even the
+  Google bootstrap: Consent Mode "denied" pings still carry IP and user
+  agent). The choice persists in localStorage as a timestamped, versioned
+  record, the footer "הגדרות עוגיות" control reopens the dialog, and
+  withdrawing expires the tags' cookies and reloads. Details, legal
+  basis, and the notice: docs/features/privacy-and-consent.md.
+  Conversion events: generate_lead on a valid form submit,
+  select_promotion on announcement and cohort CTAs, select_content on the
+  hero CTA.
+- The Vimeo embed carries dnt=1 (no Vimeo session tracking). The lead
+  form and both footers link to /privacy.
 - No em dashes in any copy, per the repo-wide rule (unit-tested).
 - System font stack only: `next/font/google` would try to download fonts at
   build time, which the sandbox egress policy blocks.

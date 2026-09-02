@@ -1,8 +1,10 @@
 // Consent-aware ad and analytics plumbing for the BDCC landing page.
 // Tag ids are public identifiers (never secrets) supplied via NEXT_PUBLIC_*
-// env vars; nothing loads when they are unset. Google tags bootstrap with
-// Consent Mode v2 defaults set to denied; Meta and X pixels load only after
-// the visitor accepts the banner.
+// env vars; nothing loads when they are unset. No tag (Google, Meta, or X)
+// is loaded until the visitor grants consent: even Consent Mode "denied"
+// pings would send IP and user agent to Google, which under GDPR and
+// ePrivacy still needs consent. Consent is recorded with a timestamp and
+// policy version and can be withdrawn at any time.
 
 declare global {
   interface Window {
@@ -37,20 +39,133 @@ export function analyticsConfigured(ids: AnalyticsIds = analyticsIds()): boolean
 export type ConsentChoice = "granted" | "denied";
 export const CONSENT_STORAGE_KEY = "bdcc-ad-consent";
 
-export function readConsent(): ConsentChoice | null {
+/**
+ * Bump when the consent text or the set of tags it covers changes: stored
+ * choices from an older version no longer count and the banner asks again
+ * (GDPR consent must be specific to what it covers).
+ */
+export const CONSENT_POLICY_VERSION = 2;
+
+/** What is persisted for a choice: the choice itself, when it was made,
+ * and which policy version the visitor saw. Timestamp and version are the
+ * accountability record GDPR Art. 7(1) asks the controller to keep. */
+export interface ConsentRecord {
+  choice: ConsentChoice;
+  at: string;
+  version: number;
+}
+
+/** Parse a stored value into a record, or null when it is missing, garbage,
+ * or from an earlier policy version. Legacy bare "granted"/"denied" strings
+ * (version 1) are treated as stale for the same reason. */
+export function parseConsentRecord(raw: string | null): ConsentRecord | null {
+  if (!raw) return null;
   try {
-    const v = localStorage.getItem(CONSENT_STORAGE_KEY);
-    return v === "granted" || v === "denied" ? v : null;
+    const v = JSON.parse(raw) as Partial<ConsentRecord> | string;
+    if (typeof v !== "object" || v === null) return null;
+    if (v.choice !== "granted" && v.choice !== "denied") return null;
+    if (v.version !== CONSENT_POLICY_VERSION) return null;
+    if (typeof v.at !== "string" || Number.isNaN(Date.parse(v.at))) return null;
+    return { choice: v.choice, at: v.at, version: v.version };
   } catch {
     return null;
   }
 }
 
-export function storeConsent(choice: ConsentChoice): void {
+export function readConsentRecord(): ConsentRecord | null {
   try {
-    localStorage.setItem(CONSENT_STORAGE_KEY, choice);
+    return parseConsentRecord(localStorage.getItem(CONSENT_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+export function readConsent(): ConsentChoice | null {
+  return readConsentRecord()?.choice ?? null;
+}
+
+export function storeConsent(choice: ConsentChoice, now: Date = new Date()): void {
+  const record: ConsentRecord = {
+    choice,
+    at: now.toISOString(),
+    version: CONSENT_POLICY_VERSION,
+  };
+  try {
+    localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(record));
   } catch {
     // Private mode: the banner will simply reappear next visit.
+  }
+}
+
+export function clearConsent(): void {
+  try {
+    localStorage.removeItem(CONSENT_STORAGE_KEY);
+  } catch {
+    // Nothing to clear.
+  }
+}
+
+/** Fired on window when the visitor asks to review their choice (the
+ * "cookie settings" link); the banner listens and reopens. Withdrawal must
+ * be as easy as granting (GDPR Art. 7(3)). */
+export const CONSENT_OPEN_EVENT = "bdcc-consent-open";
+
+export function requestConsentDialog(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(CONSENT_OPEN_EVENT));
+}
+
+/** First-party cookie names the consented tags are known to set. Used to
+ * expire them on withdrawal; the list is best effort and harmless when a
+ * name is absent. */
+export const TRACKING_COOKIE_PREFIXES = [
+  "_ga",
+  "_gid",
+  "_gat",
+  "_gcl",
+  "_fbp",
+  "_fbc",
+  "_twclid",
+  "muc_ads",
+];
+
+export function isTrackingCookie(name: string): boolean {
+  return TRACKING_COOKIE_PREFIXES.some((p) => name === p || name.startsWith(p));
+}
+
+/**
+ * Cookie header strings that expire every tracking cookie present in
+ * `cookieHeader`, for the host itself and each parent domain (tags set
+ * their cookies on the registrable domain, which only a matching Domain
+ * attribute can clear). Pure so the expansion is unit-testable.
+ */
+export function trackingCookieExpirations(
+  cookieHeader: string,
+  hostname: string,
+): string[] {
+  const names = cookieHeader
+    .split(";")
+    .map((c) => c.trim().split("=")[0])
+    .filter((n) => n && isTrackingCookie(n));
+  const parts = hostname.split(".").filter(Boolean);
+  const domains: (string | null)[] = [null];
+  for (let i = 0; i < parts.length - 1; i++) {
+    domains.push(parts.slice(i).join("."));
+  }
+  const expired = "expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+  const out: string[] = [];
+  for (const name of new Set(names)) {
+    for (const d of domains) {
+      out.push(`${name}=; ${expired}${d ? `; domain=${d}` : ""}`);
+    }
+  }
+  return out;
+}
+
+export function expireTrackingCookies(): void {
+  if (typeof document === "undefined") return;
+  for (const c of trackingCookieExpirations(document.cookie, location.hostname)) {
+    document.cookie = c;
   }
 }
 

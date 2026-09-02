@@ -5,7 +5,7 @@
 // and a data-freshness view over the saved shelf.
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, SectionCard } from "@/components/ui";
 import {
   DEFAULT_WEIGHTS,
@@ -13,6 +13,7 @@ import {
   RISK_PILLAR_LABELS,
 } from "@/lib/constants";
 import { formatAgo } from "@/lib/format";
+import { buildDataExport, eraseAllData } from "@/lib/privacy";
 import { computeScores } from "@/lib/report/scoring";
 import { SEL } from "@/lib/selectors";
 import {
@@ -59,6 +60,44 @@ export default function SettingsPage() {
   const [profile, setProfile] = useRiskProfile();
   const [personalToken, setPersonalToken] = usePersonalToken();
   const { saved } = useSavedReports();
+  const [eraseStatus, setEraseStatus] = useState<string | null>(null);
+
+  const exportData = () => {
+    const doc = buildDataExport(window.localStorage);
+    const blob = new Blob([JSON.stringify(doc, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tokenlens-data-${doc.exportedAt.slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const eraseData = async () => {
+    const ok = window.confirm(
+      "Erase all TokenLens data from this browser" +
+        (personalToken ? " and the synced server copy" : "") +
+        "? This cannot be undone.",
+    );
+    if (!ok) return;
+    const result = await eraseAllData({
+      local: window.localStorage,
+      session: window.sessionStorage,
+      fetchImpl: fetch,
+      cachesImpl: typeof caches === "undefined" ? undefined : caches,
+    });
+    setEraseStatus(
+      result.server === "failed"
+        ? "Local data erased. The server copy could not be cleared (network or token problem); retry with a working connection."
+        : result.server === "cleared"
+          ? "All local data and the synced server copy were erased."
+          : "All local data was erased.",
+    );
+  };
 
   const previewReport = saved[0]?.report ?? null;
   const previewScores = useMemo(() => {
@@ -225,6 +264,52 @@ export default function SettingsPage() {
             ))}
           </ul>
         )}
+      </SectionCard>
+
+      <SectionCard
+        id="your-data"
+        title="Your data"
+        subtitle="Export or erase everything this site holds about you"
+      >
+        <p className="text-sm text-ink-2">
+          Everything TokenLens keeps about you lives in this browser: watchlist,
+          positions, tiers, weights, risk profile, saved reports, and your
+          cookie consent choice. Export it as a JSON file (data portability)
+          or erase it all (right to erasure). Erasing also clears the synced
+          server copy when a personal token is set, and empties the offline
+          cache. Details are in the{" "}
+          <Link href="/privacy" className="underline">
+            privacy notice
+          </Link>
+          .
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            data-testid={SEL.privacyExport}
+            onClick={exportData}
+            className="rounded-md border border-hairline px-3 py-1.5 text-sm hover:bg-page"
+          >
+            Export my data (JSON)
+          </button>
+          <button
+            type="button"
+            data-testid={SEL.privacyErase}
+            onClick={eraseData}
+            className="rounded-md border border-critical px-3 py-1.5 text-sm text-critical hover:bg-page"
+          >
+            Erase all my data
+          </button>
+        </div>
+        {eraseStatus ? (
+          <p
+            role="status"
+            data-testid={SEL.privacyEraseStatus}
+            className="mt-3 text-sm text-ink-2"
+          >
+            {eraseStatus}
+          </p>
+        ) : null}
       </SectionCard>
 
       <Card>

@@ -7,6 +7,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { ConsentSettingsLink } from "@/components/bdcc/BdccAnalytics";
 import {
   MagneticLink as MagneticBase,
   Reveal,
@@ -592,6 +593,16 @@ function LeadFormSection() {
               />
               {f.consent}
             </label>
+            <p className="text-xs" style={{ color: P.textMuted }}>
+              {f.privacyNote}{" "}
+              <a
+                href="/privacy"
+                className="underline"
+                data-testid={SEL.bdccLeadPrivacy}
+              >
+                {f.privacyLink}
+              </a>
+            </p>
             {state === "invalid" ? (
               <p
                 data-testid={SEL.bdccLeadError}
@@ -854,6 +865,15 @@ export function BdccLanding() {
         </div>
         <p className="mt-5 text-xs" style={{ color: P.textMuted }}>
           {c.disclaimer}
+        </p>
+        <p className="mt-3 flex flex-wrap gap-x-4 text-xs">
+          <a href="/privacy" className="underline" style={{ color: P.textMuted }}>
+            {c.consent.privacyLink}
+          </a>
+          <ConsentSettingsLink
+            className="underline"
+            style={{ color: P.textMuted }}
+          />
         </p>
         </div>
       </footer>

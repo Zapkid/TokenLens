@@ -1,22 +1,26 @@
 "use client";
 
 // Consent banner and tag loader for the BDCC landing page. Renders nothing
-// unless at least one tag id is configured. Google tags (gtag/GTM) bootstrap
-// immediately with Consent Mode v2 defaults set to denied, so denied visits
-// send only cookieless pings; Meta and X pixels are injected only after the
-// visitor accepts. The choice persists in localStorage.
+// unless at least one tag id is configured. Nothing third party is loaded
+// until the visitor grants consent: the Google bootstrap, GTM, and the Meta
+// and X pixels are all injected only after "accept" (Consent Mode is then
+// set to granted for the tags that read it). Declining loads nothing.
+// The choice persists in localStorage as a timestamped, versioned record,
+// can be reopened through the ConsentSettingsLink, and withdrawing after a
+// grant expires the tags' first-party cookies and reloads so no script
+// keeps running.
 
 import Script from "next/script";
 import { useEffect, useState } from "react";
+import { BDCC_CONTENT, BDCC_PALETTE } from "@/lib/bdcc";
 import {
-  BDCC_CONTENT,
-  BDCC_PALETTE,
-} from "@/lib/bdcc";
-import {
+  CONSENT_OPEN_EVENT,
   analyticsConfigured,
   analyticsIds,
   consentModePayload,
+  expireTrackingCookies,
   readConsent,
+  requestConsentDialog,
   storeConsent,
   type ConsentChoice,
 } from "@/lib/analytics";
@@ -24,22 +28,41 @@ import { SEL } from "@/lib/selectors";
 
 const P = BDCC_PALETTE;
 
+function consentModeLiteral(choice: ConsentChoice): string {
+  return JSON.stringify(consentModePayload(choice));
+}
+
 export function BdccAnalytics() {
   const ids = analyticsIds();
   const configured = analyticsConfigured(ids);
   const [choice, setChoice] = useState<ConsentChoice | null>(null);
   const [ready, setReady] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    setChoice(readConsent());
+    const stored = readConsent();
+    setChoice(stored);
+    setOpen(stored === null);
     setReady(true);
+    const reopen = () => setOpen(true);
+    window.addEventListener(CONSENT_OPEN_EVENT, reopen);
+    return () => window.removeEventListener(CONSENT_OPEN_EVENT, reopen);
   }, []);
 
   if (!configured) return null;
 
   const decide = (value: ConsentChoice) => {
+    const previous = choice;
     storeConsent(value);
     setChoice(value);
+    setOpen(false);
+    if (value === "denied" && previous === "granted") {
+      // Withdrawal: tags already running cannot be unloaded in place, so
+      // drop their cookies and reload into the no-tag state.
+      expireTrackingCookies();
+      window.location.reload();
+      return;
+    }
     window.gtag?.("consent", "update", consentModePayload(value));
   };
 
@@ -47,16 +70,16 @@ export function BdccAnalytics() {
 
   return (
     <>
-      {/* Consent Mode v2 defaults; rendered first so the inline snippet
-          executes before the async gtag.js download completes. */}
-      <Script id="bdcc-consent-default" strategy="afterInteractive">
-        {`window.dataLayer = window.dataLayer || [];
+      {granted && (ids.ga || ids.gtm) ? (
+        <Script id="bdcc-consent-default" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 window.gtag = gtag;
-gtag('consent', 'default', {ad_storage:'denied', ad_user_data:'denied', ad_personalization:'denied', analytics_storage:'denied'});
+gtag('consent', 'default', ${consentModeLiteral("granted")});
 gtag('js', new Date());`}
-      </Script>
-      {ids.ga ? (
+        </Script>
+      ) : null}
+      {granted && ids.ga ? (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${ids.ga}`}
@@ -67,7 +90,7 @@ gtag('js', new Date());`}
           </Script>
         </>
       ) : null}
-      {ids.gtm ? (
+      {granted && ids.gtm ? (
         <Script id="bdcc-gtm" strategy="afterInteractive">
           {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${ids.gtm}');`}
         </Script>
@@ -85,7 +108,7 @@ fbq('track', 'PageView');`}
 twq('config', '${ids.x}');`}
         </Script>
       ) : null}
-      {ready && choice === null ? (
+      {ready && open ? (
         <div
           data-testid={SEL.bdccConsent}
           role="dialog"
@@ -100,7 +123,15 @@ twq('config', '${ids.x}');`}
           }}
         >
           <p className="max-w-md text-xs" style={{ color: P.textMuted }}>
-            {BDCC_CONTENT.consent.text}
+            {BDCC_CONTENT.consent.text}{" "}
+            <a
+              href="/privacy"
+              className="underline"
+              style={{ color: P.text }}
+              data-testid={SEL.bdccConsentPrivacy}
+            >
+              {BDCC_CONTENT.consent.privacyLink}
+            </a>
           </p>
           <div className="flex gap-2">
             <button
@@ -116,8 +147,12 @@ twq('config', '${ids.x}');`}
               type="button"
               data-testid={SEL.bdccConsentDecline}
               onClick={() => decide("denied")}
-              className="rounded-lg px-4 py-2 text-sm font-medium"
-              style={{ border: `1px solid ${P.line}`, color: P.textMuted }}
+              className="rounded-lg px-4 py-2 text-sm font-bold"
+              style={{
+                background: P.surface,
+                border: `1px solid ${P.line}`,
+                color: P.text,
+              }}
             >
               {BDCC_CONTENT.consent.decline}
             </button>
@@ -125,5 +160,31 @@ twq('config', '${ids.x}');`}
         </div>
       ) : null}
     </>
+  );
+}
+
+/**
+ * Footer link that reopens the consent dialog so a visitor can change or
+ * withdraw their choice at any time. Renders nothing when no tag is
+ * configured (there is then no choice to manage).
+ */
+export function ConsentSettingsLink({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  if (!analyticsConfigured()) return null;
+  return (
+    <button
+      type="button"
+      data-testid={SEL.bdccConsentManage}
+      onClick={requestConsentDialog}
+      className={className}
+      style={style}
+    >
+      {BDCC_CONTENT.consent.manage}
+    </button>
   );
 }
