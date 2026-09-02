@@ -10,7 +10,7 @@ wired yet.
 |---|---|---|
 | Search / New report | / | Built: typeahead, disambiguation, regime banner, trending strip, decision calendar strip, watchlist chips |
 | Report library | /library | Built: live top 10 tokens by MC (ex-stablecoins) and top 10 chains by TVL; membership recomputed, not hardcoded |
-| The report | /report/[type]/[id] | Built: Overview, Network (chains), Stats, Risk, Potential, Trajectory, News and events, Strategy; print-based PDF; JSON/CSV export |
+| The report | /report/[type]/[id] | Built: Overview, Network (chains), Stats, Risk, Potential, Trajectory, News and events, Strategy, Research checklist; print-based PDF; JSON/CSV export |
 | Compare | /compare | Built: 2 to 4 saved reports, pillar radars, comparison table |
 | Portfolio and watchlist | /portfolio | Built: manual positions, tier allocation vs template, drift-band rebalancing suggestions |
 | Settings and methodology | /settings, /methodology | Built: weight editor with live re-scoring preview, risk profile, data freshness, written methodology |
@@ -33,6 +33,8 @@ wired yet.
 | report/strategy.ts | Tiers, DCA, exit ladders, portfolio analysis and rebalancing |
 | report/events.ts | Decision calendar (macro dates wired; other feeds designed, not wired) |
 | report/pipeline.ts | Orchestration and the 24h report cache |
+| research/checklist.ts | The BDCC-adapted fundamental research catalog and the stage 3 rollup |
+| research/autofill.ts | Pre-fills checklist items from a report's own metrics, basis always labeled |
 
 ## Deliberately not wired in this build (design intact, honest gaps)
 
@@ -48,6 +50,9 @@ wired yet.
   keeps the web report and the document identical by construction.
 - Category-first peer cohorts: the cohort is a market-cap band from the top
   250; category matching is the designed refinement.
+- Research checklist sync and score feedback: checklist answers stay in the
+  browser, and a completed checklist does not yet feed the narrative or legal
+  pillars.
 
 ## Out of scope by design
 

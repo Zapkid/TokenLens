@@ -6,6 +6,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { DEFAULT_WEIGHTS } from "./constants";
+import type { ResearchRecord } from "./research/checklist";
 import type { AssetRef, Position, Report, RiskProfile, WeightSet } from "./types";
 
 const NS = "tokenlens:v1:";
@@ -138,6 +139,14 @@ export function useSavedReports() {
     [setSaved],
   );
   return { saved, save, setSaved };
+}
+
+/**
+ * Manual research checklist answers, keyed by `${type}:${id}` (researchKey).
+ * Local to this browser: the checklist is a personal research notebook.
+ */
+export function useResearchRecords() {
+  return useStoredState<Record<string, ResearchRecord>>("research", {});
 }
 
 /** Tier classification per asset id, written by report views, read by Portfolio. */

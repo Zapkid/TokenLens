@@ -113,6 +113,15 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-098 | API conventions: invalid params return RFC 9457 problem+json with code, hint, and the legacy error alias; success responses carry X-API-Version and the RateLimit headers | e2e |
 | TL-099 | Unknown API paths (single and nested segments) return problem+json 404 (never HTML), the real /api/mcp endpoint is not swallowed, and /docs redirects permanently to /developers | e2e |
 
+## Research checklist
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-100 | Token report renders the research checklist with auto-filled GitHub rows and a locked stage 1 gate before any manual scoring | e2e/research.spec.ts |
+| TL-101 | Manual 1-5 scores update the rollup, toggle off on a second click, and persist across reloads via localStorage | e2e |
+| TL-102 | Scoring at least half of the stage 1 sections unlocks the gate: averages at or above 3 read continue, below 3 read stop | e2e |
+| TL-103 | Chain reports pre-fill the ecosystem breadth and network fee rows from DeFiLlama-backed metrics | e2e |
+
 ## Data attribution and providers
 
 | Case | Scenario | Automated by |
@@ -149,6 +158,9 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | lib/__tests__/agent-content.test.ts | Agent surfaces: llms.txt shape and entry points, markdown renditions and 404 recovery body, OpenAPI paths, params, operationIds, problem schema, and versioning policy, MCP manifest tools, JSON-LD graph with optional contact and address |
 | lib/server/__tests__/api-http.test.ts | API conventions: fixed-window rate limiter (limit, isolation, reset), env-tuned max, client keying, RFC 9457 problem bodies with code/hint/error alias, 429 Retry-After and RateLimit headers, version header |
 | lib/__tests__/bdcc-fx.test.ts | BDCC interaction math: scramble frames, easing, count-up display, pointer geometry, tilt and magnetic clamps |
+| lib/research/__tests__/checklist.test.ts | Catalog integrity (unique keys, both stages, no em dashes), effective score precedence, section and overall averaging, stage 1 gate thresholds and coverage rule |
+| lib/research/__tests__/autofill.test.ts | Five-scale mapping, band suggestions per metric, chain-only rows, missing-metric honesty, full coverage of autofill-flagged items |
+| components/report/__tests__/ResearchChecklist.test.tsx | Summary strip with auto suggestions, manual score persistence and clearing, note storage, labeled auto rows |
 | components/portfolio/__tests__/PositionForm.test.tsx | Typeahead render, validation gating, submit persistence and reset |
 | components/__tests__/ChunkReload.test.tsx | Chunk-load error detection: matches browser ChunkLoadError shapes, ignores unrelated errors |
 

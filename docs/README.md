@@ -7,6 +7,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Search and resolution](features/search-and-resolution.md)
 - [Report engine](features/report-engine.md)
 - [Scoring system](features/scoring.md)
+- [Research checklist](features/research-checklist.md)
 - [Trajectory scenarios](features/trajectory.md)
 - [Market regime indicator](features/market-regime.md)
 - [Events and decision calendar](features/events-calendar.md)

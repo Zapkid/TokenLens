@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FanChart } from "@/components/charts/FanChart";
+import { ResearchChecklist } from "@/components/report/ResearchChecklist";
 import { PriceChart } from "@/components/charts/PriceChart";
 import { QuadrantChart } from "@/components/charts/QuadrantChart";
 import {
@@ -704,6 +705,9 @@ export function ReportView({ report }: { report: Report }) {
           </p>
         )}
       </SectionCard>
+
+      {/* Research checklist */}
+      <ResearchChecklist report={report} />
     </div>
   );
 }

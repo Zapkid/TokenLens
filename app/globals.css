@@ -97,10 +97,17 @@ body {
   display: none;
 }
 
+.print-only {
+  display: none;
+}
+
 /* Print: the web report is the PDF template. Hide chrome, keep content. */
 @media print {
   .no-print {
     display: none !important;
+  }
+  .print-only {
+    display: inline !important;
   }
   body {
     background: #ffffff;
