@@ -8,7 +8,9 @@ import {
   log10Safe,
   logReturns,
   maxDrawdown,
+  onBalanceVolume,
   percentileOf,
+  rsi,
   sharpeRatio,
   simpleMovingAverage,
   trailingReturn,
@@ -255,6 +257,20 @@ export function buildTokenMetrics(
     logReturns(closes.slice(-365)),
     logReturns(closesOf(btcCloses).slice(-365)),
   );
+  const rsi14 = rsi(closes, 14);
+  const volumes = closesOf(raw.dailyVolumes);
+  const obvSeries = onBalanceVolume(closes, volumes);
+  const obvNow = obvSeries.length ? obvSeries[obvSeries.length - 1] : null;
+  const obvSma20 = simpleMovingAverage(obvSeries, 20);
+  const obvSma50 = simpleMovingAverage(obvSeries, 50);
+  const obvTrend =
+    obvNow !== null && obvSma20 !== null && obvSma50 !== null
+      ? obvNow > obvSma20 && obvSma20 > obvSma50
+        ? 1
+        : obvNow < obvSma20 && obvSma20 < obvSma50
+          ? -1
+          : 0
+      : null;
 
   metrics.push(
     {
@@ -325,6 +341,40 @@ export function buildTokenMetrics(
       format: "ratio",
       direction: "neutral",
       percentile: null,
+    },
+    {
+      key: "rsi14",
+      label: "RSI (14d)",
+      family: "priceBehavior",
+      value: rsi14,
+      format: "number",
+      direction: "neutral",
+      percentile: null,
+      note:
+        rsi14 === null
+          ? undefined
+          : rsi14 >= 70
+            ? "Overbought: RSI at or above 70"
+            : rsi14 <= 30
+              ? "Oversold: RSI at or below 30"
+              : undefined,
+    },
+    {
+      key: "obvTrend",
+      label: "On-balance volume trend",
+      family: "priceBehavior",
+      value: obvTrend,
+      format: "ratio",
+      direction: "higher",
+      percentile: null,
+      note:
+        obvTrend === 1
+          ? "Volume confirms uptrend: OBV above its 20d and 50d averages"
+          : obvTrend === -1
+            ? "Volume confirms downtrend: OBV below its 20d and 50d averages"
+            : obvTrend === 0
+              ? "Mixed volume trend"
+              : undefined,
     },
   );
 

@@ -146,12 +146,13 @@ async function fetchTokenData(id: string): Promise<RawTokenData> {
   );
   // Free and demo CoinGecko tiers cap history at 365 days and reserve the
   // interval param for paid plans; days > 90 auto-selects daily granularity.
-  const chart = await cg<{ prices: [number, number][] }>(
+  const chart = await cg<{ prices: [number, number][]; total_volumes: [number, number][] }>(
     `/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=365`,
   );
   const md = detail.market_data ?? {};
   const dev = detail.developer_data;
   const dailyCloses: SeriesPoint[] = (chart.prices ?? []).map(([t, v]) => ({ t, v }));
+  const dailyVolumes: SeriesPoint[] = (chart.total_volumes ?? []).map(([t, v]) => ({ t, v }));
   const ref: AssetRef = {
     id: detail.id,
     type: "token",
@@ -175,6 +176,7 @@ async function fetchTokenData(id: string): Promise<RawTokenData> {
     categories: detail.categories ?? [],
     genesisDate: detail.genesis_date ?? null,
     dailyCloses,
+    dailyVolumes,
     devActivity: dev
       ? {
           commits4w: dev.commit_count_4_weeks ?? null,

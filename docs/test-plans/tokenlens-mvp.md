@@ -29,6 +29,9 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-010 | Token report renders all seven sections, numeric scores, grade A-E, quadrant, fixture badge | e2e/report.spec.ts |
 | TL-011 | Trajectory horizon switch (3/6/12m) changes scenario ranges | e2e |
 | TL-012 | Watchlist toggle persists (localStorage) and surfaces on home | e2e |
+| TL-013 | Stats section shows RSI (14d) and on-balance volume trend metrics in price behavior, with overbought/oversold and volume-confirmation notes | lib/__tests__/math.test.ts (rsi, onBalanceVolume unit cases); e2e/report.spec.ts |
+| TL-014 | Short-history token (fewer than 15 daily closes for RSI, fewer than 50 for OBV trend) renders both metrics as "n/a", never a fabricated value | lib/report/__tests__/pipeline.test.ts |
+| TL-015 | Report regeneration for the same asset within the 24h cache window returns identical RSI/OBV values (idempotency) | lib/report/__tests__/pipeline.test.ts |
 | TL-020 | Chain report adds Network section, nested token analysis, TVL trajectory | e2e |
 | TL-021 | Chain without native token (Base): warning, token sections omitted, no forced scores | e2e |
 | TL-022 | Unknown asset id: failure card, never a fabricated report | e2e |

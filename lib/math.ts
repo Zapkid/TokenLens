@@ -125,3 +125,46 @@ export function winsorize(value: number, cohort: number[], pct = 0.05): number {
 export function log10Safe(x: number): number | null {
   return x > 0 ? Math.log10(x) : null;
 }
+
+/** Relative Strength Index (Wilder's smoothing) over the trailing period, 0 to 100. */
+export function rsi(closes: number[], period = 14): number | null {
+  if (closes.length < period + 1) return null;
+  const changes: number[] = [];
+  for (let i = 1; i < closes.length; i++) changes.push(closes[i] - closes[i - 1]);
+
+  let avgGain = 0;
+  let avgLoss = 0;
+  for (let i = 0; i < period; i++) {
+    const c = changes[i];
+    if (c > 0) avgGain += c;
+    else avgLoss += -c;
+  }
+  avgGain /= period;
+  avgLoss /= period;
+
+  for (let i = period; i < changes.length; i++) {
+    const c = changes[i];
+    const gain = c > 0 ? c : 0;
+    const loss = c < 0 ? -c : 0;
+    avgGain = (avgGain * (period - 1) + gain) / period;
+    avgLoss = (avgLoss * (period - 1) + loss) / period;
+  }
+
+  if (avgLoss === 0) return avgGain === 0 ? 50 : 100;
+  const rs = avgGain / avgLoss;
+  return 100 - 100 / (1 + rs);
+}
+
+/** On-balance volume: a running total of volume, signed by the day's price direction. */
+export function onBalanceVolume(closes: number[], volumes: number[]): number[] {
+  const n = Math.min(closes.length, volumes.length);
+  if (n === 0) return [];
+  const out: number[] = [0];
+  for (let i = 1; i < n; i++) {
+    const prev = out[i - 1];
+    if (closes[i] > closes[i - 1]) out.push(prev + volumes[i]);
+    else if (closes[i] < closes[i - 1]) out.push(prev - volumes[i]);
+    else out.push(prev);
+  }
+  return out;
+}

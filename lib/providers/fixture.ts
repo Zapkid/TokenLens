@@ -164,6 +164,7 @@ function tokenData(spec: TokenSpec): RawTokenData {
     spec.annualVol,
     spec.drift,
   );
+  const dailyVolumes = synthSeries(`volume:${spec.id}`, spec.volume24h, days, 0.6, 0);
   const circulating = spec.marketCap / spec.price;
   const fdv = spec.marketCap / spec.mcFdvRatio;
   const totalSupply = fdv / spec.price;
@@ -193,6 +194,7 @@ function tokenData(spec: TokenSpec): RawTokenData {
     categories: spec.categories,
     genesisDate: genesis,
     dailyCloses,
+    dailyVolumes,
     devActivity: {
       commits4w: spec.commits4w,
       contributors: spec.contributors,

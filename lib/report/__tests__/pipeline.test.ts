@@ -38,6 +38,13 @@ describe("generateReport (fixture mode, end to end)", () => {
     expect(report.cohort.size).toBeGreaterThanOrEqual(5);
     expect(report.priceHistory.length).toBeGreaterThan(180);
     expect(report.strategy.tierLabel.length).toBeGreaterThan(0);
+
+    // RSI and OBV trend ship as price behavior metrics with enough history.
+    const rsi14 = report.metrics.find((m) => m.key === "rsi14");
+    expect(rsi14?.value).toBeGreaterThanOrEqual(0);
+    expect(rsi14?.value).toBeLessThanOrEqual(100);
+    const obvTrend = report.metrics.find((m) => m.key === "obvTrend");
+    expect([-1, 0, 1]).toContain(obvTrend?.value);
   });
 
   it("generates a chain report with a network section and nested token analysis", async () => {
@@ -83,5 +90,11 @@ describe("generateReport (fixture mode, end to end)", () => {
     const b = await generateReport("token", "uniswap", { refresh: true });
     expect(b.scores).toEqual(a.scores);
     expect(b.trajectory.annualizedVol).toBe(a.trajectory.annualizedVol);
+    expect(b.metrics.find((m) => m.key === "rsi14")?.value).toBe(
+      a.metrics.find((m) => m.key === "rsi14")?.value,
+    );
+    expect(b.metrics.find((m) => m.key === "obvTrend")?.value).toBe(
+      a.metrics.find((m) => m.key === "obvTrend")?.value,
+    );
   });
 });

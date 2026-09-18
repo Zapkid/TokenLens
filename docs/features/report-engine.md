@@ -24,6 +24,9 @@ is the same pipeline triggered from a list instead of a search.
 3. Build the metric catalog (lib/report/metrics.ts): market, supply,
    development, price behavior families for any token; a network family for
    chains. Fat-tailed metrics are log-transformed before percentile ranking.
+   Price behavior includes RSI (14d, Wilder smoothing) and an on-balance
+   volume trend signal (OBV vs its 20d and 50d averages) alongside
+   volatility, drawdown, and the 50/200d trend structure.
 4. Build pillars and scores (lib/report/scoring.ts), trajectory
    (lib/report/trajectory.ts), events, and strategy guidance.
 5. Assemble the Report payload (lib/types.ts) including the cohort snapshot,
@@ -55,6 +58,9 @@ the localStorage shelf when viewed (for Compare and the freshness panel).
   covered).
 - Provider partial failures (fees endpoint down, no stablecoin data): the
   affected metrics go null and render as "n/a"; generation does not abort.
+- RSI needs at least 15 daily closes; OBV trend needs at least 50 aligned
+  daily closes and volumes. Short-history assets render both as "n/a"
+  rather than a misleading value.
 
 ## Non-goals
 
@@ -65,4 +71,5 @@ serverless deploys the in-process cache is per instance; a durable cache
 ## Tests
 
 lib/report/__tests__/pipeline.test.ts (token, chain, no-native-token, cache
-TTL, determinism, unknown assets); TL-010, TL-020, TL-021, TL-022 (e2e).
+TTL, determinism, unknown assets); lib/__tests__/math.test.ts (rsi,
+onBalanceVolume); TL-010, TL-013, TL-020, TL-021, TL-022 (e2e).

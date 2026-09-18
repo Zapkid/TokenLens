@@ -5,7 +5,9 @@ import {
   correlation,
   logReturns,
   maxDrawdown,
+  onBalanceVolume,
   percentileOf,
+  rsi,
   simpleMovingAverage,
   trailingReturn,
   winsorize,
@@ -90,6 +92,40 @@ describe("correlation", () => {
         a.map((x) => -x),
       ),
     ).toBeCloseTo(-1);
+  });
+});
+
+describe("rsi", () => {
+  it("returns null with insufficient data", () => {
+    expect(rsi([100, 101, 102], 14)).toBeNull();
+  });
+  it("is 100 for a monotonic rise with no losses", () => {
+    const closes = Array.from({ length: 20 }, (_, i) => 100 + i);
+    expect(rsi(closes, 14)).toBe(100);
+  });
+  it("is 0 for a monotonic fall with no gains", () => {
+    const closes = Array.from({ length: 20 }, (_, i) => 100 - i);
+    expect(rsi(closes, 14)).toBe(0);
+  });
+  it("is near 50 for symmetric alternating moves", () => {
+    const closes = [100];
+    for (let i = 0; i < 20; i++) {
+      closes.push(closes[closes.length - 1] + (i % 2 === 0 ? 1 : -1));
+    }
+    expect(rsi(closes, 14)).toBeGreaterThan(45);
+    expect(rsi(closes, 14)).toBeLessThan(55);
+  });
+});
+
+describe("onBalanceVolume", () => {
+  it("accumulates volume signed by price direction", () => {
+    // up, down, flat, up
+    const closes = [100, 105, 102, 102, 108];
+    const volumes = [10, 20, 15, 5, 30];
+    expect(onBalanceVolume(closes, volumes)).toEqual([0, 20, 5, 5, 35]);
+  });
+  it("returns an empty series with no data", () => {
+    expect(onBalanceVolume([], [])).toEqual([]);
   });
 });
 

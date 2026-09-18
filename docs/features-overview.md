@@ -27,7 +27,7 @@ wired yet.
 | Module | Responsibility |
 |---|---|
 | providers/ | Data access. live (CoinGecko, DeFiLlama, alternative.me) and fixture (deterministic synthetic) implement one interface |
-| report/metrics.ts | The defined metric catalog per family, with cohort percentiles |
+| report/metrics.ts | The defined metric catalog per family, with cohort percentiles; price behavior includes RSI (14d) and an OBV volume-trend signal |
 | report/scoring.ts | Opportunity and risk pillars, weighted scores, grades, quadrant, dampener |
 | report/trajectory.ts | Volatility cone plus visible modifiers, three scenarios, three horizons |
 | report/regime.ts | Global risk-on / neutral / risk-off composite |

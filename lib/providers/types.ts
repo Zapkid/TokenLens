@@ -30,6 +30,8 @@ export interface RawTokenData {
   genesisDate: string | null;
   /** Daily closes, oldest first. 730 days in fixture mode, 365 on the free live tier. */
   dailyCloses: SeriesPoint[];
+  /** Daily USD volume, oldest first, index-aligned with dailyCloses. */
+  dailyVolumes: SeriesPoint[];
   devActivity: RawDevActivity | null;
 }
 
