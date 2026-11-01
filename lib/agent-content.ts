@@ -4,6 +4,7 @@
 // Everything is pure and takes the site origin as input so it is
 // unit-testable and consistent across routes.
 
+import { arbMarkdown } from "@/lib/arb/markdown";
 import { BDCC_CONTENT, BDCC_SITE_URL, bdccUrl } from "@/lib/bdcc";
 
 export const TOKENLENS_SUMMARY =
@@ -53,6 +54,7 @@ TokenLens is a personal-use decision support tool, not financial advice. It runs
 - [Developer guide](${base}/developers): REST endpoints, MCP connector setup, and rate expectations
 - [Methodology](${base}/methodology): how scores, grades, and scenarios are computed
 - [About](${base}/about): what TokenLens is and who runs it
+- [Arbitrum final project](${base}/arb): Blockchain Expert course answers on Arbitrum (ARB) with live data; live JSON at ${base}/api/arb
 - [Source code](https://github.com/Zapkid/TokenLens): full implementation and feature docs
 
 ## API
@@ -118,6 +120,7 @@ export function markdownForPath(
       mdPage("TokenLens onchain analytics", [
         "Trending DEX pools per network from the CoinGecko onchain API. This surface is gated by an owner email verification code and is not publicly callable.",
       ]),
+    "/arb": () => arbMarkdown(base),
     "/bdcc": () => bdccMarkdown(base, "/bdcc"),
     "/bdcc2": () => bdccMarkdown(base, "/bdcc2"),
   };

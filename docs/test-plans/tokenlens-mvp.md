@@ -135,6 +135,19 @@ synthetic. Unit tests run in node (jsdom for component tests).
 | TL-089 | Full gate flow: request code (fixture devCode), wrong code rejected, right code sets the 10 minute session cookie, table renders, API calls succeed without re-auth, network switch works | e2e |
 | TL-090 | Onchain nav destination reaches the gate | e2e |
 
+## Arbitrum course project page (/arb)
+
+| Case | Scenario | Automated by |
+|---|---|---|
+| TL-110 | Content model: course order (1.1 to 7.2, bonus, B.1 to B.5, 29 questions), unique ids, every string in English and Hebrew with Hebrew script, no em dashes, Part B covers Arbitrum only, every fact or analysis answer cites a source, personal questions limited to 3.2, 3.3, 3.4 and bonus, 5 to 7 sorted timeline events with distinct categories, https sources, markdown rendition in order | lib/arb/__tests__/content.test.ts |
+| TL-111 | Live data: CoinGecko, DefiLlama (TVL, stablecoins, fees, chains) and GitHub parsers, missing-field rejection (no invented values), 30 day change, author dedupe and page-cap truncation flag, indexed trend, deterministic labeled fixture, sourced fact formatting in both languages | lib/arb/__tests__/live.test.ts |
+| TL-112 | Word export: cover page with Hebrew and English name, ID and date placeholders; all questions in order; live snapshot lines with check time only when live data exists; deduplicated sorted source list; .docx XML is Arial, 12 pt (sz and szCs 24, no other size), line 360, Hebrew adds bidi and rtl | lib/arb/__tests__/docx.test.ts |
+| TL-113 | Page component: English LTR default, toggle to Hebrew RTL and back with localStorage and ?lang=he sync, ?lang=he on load, 29 question cards, live tiles with check time on success, static answers intact and no tiles on API failure | components/arb/__tests__/ArbPage.test.tsx |
+| TL-114 | Nav link reaches /arb in English with 29 questions, guidelines, 7 timeline events, ready live panel labeled as fixture, trend chart | e2e/arb.spec.ts |
+| TL-115 | Hebrew switch flips to RTL, URL gains lang=he, the choice survives a reload, and switches back | e2e |
+| TL-116 | Word download in English and Hebrew: correct file name, Arial, 12 pt, 1.5 spacing, Hebrew bidi, no error shown | e2e |
+| TL-117 | /api/arb returns versioned fixture JSON with market and GitHub data; /arb negotiates text/markdown with every question | e2e |
+
 ## Unit and component coverage (vitest)
 
 | Suite | Covers |
@@ -168,4 +181,8 @@ synthetic. Unit tests run in node (jsdom for component tests).
   run `npm run dev` with egress, search "solana", open token and chain
   reports, confirm non-fixture badge absence and populated metrics.
 - Print/PDF output is visually verified manually (print stylesheet).
+- /arb live upstreams (CoinGecko, DefiLlama, GitHub) are verified manually
+  in a deployed environment; CI and e2e use the labeled fixture. Static
+  answers are dated (research date on the page) and need a content refresh
+  before submission if facts move.
 - No load or rate-limit tests: single-user tool on free API tiers.

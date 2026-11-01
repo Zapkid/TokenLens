@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/compare", label: "Compare", testId: SEL.navCompare },
   { href: "/portfolio", label: "Portfolio", testId: SEL.navPortfolio },
   { href: "/onchain", label: "Onchain", testId: SEL.navOnchain },
+  { href: "/arb", label: "Arb", testId: SEL.navArb },
   { href: "/settings", label: "Settings", testId: SEL.navSettings },
 ];
 
