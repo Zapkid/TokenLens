@@ -23,6 +23,7 @@ Read [features-overview.md](features-overview.md) first for the one-page map.
 - [Onchain analytics with email OTP gate](features/onchain-analytics.md)
 - [Agent readiness](features/agent-readiness.md)
 - [Privacy and consent (GDPR)](features/privacy-and-consent.md)
+- [Arbitrum course project page (/arb)](features/arb-project.md)
 
 ## Reference snapshots
 

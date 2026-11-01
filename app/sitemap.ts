@@ -7,6 +7,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/bdcc",
     "/bdcc2",
+    "/arb",
     "/library",
     "/compare",
     "/portfolio",

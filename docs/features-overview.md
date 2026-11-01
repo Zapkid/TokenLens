@@ -1,6 +1,6 @@
 # TokenLens features overview
 
-One engine, two report types, six surfaces. This page maps what exists in the
+One engine, two report types, six surfaces, plus standalone pages. This page maps what exists in the
 current build against the product plan, including what is deliberately not
 wired yet.
 
@@ -21,6 +21,7 @@ wired yet.
 | Onchain analytics | /onchain | Built: CoinGecko onchain trending pools per network behind an email OTP gate (6 digit code, 10 minute HMAC session cookie); key and transport env-gated server side |
 | Agent readiness | /llms.txt, /openapi.json, /.well-known/mcp, markdown negotiation, 404, trust pages | Built: llms.txt with when-to-use guidance, Accept: text/markdown renditions with Vary, recovery 404, OpenAPI 3.1, MCP manifest, homepage JSON-LD identity, about/contact/privacy/developers pages |
 | Privacy and consent | /privacy, /settings#your-data, BDCC footers | Built: GDPR notice (controller, legal bases, retention, processors, rights, supervisory authority), consent banner that loads no third-party script before accept with one-click withdrawal and cookie expiry, JSON export and full erase (local, session, cache, and synced server copy) |
+| Arbitrum course project | /arb, /api/arb | Built: Blockchain Expert final project hub on Arbitrum; all common and Arbitrum-specific questions answered from sources with kind badges (fact, analysis, needs your input), live CoinGecko, DefiLlama and GitHub data with check times, English default with Hebrew RTL switch, Word export (Arial 12 pt, 1.5 spacing) in either language |
 
 ## Engine modules (lib/)
 
