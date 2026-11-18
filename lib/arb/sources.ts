@@ -18,7 +18,7 @@ export const SRC = {
     url: "https://docs.arbitrum.io/stylus/gentle-introduction",
   },
   docsTimeboost: {
-    label: "Arbitrum docs: Timeboost",
+    label: "Arbitrum docs: PGA (Priority Gas Auctions), successor to Timeboost",
     url: "https://docs.arbitrum.io/how-arbitrum-works/timeboost/gentle-introduction",
   },
   docsArbos61: {
@@ -50,8 +50,12 @@ export const SRC = {
     url: "https://docs.arbitrum.foundation/aep/ArbitrumExpansionProgramTerms.pdf",
   },
   l2beat: {
-    label: "L2BEAT: Arbitrum One",
-    url: "https://l2beat.com/scaling/projects/arbitrum",
+    label: "ETHBEAT (formerly L2BEAT): Arbitrum One",
+    url: "https://ethbeat.org/scaling/projects/arbitrum",
+  },
+  l2beatApi: {
+    label: "ETHBEAT (formerly L2BEAT) scaling summary API",
+    url: "https://ethbeat.org/api/scaling/summary",
   },
   l2beatStages: {
     label: "L2BEAT forum: Stage 1 requirements update",
@@ -74,8 +78,12 @@ export const SRC = {
     url: "https://arbiscan.io",
   },
   tally: {
-    label: "Tally: Arbitrum DAO proposals",
-    url: "https://www.tally.xyz/gov/arbitrum",
+    label: "Arbitrum on-chain governance portal (replaced Tally in 2026)",
+    url: "https://alt.gov.arbitrum.foundation",
+  },
+  snapshot: {
+    label: "Snapshot: Arbitrum DAO temperature checks",
+    url: "https://snapshot.org/#/arbitrumfoundation.eth",
   },
   forum: {
     label: "Arbitrum DAO governance forum",
@@ -90,8 +98,12 @@ export const SRC = {
     url: "https://forum.arbitrum.foundation/t/the-arbitrum-foundation-2025-transparency-report-the-year-of-institutional-adoption/30660",
   },
   h1Revenue2026: {
-    label: "The Block via KuCoin: Arbitrum DAO H1 2026 income $6.19M",
-    url: "https://www.kucoin.com/news/flash/arbitrum-dao-revenue-hits-6-19m-in-h1-2026",
+    label: "Forum: The Arbitrum Foundation H1 2026 Progress Update",
+    url: "https://forum.arbitrum.foundation/t/the-arbitrum-foundation-h1-2026-progress-update/31378",
+  },
+  robinhoodJuly: {
+    label: "The Block via KuCoin: Robinhood Chain drives 35% of July 2026 DAO revenue",
+    url: "https://www.kucoin.com/news/flash/arbitrum-posts-6-2m-in-h1-2026-income-robinhood-chain-drives-35-revenue",
   },
   foundationFunding: {
     label: "Forum: Continued Funding for the Arbitrum Foundation",
@@ -110,15 +122,95 @@ export const SRC = {
     url: "https://forum.arbitrum.foundation/t/security-council-emergency-action-30-10-2026/31625",
   },
   stylusPause: {
-    label: "CryptoBriefing: Arbitrum pauses new Stylus activations",
-    url: "https://cryptobriefing.com/arbitrum-pauses-new-stylus-activations/",
+    label: "Forum: Security Council Emergency Action 2-10-2026 (Stylus pause, BoLD guard)",
+    url: "https://forum.arbitrum.foundation/t/security-council-emergency-action-2-10-2026/31530",
+  },
+  stylusResume: {
+    label: "Forum: [Constitutional] AIP: Stylus Activation Contract",
+    url: "https://forum.arbitrum.foundation/t/constitutional-aip-stylus-activation-contract/31605",
+  },
+  pgaAip: {
+    label: "Forum: [Constitutional] AIP: Transition Arbitrum One ordering policy to PGA",
+    url: "https://forum.arbitrum.foundation/t/constitutional-aip-transition-arbitrum-one-ordering-policy-to-priority-gas-auctions-pga/30942",
+  },
+  fastFeedAip: {
+    label: "Forum: [Constitutional] AIP Fast Feed",
+    url: "https://forum.arbitrum.foundation/t/constitutional-aip-fast-feed/31003",
+  },
+  timeboostAip: {
+    label: "Forum: Constitutional AIP to adopt Timeboost (2024)",
+    url: "https://forum.arbitrum.foundation/t/constitutional-aip-proposal-to-adopt-timeboost-a-new-transaction-ordering-policy/25167",
+  },
+  votesNov2026: {
+    label: "Forum: 11 November 2026 roundup of active and upcoming votes",
+    url: "https://forum.arbitrum.foundation/t/11-november-2026-roundup-of-active-upcoming-votes/31691",
+  },
+  ethTransfer: {
+    label: "Forum: Transfer 1,800 ETH to the Developer Guild and ATMC (Timeboost and PGA revenue)",
+    url: "https://forum.arbitrum.foundation/t/transfer-1-800-eth-from-the-treasury-to-the-arbitrum-developer-guild-atmcs-eth-treasury-strategies/31557",
+  },
+  usdgInitiative: {
+    label: "Forum: Adopting USDG as a Core Strategic Initiative for the ArbitrumDAO",
+    url: "https://forum.arbitrum.foundation/t/adopting-usdg-as-a-core-strategic-initiative-for-the-arbitrumdao/31548",
+  },
+  kelpFreeze: {
+    label: "Forum: Security Council Emergency Action 21-04-2026 (KelpDAO exploiter)",
+    url: "https://forum.arbitrum.foundation/t/security-council-emergency-action-21-04-2026/30803",
+  },
+  kelpRelease: {
+    label: "Forum: [Constitutional] AIP: Approve Release of Frozen ETH (KelpDAO)",
+    url: "https://forum.arbitrum.foundation/t/constitutional-aip-approve-release-of-frozen-eth/30825",
+  },
+  binanceRelease: {
+    label: "Forum: [Constitutional] AIP: Approve Release of Frozen ETH and ARB (Binance)",
+    url: "https://forum.arbitrum.foundation/t/constitutional-aip-approve-release-of-frozen-eth-and-arb/31655",
+  },
+  arbUtility: {
+    label: "Forum: From Governance Token to Utility Token: Evolving ARB Beyond Governance",
+    url: "https://forum.arbitrum.foundation/t/from-governance-token-to-utility-token-evolving-arb-beyond-governance/30192",
+  },
+  studentThread: {
+    label: "Forum: research questions from a blockchain course student (Oct 2026)",
+    url: "https://forum.arbitrum.foundation/t/reaserch-questions-blockchain-course-focusing-on-how-decentralized-arbitrum-really-is-in-practice/31590",
+  },
+  outage2021: {
+    label: "Offchain Labs: Arbitrum One outage report (Sep 2021)",
+    url: "https://medium.com/offchainlabs/arbitrum-one-outage-report-d365b24d49c",
+  },
+  outage2022: {
+    label: "Cointelegraph: Arbitrum network suffers outage due to hardware failure (Jan 2022)",
+    url: "https://cointelegraph.com/news/arbitrum-network-suffers-minor-outage-due-to-hardware-failure",
+  },
+  outage2023: {
+    label: "The Block: inscriptions surge caused Arbitrum outage (Dec 2023)",
+    url: "https://www.theblock.co/post/267950/",
+  },
+  hyperliquidBridge: {
+    label: "Bitquery: Hyperliquid bridge deposits and withdrawals on Arbitrum",
+    url: "https://bitquery.io/investigations/hyperliquid-bridge-ledger",
+  },
+  stablesFall: {
+    label: "Crypto Adventure: Arbitrum stablecoin supply falls from $7.7B to $4.4B since May",
+    url: "https://cryptoadventure.com/arbitrum-stablecoin-supply-falls-from-7-7b-to-4-4b-since-may/",
+  },
+  defillamaStables: {
+    label: "DefiLlama: stablecoins on Arbitrum",
+    url: "https://defillama.com/stablecoins/Arbitrum",
+  },
+  usenix2018: {
+    label: "USENIX Security 2018: Arbitrum: Scalable, private smart contracts",
+    url: "https://www.usenix.org/conference/usenixsecurity18/presentation/kalodner",
+  },
+  offchainGit: {
+    label: "git history: OffchainLabs repositories",
+    url: "https://github.com/OffchainLabs",
   },
   scElection2026: {
     label: "Forum: March 2026 Security Council Elections, Complete",
     url: "https://forum.arbitrum.foundation/t/march-2026-security-council-elections-complete/30909",
   },
   scKeyRotation: {
-    label: "Forum: Security Council Key Rotation, July 2026",
+    label: "Forum: Non-emergency key rotation of the Security Council, July 2026",
     url: "https://forum.arbitrum.foundation/t/key-rotation-july-2026/31081",
   },
   dvpQuorum: {

@@ -97,20 +97,20 @@ export const CHAPTER_1: ArbChapter = {
       kind: "fact",
       answer: [
         {
-          en: "GitHub: the live panel below counts commits and distinct commit authors over the last 30 days in Offchain Labs' core repositories (nitro, nitro-contracts, stylus-sdk-rs), fetched from the GitHub API with the check time shown. Quote the number with that date in the paper.",
-          he: "GitHub: הלוח החי למטה סופר commits ומספר כותבים ייחודיים ב-30 הימים האחרונים במאגרי הליבה של Offchain Labs (nitro, nitro-contracts, stylus-sdk-rs), מתוך ה-API של GitHub, עם זמן הבדיקה. בעבודה יש לצטט את המספר יחד עם התאריך.",
+          en: "GitHub: the live panel below counts commits and distinct commit authors over the last 30 days across the most recently active public Offchain Labs repositories (always including nitro and nitro-contracts), and shows the latest nitro release, with the check time. Quote the organization total with that date, not one repository: on 18 Nov 2026 git history showed the nitro default branch had a single commit since June (work lands in batched merges and releases, the latest tag being v3.12.2) while nitro-contracts had 39 commits from 4 authors in 30 days.",
+          he: "GitHub: הלוח החי למטה סופר commits ומספר כותבים ייחודיים ב-30 הימים האחרונים במאגרים הציבוריים הפעילים ביותר של Offchain Labs (תמיד כולל nitro ו-nitro-contracts), ומציג את השחרור האחרון של nitro, עם זמן הבדיקה. יש לצטט את הסך של הארגון עם התאריך, ולא מאגר יחיד: ב-18.11.2026 היסטוריית git הראתה שבענף הראשי של nitro היה commit אחד בלבד מאז יוני (העבודה נכנסת במיזוגים ובשחרורים מרוכזים, והתגית האחרונה היא v3.12.2), בעוד שב-nitro-contracts היו 39 commits מ-4 כותבים ב-30 יום.",
         },
         {
-          en: "Validators and nodes: a rollup has no validator set like a Proof of Stake chain, so Arbiscan does not show a validator count. The relevant facts are: one active sequencer (Offchain Labs); permissionless validation under BoLD (anyone can run a node and post or challenge assertions with a bond); and any number of full nodes that anyone can run. L2BEAT lists the proposer and challenger setup and is the right source to cite here.",
-          he: "מאמתים וצמתים: ל-Rollup אין סט מאמתים כמו ברשת Proof of Stake, ולכן Arbiscan לא מציג מספר מאמתים. העובדות הרלוונטיות: Sequencer פעיל יחיד (Offchain Labs); אימות פתוח לכל תחת BoLD (כל אחד יכול להריץ צומת ולפרסם או לערער על טענות עם ערבון); ומספר בלתי מוגבל של צמתים מלאים שכל אחד יכול להריץ. L2BEAT מפרט את מערך המציעים והמערערים והוא המקור הנכון לציטוט.",
+          en: "Validators and nodes: a rollup has no validator set like a Proof of Stake chain, so Arbiscan does not show a validator count. The relevant facts are: one active sequencer (Offchain Labs); permissionless validation under BoLD (anyone can run a node and post or challenge assertions with a bond); and any number of full nodes that anyone can run. ETHBEAT (formerly L2BEAT) is the right source to cite: it rates Arbitrum One's proposer failure as \"Self propose\" and state validation as \"Fraud proofs (INT)\".",
+          he: "מאמתים וצמתים: ל-Rollup אין סט מאמתים כמו ברשת Proof of Stake, ולכן Arbiscan לא מציג מספר מאמתים. העובדות הרלוונטיות: Sequencer פעיל יחיד (Offchain Labs); אימות פתוח לכל תחת BoLD (כל אחד יכול להריץ צומת ולפרסם או לערער על טענות עם ערבון); ומספר בלתי מוגבל של צמתים מלאים שכל אחד יכול להריץ. ETHBEAT (לשעבר L2BEAT) הוא המקור הנכון לציטוט: הוא מדרג את כשל המציע ב-Arbitrum One כ-\"Self propose\" ואת אימות המצב כ-\"Fraud proofs (INT)\".",
         },
         {
-          en: "Two usage metrics: (1) Stablecoin market cap on Arbitrum: stablecoins are real dollars parked on the chain for payments, trading and collateral, so they measure economic trust better than token-priced metrics. (2) Fees paid on Arbitrum One over 30 days: fees are what users actually pay for blockspace, and they feed the DAO's revenue. TVL is shown too, but it is inflated or deflated by token prices.",
-          he: "שני מדדי שימוש: (1) שווי הסטייבלקוינים ב-Arbitrum: סטייבלקוינים הם דולרים אמיתיים שחונים ברשת לתשלומים, מסחר ובטוחות, ולכן הם מודדים אמון כלכלי טוב יותר ממדדים שמושפעים ממחירי טוקנים. (2) העמלות ששולמו ב-Arbitrum One ב-30 יום: עמלות הן מה שהמשתמשים משלמים בפועל על שטח בבלוק, והן מזינות את הכנסות ה-DAO. גם TVL מוצג, אבל הוא מתנפח ומתכווץ עם מחירי הטוקנים.",
+          en: "Two usage metrics: (1) Stablecoin market cap on Arbitrum: stablecoins are real dollars parked on the chain for payments, trading and collateral, so they measure economic trust better than token-priced metrics. (2) Fees paid on Arbitrum One over 30 days: fees are what users actually pay for blockspace, and they feed the DAO's revenue. TVL is shown too, but it is inflated or deflated by token prices. Caveat to state in the paper: one external route can dominate stablecoin supply. When Hyperliquid stopped routing deposits through its Arbitrum bridge, stablecoins on Arbitrum fell by about $4.3B in a single month (May to June 2026), so also report the native versus bridged split shown below.",
+          he: "שני מדדי שימוש: (1) שווי הסטייבלקוינים ב-Arbitrum: סטייבלקוינים הם דולרים אמיתיים שחונים ברשת לתשלומים, מסחר ובטוחות, ולכן הם מודדים אמון כלכלי טוב יותר ממדדים שמושפעים ממחירי טוקנים. (2) העמלות ששולמו ב-Arbitrum One ב-30 יום: עמלות הן מה שהמשתמשים משלמים בפועל על שטח בבלוק, והן מזינות את הכנסות ה-DAO. גם TVL מוצג, אבל הוא מתנפח ומתכווץ עם מחירי הטוקנים. הסתייגות שכדאי לכתוב בעבודה: נתיב חיצוני אחד יכול לשלוט בהיצע הסטייבלקוינים. כש-Hyperliquid הפסיקה לנתב הפקדות דרך הגשר שלה ב-Arbitrum, הסטייבלקוינים ב-Arbitrum ירדו בכ-4.3 מיליארד דולר בחודש אחד (מאי עד יוני 2026), ולכן כדאי לדווח גם על החלוקה בין הנפקה מקומית לגישור שמוצגת למטה.",
         },
       ],
-      live: ["github", "stablecoins", "fees", "tvl"],
-      sources: [SRC.github, SRC.l2beat, SRC.arbiscan, SRC.defillamaChain],
+      live: ["github", "stablecoins", "fees", "tvl", "l2beat"],
+      sources: [SRC.github, SRC.offchainGit, SRC.l2beat, SRC.arbiscan, SRC.defillamaChain],
     },
     {
       id: "1.5",
@@ -126,11 +126,12 @@ export const CHAPTER_1: ArbChapter = {
           he: "הטענה: Arbitrum מציגה את עצמה כ-Rollup שמאובטח על ידי אתריום, שבו המשתמשים לא צריכים לסמוך על המפעיל. נתונים תומכים: BoLD הפך את הוכחות ההונאה לפתוחות לכל ב-Arbitrum One בפברואר 2025, נתוני העסקאות מתפרסמים באתריום, קיימת הכללה כפויה, ו-L2BEAT מדרג את Arbitrum One ב-Stage 1 וקובע שהיא עוברת את מבחן ה-Walkaway.",
         },
         {
-          en: "Data that complicates it: the Security Council can act instantly with 9 of 12 signatures, with no exit window for users on that path. In October 2026 it used this power twice: it paused new Stylus activations (2 Oct) and moved 8,425 ETH and about 74.56M ARB tied to the Binance exploit from a specific address into a frozen wallet (30 Oct). Ordering also depends on one sequencer. Verdict: the claim holds for the technical security of state transitions, but trust in a 12-member committee remains part of the model. The picture is more complex than the slogan.",
-          he: "נתונים שמסבכים: מועצת הביטחון יכולה לפעול מיידית בחתימת 9 מתוך 12, ובמסלול הזה אין למשתמשים חלון יציאה. באוקטובר 2026 היא השתמשה בסמכות הזאת פעמיים: עצרה הפעלות חדשות של חוזי Stylus (2.10) והעבירה 8,425 ETH וכ-74.56 מיליון ARB שקשורים לפריצה לבורסת Binance מכתובת מסוימת לארנק מוקפא (30.10). גם סדר העסקאות תלוי ב-Sequencer יחיד. המסקנה: הטענה נכונה לגבי האבטחה הטכנית של מעברי המצב, אבל אמון בוועדה בת 12 חברים הוא עדיין חלק מהמודל. התמונה מורכבת יותר מהסיסמה.",
+          en: "Data that complicates it: the Security Council can act instantly with 9 of 12 signatures, and ETHBEAT rates the exit window \"None\" for that reason. In 2026 it used this power three times: it froze 30,765.67 ETH held by the KelpDAO exploiter (21 Apr), paused new Stylus activations (2 Oct), and froze 8,425 ETH and about 74.56M ARB tied to the Binance exploit (30 Oct) by atomically upgrading the Inbox contract on Ethereum; only a DAO vote can release those funds. Ordering also depends on one sequencer. Verdict: the claim holds for the technical security of state transitions, but trust in a 12-member committee remains part of the model. The picture is more complex than the slogan.",
+          he: "נתונים שמסבכים: מועצת הביטחון יכולה לפעול מיידית בחתימת 9 מתוך 12, ומסיבה זו ETHBEAT מדרגת את חלון היציאה כ-\"None\". ב-2026 היא השתמשה בסמכות הזאת שלוש פעמים: הקפיאה 30,765.67 ETH של תוקף KelpDAO ‏(21.4), עצרה הפעלות חדשות של חוזי Stylus ‏(2.10), והקפיאה 8,425 ETH וכ-74.56 מיליון ARB שקשורים לפריצה ל-Binance ‏(30.10) באמצעות שדרוג אטומי של חוזה ה-Inbox באתריום; רק הצבעת DAO יכולה לשחרר את הכספים האלה. גם סדר העסקאות תלוי ב-Sequencer יחיד. המסקנה: הטענה נכונה לגבי האבטחה הטכנית של מעברי המצב, אבל אמון בוועדה בת 12 חברים הוא עדיין חלק מהמודל. התמונה מורכבת יותר מהסיסמה.",
         },
       ],
-      sources: [SRC.l2beat, SRC.docsBold, SRC.scFreeze, SRC.stylusPause],
+      live: ["l2beat"],
+      sources: [SRC.l2beat, SRC.docsBold, SRC.kelpFreeze, SRC.scFreeze, SRC.stylusPause],
     },
   ],
 };
@@ -199,15 +200,15 @@ export const CHAPTER_3: ArbChapter = {
       kind: "fact",
       answer: [
         {
-          en: "Platforms: the official X account (@arbitrum), the Arbitrum Discord, the governance forum (forum.arbitrum.foundation), Snapshot and Tally for votes, a YouTube channel, and developer channels on GitHub. Follower and member counts change daily, so read them on the day you submit and cite the date (the course requires a check date for every number).",
-          he: "פלטפורמות: חשבון ה-X הרשמי (@arbitrum), שרת ה-Discord, פורום הממשל (forum.arbitrum.foundation), Snapshot ו-Tally להצבעות, ערוץ YouTube, וערוצי מפתחים ב-GitHub. מספרי העוקבים והחברים משתנים מדי יום, ולכן יש לקרוא אותם ביום ההגשה ולציין תאריך (הקורס דורש תאריך בדיקה לכל נתון).",
+          en: "Platforms: the official X account (@arbitrum), the Arbitrum Discord, the governance forum (forum.arbitrum.foundation), Snapshot for off-chain votes and the Foundation's on-chain governance portal (it replaced Tally, which wound down in 2026), a YouTube channel, and developer channels on GitHub. Follower and member counts change daily, so read them on the day you submit and cite the date (the course requires a check date for every number).",
+          he: "פלטפורמות: חשבון ה-X הרשמי (@arbitrum), שרת ה-Discord, פורום הממשל (forum.arbitrum.foundation), ‏Snapshot להצבעות אוף-צ׳יין והפורטל האון-צ׳יין של הקרן (הוא החליף את Tally, שנסגר ב-2026), ערוץ YouTube, וערוצי מפתחים ב-GitHub. מספרי העוקבים והחברים משתנים מדי יום, ולכן יש לקרוא אותם ביום ההגשה ולציין תאריך (הקורס דורש תאריך בדיקה לכל נתון).",
         },
         {
           en: "Support: extensive English documentation (docs.arbitrum.io for builders and users, docs.arbitrum.foundation for governance), Stylus quickstarts and SDKs, public weekly vote roundups on the forum, recorded governance calls, an open delegate program, and a free public testnet (Arbitrum Sepolia). Documentation is primarily English; community translations exist but are not the official track.",
           he: "תמיכה: תיעוד נרחב באנגלית (docs.arbitrum.io למפתחים ולמשתמשים, docs.arbitrum.foundation לממשל), מדריכי התחלה ו-SDK ל-Stylus, סיכומי הצבעות שבועיים בפורום, שיחות ממשל מוקלטות, תוכנית דלגייטים פתוחה, ורשת ניסוי ציבורית בחינם (Arbitrum Sepolia). התיעוד הוא בעיקר באנגלית; יש תרגומים קהילתיים אך הם לא הערוץ הרשמי.",
         },
       ],
-      sources: [SRC.forum, SRC.docsOverview, SRC.tally],
+      sources: [SRC.forum, SRC.docsOverview, SRC.snapshot, SRC.tally, SRC.h1Revenue2026],
     },
     {
       id: "3.2",
@@ -219,11 +220,11 @@ export const CHAPTER_3: ArbChapter = {
       kind: "personal",
       answer: [
         {
-          en: "This must be your own participation; it cannot be answered from sources. Timely threads with real substance as of the research date: (1) the on-chain vote on 100M ARB for USDG incentives (29 Oct to 12 Nov 2026) on the forum and Tally; (2) the Security Council emergency action of 30 Oct 2026 (freezing funds tied to the Binance exploit); (3) the Stylus activation pause and its reopening plan. For each screenshot write: platform, date, the question or point you raised, and the response you got.",
-          he: "זו חייבת להיות השתתפות אישית שלכם, ואי אפשר לענות עליה ממקורות. דיונים עדכניים ובעלי תוכן נכון למועד המחקר: (1) ההצבעה און-צ׳יין על 100 מיליון ARB לתמריצי USDG (29.10 עד 12.11.2026) בפורום וב-Tally; (2) פעולת החירום של מועצת הביטחון מ-30.10.2026 (הקפאת כספים שקשורים לפריצה ל-Binance); (3) עצירת הפעלת חוזי Stylus ותוכנית החידוש. לכל צילום מסך כתבו: פלטפורמה, תאריך, השאלה או הנקודה שהעליתם, והתגובה שקיבלתם.",
+          en: "This must be your own participation; it cannot be answered from sources. Timely threads with real substance as of the research date: (1) Binance's Constitutional AIP to release the frozen ETH and ARB, which goes on-chain after its temperature check; (2) the Stylus Activation Contract AIP that would resume Stylus through audited contracts; (3) a forum thread opened in October 2026 by another blockchain-course student asking how decentralized Arbitrum is in practice, where your own research question fits naturally. For each screenshot write: platform, date, the question or point you raised, and the response you got.",
+          he: "זו חייבת להיות השתתפות אישית שלכם, ואי אפשר לענות עליה ממקורות. דיונים עדכניים ובעלי תוכן נכון למועד המחקר: (1) ההצעה החוקתית של Binance לשחרור ה-ETH וה-ARB שהוקפאו, שעוברת להצבעה און-צ׳יין אחרי בדיקת העמדה; (2) הצעת חוזה הפעלת Stylus שתחדש את Stylus דרך חוזים שעברו ביקורת; (3) שרשור בפורום שפתח באוקטובר 2026 סטודנט אחר בקורס בלוקצ׳יין, ששואל עד כמה Arbitrum מבוזרת בפועל, ושאלת המחקר שלכם משתלבת בו באופן טבעי. לכל צילום מסך כתבו: פלטפורמה, תאריך, השאלה או הנקודה שהעליתם, והתגובה שקיבלתם.",
         },
       ],
-      sources: [SRC.forum, SRC.scFreeze, SRC.usdgVote],
+      sources: [SRC.forum, SRC.binanceRelease, SRC.stylusResume, SRC.studentThread],
     },
     {
       id: "3.3",

@@ -61,6 +61,33 @@ test.describe("Arbitrum course project page", () => {
     });
   }
 
+  test("TL-120 sections are marked by kind and reachable from the section nav", async ({ page }) => {
+    await page.goto("/arb");
+    await expect(page.locator(t(SEL.arbKindLegend))).toBeVisible();
+    const kinds = await page.locator("section[data-kind]").evaluateAll((els) => els.map((e) => e.getAttribute("data-kind")));
+    for (const k of ["course", "personal", "static", "live", "learn"]) expect(kinds).toContain(k);
+    await page.locator(t(SEL.arbSectionNav)).getByRole("link", { name: "Roadmap" }).click();
+    await expect(page).toHaveURL(/#roadmap$/);
+    await expect(page.locator(t(SEL.arbRoadmapItem)).first()).toBeVisible();
+  });
+
+  test("TL-121 history filter, data quality checks and plan progress work end to end", async ({ page }) => {
+    await page.goto("/arb");
+    await expect(page.locator(t(SEL.arbLiveStatus))).toHaveAttribute("data-status", "ready");
+    await expect(page.locator(`${t(SEL.arbQualityCheck)}[data-status="fail"]`)).toHaveCount(0);
+    await expect(page.locator(`${t(SEL.arbQualityCheck)}[data-check="stage-static"]`)).toHaveAttribute("data-status", "pass");
+    await expect(page.locator(t(SEL.arbChainsTable))).toContainText("Robinhood Chain");
+
+    await page.locator(`${t(SEL.arbHistoryFilter)}[data-category="governance"]`).click();
+    const cats = await page.locator(t(SEL.arbHistoryEvent)).evaluateAll((els) => els.map((e) => e.getAttribute("data-category")));
+    expect(cats.length).toBeGreaterThan(0);
+    expect(new Set(cats)).toEqual(new Set(["governance"]));
+
+    await page.locator(t(SEL.arbPlanStep)).first().check();
+    await page.reload();
+    await expect(page.locator(t(SEL.arbPlanStep)).first()).toBeChecked();
+  });
+
   test("TL-117 /api/arb serves labeled fixture JSON; /arb negotiates markdown", async ({ request }) => {
     const res = await request.get("/api/arb");
     expect(res.status()).toBe(200);
@@ -69,10 +96,13 @@ test.describe("Arbitrum course project page", () => {
     expect(body.mode).toBe("fixture");
     expect(body.market.priceUsd).toBeGreaterThan(0);
     expect(body.github.commits30d).toBeGreaterThan(0);
+    expect(body.l2beat[0]).toMatchObject({ slug: "arbitrum", stage: "Stage 1" });
+    expect(body.stablecoins.nativeUsd).toBeGreaterThan(0);
 
     const md = await request.get("/arb", { headers: { Accept: "text/markdown" } });
     expect(md.status()).toBe(200);
     const text = await md.text();
     expect(text).toContain("### B.5 Real adoption versus token value");
+    expect(text).toContain("## Roadmap");
   });
 });

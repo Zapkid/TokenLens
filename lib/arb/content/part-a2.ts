@@ -22,15 +22,15 @@ export const CHAPTER_4: ArbChapter = {
           he: "מי מחליט: ה-Arbitrum DAO, כלומר מחזיקי ARB שמצביעים ישירות או דרך דלגייטים. Offchain Labs כותבת את רוב קוד הפרוטוקול ומציעה שדרוגים, קרן Arbitrum מבצעת ומנהלת, ומועצת הביטחון מטפלת במצבי חירום. שדרוגי רשת, הוצאות מהקופה ושינויים בחוקה מחייבים הצבעת DAO.",
         },
         {
-          en: "Where: a hybrid. Discussion starts on the forum, followed by an off-chain Snapshot temperature check, then an on-chain vote on Tally through one of two Governor contracts. On-chain results execute automatically after timelocks.",
-          he: "היכן: שילוב. הדיון מתחיל בפורום, ממשיך בבדיקת עמדה (Temperature Check) אוף-צ׳יין ב-Snapshot, ואז הצבעה און-צ׳יין ב-Tally דרך אחד משני חוזי Governor. תוצאות און-צ׳יין מבוצעות אוטומטית לאחר תקופות המתנה (Timelocks).",
+          en: "Where: a hybrid. Discussion starts on the forum, followed by an off-chain Snapshot temperature check, then an on-chain vote through one of two Governor contracts. On-chain votes ran on Tally until Tally wound down in 2026; they now run on the Foundation's governance portal (alt.gov.arbitrum.foundation). On-chain results execute automatically after timelocks.",
+          he: "היכן: שילוב. הדיון מתחיל בפורום, ממשיך בבדיקת עמדה (Temperature Check) אוף-צ׳יין ב-Snapshot, ואז הצבעה און-צ׳יין דרך אחד משני חוזי Governor. הצבעות און-צ׳יין התקיימו ב-Tally עד ש-Tally נסגר ב-2026; כיום הן מתקיימות בפורטל הממשל של הקרן (alt.gov.arbitrum.foundation). תוצאות און-צ׳יין מבוצעות אוטומטית לאחר תקופות המתנה (Timelocks).",
         },
         {
           en: "Who and thresholds: any ARB holder can vote or delegate. Submitting an on-chain proposal requires 1,000,000 ARB of delegated voting power (lowered from 5M by AIP-1.2). Two proposal types: Constitutional (changes to the constitution, core contracts, chain software or the Security Council) and Non-Constitutional (funding and other decisions). Quorum was historically 5% of votable supply for Constitutional and 3% for Non-Constitutional; the Constitutional quorum was cut to 4.5% in 2025, and in 2026 the DAO adopted a quorum based on delegated voting power (DVP). A Constitutional proposal takes about 37 days end to end because it passes waiting periods on L2 and L1 plus the withdrawal delay.",
           he: "מי ואילו ספים: כל מחזיק ARB יכול להצביע או להאציל את קולו. הגשת הצעה און-צ׳יין דורשת כוח הצבעה מואצל של 1,000,000 ARB (הורד מ-5 מיליון ב-AIP-1.2). שני סוגי הצעות: Constitutional (שינויי חוקה, חוזי ליבה, תוכנת הרשת או מועצת הביטחון) ו-Non-Constitutional (מימון והחלטות אחרות). הקוורום היה 5% מההיצע הזכאי להצבעה להצעות חוקתיות ו-3% ללא חוקתיות; ב-2025 הקוורום החוקתי הורד ל-4.5%, וב-2026 אימץ ה-DAO קוורום שמבוסס על כוח הצבעה מואצל (DVP). הצעה חוקתית נמשכת כ-37 ימים מקצה לקצה, כי היא עוברת תקופות המתנה ב-L2 וב-L1 וגם את השהיית המשיכה.",
         },
       ],
-      sources: [SRC.constitution, SRC.tally, SRC.quorumReduction, SRC.dvpQuorum, SRC.aip1Defiant],
+      sources: [SRC.constitution, SRC.snapshot, SRC.tally, SRC.h1Revenue2026, SRC.quorumReduction, SRC.dvpQuorum, SRC.aip1Defiant],
     },
     {
       id: "4.2",
@@ -46,8 +46,8 @@ export const CHAPTER_4: ArbChapter = {
           he: "השתתפות: הצעת קוורום ה-DVP עצמה מתעדת שההשתתפות ירדה מכ-8% ל-4 עד 5% מההיצע הזכאי להצבעה בשנה שקדמה לה, קרוב לרף הקוורום. דוגמה עדכנית: הצבעת ה-Snapshot באוקטובר 2026 על 100 מיליון ARB לתמריצי USDG משכה כ-199.5 מיליון ARB בעד. יש לציין שה-ARB שבקופת ה-DAO עצמה לא מצביע.",
         },
         {
-          en: "Concentration: analyses posted to the DAO forum report that the ten largest delegates hold roughly 40% of delegated voting power, and Curia's study found voting power heavily concentrated (Gini above 0.9). Hundreds of delegates receive delegation but rarely vote. Quote the latest Tally delegate table with its date for the current numbers.",
-          he: "ריכוזיות: ניתוחים שפורסמו בפורום ה-DAO מראים שעשרת הדלגייטים הגדולים מחזיקים כ-40% מכוח ההצבעה המואצל, ומחקר של Curia מצא ריכוז גבוה מאוד של כוח הצבעה (מקדם ג׳יני מעל 0.9). מאות דלגייטים מקבלים האצלה אך כמעט לא מצביעים. לנתונים עדכניים יש לצטט את טבלת הדלגייטים ב-Tally עם תאריך.",
+          en: "Concentration: analyses posted to the DAO forum report that the ten largest delegates hold roughly 40% of delegated voting power, and Curia's study found voting power heavily concentrated (Gini above 0.9). Hundreds of delegates receive delegation but rarely vote. For current numbers, quote the delegate list on the governance portal with its date.",
+          he: "ריכוזיות: ניתוחים שפורסמו בפורום ה-DAO מראים שעשרת הדלגייטים הגדולים מחזיקים כ-40% מכוח ההצבעה המואצל, ומחקר של Curia מצא ריכוז גבוה מאוד של כוח הצבעה (מקדם ג׳יני מעל 0.9). מאות דלגייטים מקבלים האצלה אך כמעט לא מצביעים. לנתונים עדכניים יש לצטט את רשימת הדלגייטים בפורטל הממשל עם תאריך.",
         },
         {
           en: "Conflict and change: disputes are argued on the forum and decided by votes; the clearest precedent is AIP-1 (April 2023), where a failed off-chain vote forced the Foundation to restructure its request. The governance model itself changes only through a Constitutional AIP, as with the 2025 quorum reduction, the 2026 DVP quorum, and the 2026 extension of Security Council terms.",
@@ -66,15 +66,15 @@ export const CHAPTER_4: ArbChapter = {
       kind: "analysis",
       answer: [
         {
-          en: "Decision: adopting Timeboost (activated on Arbitrum One and Nova in April 2025). Initiator: Offchain Labs, which designed it as a replacement for pure first-come-first-served ordering. Mechanism: a sealed-bid, second-price auction each minute sells an express lane with a short time advantage; bids are paid in ETH and the proceeds go to the DAO. Critics on the forum argued it favors sophisticated searchers and adds a centralized auction step. It passed as a Constitutional AIP through the full Snapshot then Tally process. Outcome: Timeboost returned more than $6M to the DAO in 2025, its first year. Fairness: procedurally fair (public discussion, two votes, timelocks), but the proposal came from the core developer that also runs the sequencer, which shows how agenda-setting power sits with Offchain Labs.",
-          he: "ההחלטה: אימוץ Timeboost (הופעל ב-Arbitrum One וב-Nova באפריל 2025). היוזמת: Offchain Labs, שתכננה אותו כחלופה לסידור עסקאות לפי סדר הגעה בלבד. המנגנון: מכרז חתום במחיר השני, פעם בדקה, שמוכר נתיב מהיר עם יתרון זמן קצר; ההצעות משולמות ב-ETH וההכנסות הולכות ל-DAO. מתנגדים בפורום טענו שהמנגנון מעדיף שחקנים מתוחכמים (Searchers) ומוסיף שלב מכרז ריכוזי. ההצעה עברה כהצעה חוקתית דרך תהליך מלא של Snapshot ואז Tally. התוצאה: Timeboost החזיר יותר מ-6 מיליון דולר ל-DAO ב-2025, השנה הראשונה. הוגנות: התהליך היה הוגן פרוצדורלית (דיון פומבי, שתי הצבעות, Timelocks), אבל ההצעה הגיעה ממפתחת הליבה שגם מפעילה את ה-Sequencer, וזה ממחיש שכוח קביעת סדר היום נמצא אצל Offchain Labs.",
+          en: "Decision: adopting Timeboost (activated on Arbitrum One and Nova in April 2025). Initiator: Offchain Labs, which designed it as a replacement for pure first-come-first-served ordering. Mechanism: a sealed-bid, second-price auction each minute sells an express lane with a short time advantage; bids are paid in ETH and the proceeds go to the DAO. Critics on the forum argued it favors sophisticated searchers and adds a centralized auction step. It passed as a Constitutional AIP through the full Snapshot then Tally process. Outcome: Timeboost returned more than $6M to the DAO in 2025, its first year. Fairness: procedurally fair (public discussion, two votes, timelocks), but the proposal came from the core developer that also runs the sequencer, which shows how agenda-setting power sits with Offchain Labs. Epilogue that strengthens the analysis: in 2026 Offchain Labs itself proposed retiring Timeboost, citing its high entry barrier and a 60-second lane unsuited to latency-sensitive DeFi, and the DAO adopted Priority Gas Auctions (PGA) and a paid Fast Feed in a consolidated Constitutional vote. Governance could revise its own decision on evidence, but the initiative again came from the same company.",
+          he: "ההחלטה: אימוץ Timeboost (הופעל ב-Arbitrum One וב-Nova באפריל 2025). היוזמת: Offchain Labs, שתכננה אותו כחלופה לסידור עסקאות לפי סדר הגעה בלבד. המנגנון: מכרז חתום במחיר השני, פעם בדקה, שמוכר נתיב מהיר עם יתרון זמן קצר; ההצעות משולמות ב-ETH וההכנסות הולכות ל-DAO. מתנגדים בפורום טענו שהמנגנון מעדיף שחקנים מתוחכמים (Searchers) ומוסיף שלב מכרז ריכוזי. ההצעה עברה כהצעה חוקתית דרך תהליך מלא של Snapshot ואז Tally. התוצאה: Timeboost החזיר יותר מ-6 מיליון דולר ל-DAO ב-2025, השנה הראשונה. הוגנות: התהליך היה הוגן פרוצדורלית (דיון פומבי, שתי הצבעות, Timelocks), אבל ההצעה הגיעה ממפתחת הליבה שגם מפעילה את ה-Sequencer, וזה ממחיש שכוח קביעת סדר היום נמצא אצל Offchain Labs. אפילוג שמחזק את הניתוח: ב-2026 Offchain Labs עצמה הציעה להוציא את Timeboost משימוש, בנימוק של חסם כניסה גבוה ונתיב של 60 שניות שלא מתאים ל-DeFi רגיש לזמן תגובה, וה-DAO אימץ מכרזי עמלת עדיפות (PGA) ו-Fast Feed בתשלום בהצבעה חוקתית מאוחדת. הממשל הצליח לתקן החלטה שלו על סמך ראיות, אבל היוזמה שוב הגיעה מאותה חברה.",
         },
         {
-          en: "Suggested rating: 2 out of 5. For: real on-chain votes that bind upgrades and treasury, a successful community revolt (AIP-1), elected Security Council. Against: low participation (4 to 5% of votable supply), roughly 40% of delegated power in ten delegates, one sequencer operator, and a Security Council that acted unilaterally twice in October 2026. This rating is a defended opinion; adjust it if your own reading of recent votes differs.",
-          he: "דירוג מוצע: 2 מתוך 5. בעד: הצבעות און-צ׳יין אמיתיות שמחייבות שדרוגים וקופה, מרד קהילתי שהצליח (AIP-1), ומועצת ביטחון נבחרת. נגד: השתתפות נמוכה (4 עד 5% מההיצע הזכאי), כ-40% מהכוח המואצל בידי עשרה דלגייטים, מפעיל Sequencer יחיד, ומועצת ביטחון שפעלה באופן חד-צדדי פעמיים באוקטובר 2026. הדירוג הוא עמדה מנומקת; שנו אותו אם קריאתכם בהצבעות האחרונות שונה.",
+          en: "Suggested rating: 2 out of 5. For: real on-chain votes that bind upgrades and treasury, a successful community revolt (AIP-1), elected Security Council. Against: low participation (4 to 5% of votable supply), roughly 40% of delegated power in ten delegates, one sequencer operator, and a Security Council that acted unilaterally three times in 2026 (two freezes and the Stylus pause). This rating is a defended opinion; adjust it if your own reading of recent votes differs.",
+          he: "דירוג מוצע: 2 מתוך 5. בעד: הצבעות און-צ׳יין אמיתיות שמחייבות שדרוגים וקופה, מרד קהילתי שהצליח (AIP-1), ומועצת ביטחון נבחרת. נגד: השתתפות נמוכה (4 עד 5% מההיצע הזכאי), כ-40% מהכוח המואצל בידי עשרה דלגייטים, מפעיל Sequencer יחיד, ומועצת ביטחון שפעלה באופן חד-צדדי שלוש פעמים ב-2026 (שתי הקפאות ועצירת Stylus). הדירוג הוא עמדה מנומקת; שנו אותו אם קריאתכם בהצבעות האחרונות שונה.",
         },
       ],
-      sources: [SRC.docsTimeboost, SRC.timeboostFees, SRC.transparency2025, SRC.dvpQuorum, SRC.scFreeze],
+      sources: [SRC.timeboostAip, SRC.docsTimeboost, SRC.pgaAip, SRC.fastFeedAip, SRC.timeboostFees, SRC.transparency2025, SRC.dvpQuorum, SRC.scFreeze],
     },
   ],
 };
@@ -98,8 +98,8 @@ export const CHAPTER_5: ArbChapter = {
           he: "סוג ותפקיד: ARB הוא טוקן ממשל מסוג ERC-20. הוא לא משמש לתשלום עמלות (העמלות ב-ETH) ולא מופקד כדי לאבטח את הרשת. תפקידו הוא הצבעה על שדרוגים, על הקופה ועל הבחירות למועצת הביטחון, ומימון תוכניות לאקוסיסטם מקופת ה-DAO.",
         },
         {
-          en: "Supply: 10,000,000,000 ARB minted at genesis (March 2023). There is no hard cap: the DAO may mint up to 2% per year by a Constitutional vote. No burn mechanism. Circulating supply is shown live below.",
-          he: "היצע: 10,000,000,000 ARB הונפקו ביצירה (מרץ 2023). אין תקרה קשיחה: ה-DAO רשאי להנפיק עד 2% בשנה בהצבעה חוקתית. אין מנגנון שריפה. ההיצע במחזור מוצג בזמן אמת למטה.",
+          en: "Supply: 10,000,000,000 ARB minted at genesis (March 2023). There is no hard cap: the DAO may mint up to 2% per year by a Constitutional vote. No burn mechanism. Circulating and total supply are shown live below; the data quality panel flags it if total supply ever moves away from 10B (which would mean the DAO minted inflation).",
+          he: "היצע: 10,000,000,000 ARB הונפקו ביצירה (מרץ 2023). אין תקרה קשיחה: ה-DAO רשאי להנפיק עד 2% בשנה בהצבעה חוקתית. אין מנגנון שריפה. ההיצע במחזור וההיצע הכולל מוצגים בזמן אמת למטה; לוח איכות הנתונים מתריע אם ההיצע הכולל יזוז אי פעם מ-10 מיליארד (כלומר שה-DAO הנפיק אינפלציה).",
         },
         {
           en: "Initial distribution: DAO treasury 35.28%; Offchain Labs team and future team plus advisors 26.94%; investors 17.53%; user airdrop 11.62%; Arbitrum Foundation 7.5%; airdrop to DAOs building on Arbitrum 1.13%.",
@@ -123,11 +123,11 @@ export const CHAPTER_5: ArbChapter = {
       kind: "fact",
       answer: [
         {
-          en: "Directly: it does not. There is no fee switch, burn, buyback or staking yield paid from protocol revenue to ARB holders. Indirectly: revenue (net sequencer fees from Arbitrum One and Nova, Timeboost auction proceeds, 8% of net revenue from Arbitrum chains settling outside One and Nova under the Expansion Program, and treasury yield) accumulates in the DAO treasury, which ARB holders control by vote. Scale: about $23.5M gross revenue in 2025 and $6.19M of income in H1 2026, with $125M of non-ARB treasury assets at the end of June 2026. Any future link to the token (buybacks, staking rewards) would require a DAO decision.",
-          he: "באופן ישיר: לא. אין מנגנון שמעביר הכנסות מהפרוטוקול למחזיקי ARB: אין Fee Switch, אין שריפה, אין רכישה חוזרת ואין תשואת סטייקינג. בעקיפין: ההכנסות (עמלות Sequencer נטו מ-Arbitrum One ומ-Nova, תמורת מכרזי Timeboost, 8% מההכנסה נטו של רשתות Arbitrum שמסלקות מחוץ ל-One ול-Nova במסגרת AEP, ותשואה על הקופה) מצטברות בקופת ה-DAO, שמחזיקי ARB שולטים בה בהצבעה. היקף: כ-23.5 מיליון דולר הכנסות ברוטו ב-2025 ו-6.19 מיליון דולר במחצית הראשונה של 2026, ו-125 מיליון דולר בנכסי קופה שאינם ARB בסוף יוני 2026. כל קישור עתידי לטוקן (רכישה חוזרת, תגמולי סטייקינג) מחייב החלטת DAO.",
+          en: "Directly: it does not. There is no fee switch, burn, buyback or staking yield paid from protocol revenue to ARB holders. Indirectly: revenue (net sequencer fees from Arbitrum One and Nova, transaction-ordering revenue from Timeboost auctions since April 2025 and PGA priority fees since 2026, with 3% of it going to the Developer Guild, 8% of net revenue from Arbitrum chains settling outside One and Nova under the Expansion Program, and treasury yield) accumulates in the DAO treasury, which ARB holders control by vote. Scale: about $23.5M gross revenue in 2025 and $6.19M of income in H1 2026, with $125M of non-ARB treasury assets at the end of June 2026. Any future link to the token (buybacks, staking rewards) would require a DAO decision; a forum discussion on giving ARB utility (gas abstraction, staking, Orbit alignment) has run since November 2025 without a passed proposal.",
+          he: "באופן ישיר: לא. אין מנגנון שמעביר הכנסות מהפרוטוקול למחזיקי ARB: אין Fee Switch, אין שריפה, אין רכישה חוזרת ואין תשואת סטייקינג. בעקיפין: ההכנסות (עמלות Sequencer נטו מ-Arbitrum One ומ-Nova, הכנסות סידור עסקאות ממכרזי Timeboost מאפריל 2025 ומעמלות עדיפות PGA מ-2026, ש-3% מהן הולכים ל-Developer Guild, 8% מההכנסה נטו של רשתות Arbitrum שמסלקות מחוץ ל-One ול-Nova במסגרת AEP, ותשואה על הקופה) מצטברות בקופת ה-DAO, שמחזיקי ARB שולטים בה בהצבעה. היקף: כ-23.5 מיליון דולר הכנסות ברוטו ב-2025 ו-6.19 מיליון דולר במחצית הראשונה של 2026, ו-125 מיליון דולר בנכסי קופה שאינם ARB בסוף יוני 2026. כל קישור עתידי לטוקן (רכישה חוזרת, תגמולי סטייקינג) מחייב החלטת DAO; דיון בפורום על מתן שימושיות ל-ARB (הפשטת גז, סטייקינג, התאמה לרשתות Orbit) מתנהל מנובמבר 2025 בלי הצעה שעברה.",
         },
       ],
-      sources: [SRC.h1Revenue2026, SRC.foundationFunding, SRC.aepDocs, SRC.docsTimeboost],
+      sources: [SRC.h1Revenue2026, SRC.foundationFunding, SRC.aepDocs, SRC.docsTimeboost, SRC.ethTransfer, SRC.arbUtility],
     },
     {
       id: "5.3",
@@ -207,20 +207,20 @@ export const CHAPTER_6: ArbChapter = {
           he: "ממשקים: הגשר הקנוני של Arbitrum לאתריום (הפקדה בתוך דקות, משיכה אחרי תקופת הערעור); רשתות Arbitrum שמסלקות על Arbitrum One כשכבה 3; CCTP של Circle ל-USDC מקורי; וגשרי העברת מסרים ונזילות של צד שלישי (Chainlink CCIP, גשרים מבוססי LayerZero, Across ואחרים). ARB עצמו קיים גם באתריום וגם ב-Arbitrum One.",
         },
         {
-          en: "Volumes: the authoritative figure is L2BEAT's Total Value Secured (canonically bridged, natively minted and externally bridged assets); a 2026 compilation of L2BEAT data put it at about $12.3B. Stablecoins on the chain are shown live below (DefiLlama). For transfer volumes over a recent period cite a Dune bridge dashboard with its date.",
-          he: "היקפים: הנתון המוסמך הוא Total Value Secured של L2BEAT (נכסים שגושרו בגשר הקנוני, שהונפקו מקומית ושגושרו בגשרים חיצוניים); ריכוז נתונים מ-2026 העמיד אותו על כ-12.3 מיליארד דולר. הסטייבלקוינים ברשת מוצגים בזמן אמת למטה (DefiLlama). לנפח העברות בתקופה האחרונה יש לצטט דשבורד גשרים ב-Dune עם תאריך.",
+          en: "Volumes: the authoritative figure is ETHBEAT's (formerly L2BEAT) Total Value Secured, split into canonically bridged, natively minted and externally bridged assets; it is fetched live below. On 18 Nov 2026 it was about $9.19B: $2.84B canonical, $1.84B native and $4.51B external, so most value now arrives through third-party bridges and native issuance rather than the canonical bridge. DefiLlama's stablecoin data gives the same picture for dollars (about 77% issued natively, 23% bridged in). For transfer volumes over a recent period cite a Dune bridge dashboard with its date.",
+          he: "היקפים: הנתון המוסמך הוא Total Value Secured של ETHBEAT (לשעבר L2BEAT), בחלוקה לנכסים שגושרו בגשר הקנוני, שהונפקו מקומית ושגושרו בגשרים חיצוניים; הוא נטען בזמן אמת למטה. ב-18.11.2026 הוא עמד על כ-9.19 מיליארד דולר: ‏2.84 מיליארד קנוני, ‏1.84 מיליארד מקומי ו-4.51 מיליארד חיצוני, כלומר רוב הערך מגיע היום דרך גשרי צד שלישי והנפקה מקומית ולא דרך הגשר הקנוני. נתוני הסטייבלקוינים של DefiLlama מראים תמונה דומה לדולרים (כ-77% הונפקו מקומית, כ-23% גושרו). לנפח העברות בתקופה האחרונה יש לצטט דשבורד גשרים ב-Dune עם תאריך.",
         },
         {
-          en: "Uses and risks: most flows are users moving ETH and stablecoins from Ethereum into Arbitrum DeFi and back, institutions minting RWAs, and liquidity moving to and from other L2s. Risks: third-party bridges add their own validator or multisig trust; the canonical bridge inherits the rollup's own risks (Security Council, proof bugs); and Arbitrum One is exposed to whatever hacked funds flow in, as the 30 Oct 2026 freeze of assets tied to the Binance exploit showed.",
-          he: "שימושים וסיכונים: רוב התנועות הן משתמשים שמעבירים ETH וסטייבלקוינים מאתריום ל-DeFi ב-Arbitrum ובחזרה, מוסדות שמנפיקים RWA, ונזילות שעוברת לרשתות L2 אחרות וממנה. סיכונים: גשרי צד שלישי מוסיפים אמון במאמתים או ב-Multisig משלהם; הגשר הקנוני יורש את סיכוני ה-Rollup עצמו (מועצת הביטחון, באגים בהוכחות); ו-Arbitrum One חשופה לכספים פרוצים שזורמים אליה, כפי שהראתה ההקפאה ב-30.10.2026 של נכסים שקשורים לפריצה ל-Binance.",
+          en: "Uses and risks: most flows are users moving ETH and stablecoins from Ethereum into Arbitrum DeFi and back, institutions minting RWAs, and liquidity moving to and from other L2s. Until 2026 a large share of Arbitrum's USDC was in transit to Hyperliquid through its Arbitrum bridge; when Hyperliquid moved to native USDC, about $3.95B left that bridge in June 2026 and stablecoins on Arbitrum roughly halved. Risks: third-party bridges add their own validator or multisig trust; the canonical bridge inherits the rollup's own risks (Security Council, proof bugs); and Arbitrum One is exposed to whatever hacked funds flow in, as the 30 Oct 2026 freeze of assets tied to the Binance exploit showed.",
+          he: "שימושים וסיכונים: רוב התנועות הן משתמשים שמעבירים ETH וסטייבלקוינים מאתריום ל-DeFi ב-Arbitrum ובחזרה, מוסדות שמנפיקים RWA, ונזילות שעוברת לרשתות L2 אחרות וממנה. עד 2026 חלק גדול מה-USDC ב-Arbitrum היה בדרך ל-Hyperliquid דרך הגשר שלה ב-Arbitrum; כש-Hyperliquid עברה ל-USDC מקורי, כ-3.95 מיליארד דולר יצאו מהגשר ביוני 2026 והסטייבלקוינים ב-Arbitrum ירדו בערך בחצי. סיכונים: גשרי צד שלישי מוסיפים אמון במאמתים או ב-Multisig משלהם; הגשר הקנוני יורש את סיכוני ה-Rollup עצמו (מועצת הביטחון, באגים בהוכחות); ו-Arbitrum One חשופה לכספים פרוצים שזורמים אליה, כפי שהראתה ההקפאה ב-30.10.2026 של נכסים שקשורים לפריצה ל-Binance.",
         },
         {
           en: "Thinking question: interoperability is mostly an advantage, because Arbitrum's value proposition is being Ethereum's liquidity hub, and Arbitrum chains (like Robinhood Chain) extend its technology reach. It becomes a dependency where activity happens on chains that only license the technology: those chains bring license fees but can take users and liquidity away from Arbitrum One.",
           he: "שאלת חשיבה: האינטרופרביליות היא בעיקר יתרון, כי ההצעה של Arbitrum היא להיות מרכז הנזילות של אתריום, ורשתות Arbitrum (כמו Robinhood Chain) מרחיבות את פריסת הטכנולוגיה. היא הופכת לתלות כשהפעילות מתרחשת ברשתות שרק משתמשות ברישיון הטכנולוגיה: הן מביאות דמי רישיון, אבל עלולות למשוך משתמשים ונזילות מ-Arbitrum One.",
         },
       ],
-      live: ["stablecoins"],
-      sources: [SRC.l2beat, SRC.defillamaChain, SRC.bridge, SRC.scFreeze],
+      live: ["l2beat", "stablecoins"],
+      sources: [SRC.l2beatApi, SRC.l2beat, SRC.defillamaChain, SRC.defillamaStables, SRC.hyperliquidBridge, SRC.bridge, SRC.scFreeze],
     },
     {
       id: "6.4",
@@ -232,16 +232,16 @@ export const CHAPTER_6: ArbChapter = {
       kind: "analysis",
       answer: [
         {
-          en: "Competitors: Base (built by Coinbase on the OP Stack) and OP Mainnet (Optimism). Criterion 1, economic gravity: DeFi TVL and stablecoins show where capital chooses to live (live table below). Criterion 2, trust model: the L2BEAT stage and proof system determine how much users must trust operators. All three are Stage 1 with permissionless proofs (Arbitrum via BoLD; OP Mainnet and Base via OP Stack fault proofs), so the differences sit in proof design, council powers and distribution.",
-          he: "מתחרים: Base (נבנתה על ידי Coinbase על בסיס OP Stack) ו-OP Mainnet (של Optimism). קריטריון 1, כוח משיכה כלכלי: TVL של DeFi וסטייבלקוינים מראים היכן ההון בוחר לשבת (טבלה חיה למטה). קריטריון 2, מודל אמון: ה-Stage ב-L2BEAT ומערכת ההוכחות קובעים כמה המשתמשים צריכים לסמוך על המפעילים. שלושתן ב-Stage 1 עם הוכחות פתוחות לכל (Arbitrum דרך BoLD; OP Mainnet ו-Base דרך הוכחות התקלה של OP Stack), ולכן ההבדלים הם בתכנון ההוכחות, בסמכויות המועצה ובהפצה.",
+          en: "Competitors: Base (built by Coinbase on the OP Stack) and OP Mainnet (Optimism). Criterion 1, economic gravity: DeFi TVL and stablecoins show where capital chooses to live (live table below). Criterion 2, trust model: the L2BEAT stage and proof system determine how much users must trust operators. ETHBEAT rates all three Stage 1 with permissionless proofs (Arbitrum via BoLD; OP Mainnet and Base via OP Stack fault proofs), so the differences sit in proof design, council powers and distribution. On 18 Nov 2026 Base secured about $13.1B and had about $5.2B of DeFi TVL, against about $9.2B and $1.3B for Arbitrum One and $1.3B and $0.37B for OP Mainnet (live figures below).",
+          he: "מתחרים: Base (נבנתה על ידי Coinbase על בסיס OP Stack) ו-OP Mainnet (של Optimism). קריטריון 1, כוח משיכה כלכלי: TVL של DeFi וסטייבלקוינים מראים היכן ההון בוחר לשבת (טבלה חיה למטה). קריטריון 2, מודל אמון: ה-Stage ב-L2BEAT ומערכת ההוכחות קובעים כמה המשתמשים צריכים לסמוך על המפעילים. ‏ETHBEAT מדרגת את שלושתן ב-Stage 1 עם הוכחות פתוחות לכל (Arbitrum דרך BoLD; OP Mainnet ו-Base דרך הוכחות התקלה של OP Stack), ולכן ההבדלים הם בתכנון ההוכחות, בסמכויות המועצה ובהפצה. ב-18.11.2026 ‏Base אבטחה כ-13.1 מיליארד דולר ועם TVL של DeFi של כ-5.2 מיליארד, מול כ-9.2 מיליארד ו-1.3 מיליארד ל-Arbitrum One וכ-1.3 מיליארד ו-0.37 מיליארד ל-OP Mainnet (נתונים חיים למטה).",
         },
         {
           en: "Advantages: deep DeFi liquidity, a mature proof system with bounded delay (BoLD), Stylus for non-Solidity developers, and new DAO revenue lines (Timeboost, licenses). Disadvantages: no built-in consumer funnel comparable to Coinbase for Base, a token with no direct value capture, and October 2026 security actions that highlighted operational risk.",
           he: "יתרונות: נזילות DeFi עמוקה, מערכת הוכחות בשלה עם עיכוב חסום (BoLD), Stylus למפתחים שלא עובדים ב-Solidity, ומקורות הכנסה חדשים ל-DAO (Timeboost, רישיונות). חסרונות: אין משפך משתמשים מובנה כמו Coinbase עבור Base, טוקן ללא החזרת ערך ישירה, ופעולות האבטחה של אוקטובר 2026 שהבליטו סיכון תפעולי.",
         },
       ],
-      live: ["competitors"],
-      sources: [SRC.l2beat, SRC.defillamaChain, SRC.docsStylus],
+      live: ["chains", "l2beat"],
+      sources: [SRC.l2beatApi, SRC.defillamaChain, SRC.docsStylus],
     },
   ],
 };
@@ -261,15 +261,15 @@ export const CHAPTER_7: ArbChapter = {
       kind: "analysis",
       answer: [
         {
-          en: "Next: Arbitrum ships through numbered ArbOS upgrades approved by the DAO. In 2026 these were ArbOS 51 \"Dia\" (January, Ethereum Fusaka compatibility and gas pricing changes) and ArbOS 61 \"Elara\" (activated 20 Aug 2026, multidimensional gas pricing and a 96 KB Stylus contract size limit). Upcoming items: compatibility with Ethereum's Glamsterdam upgrade, a decision on reopening Stylus activations, continued growth of Arbitrum chains under the Expansion Program, and the long-discussed path to Stage 2 (restricting the Security Council to provable on-chain bugs).",
-          he: "הלאה: Arbitrum משדרגת דרך גרסאות ArbOS ממוספרות שה-DAO מאשר. ב-2026 אלה היו ArbOS 51 \"Dia\" (ינואר, תאימות לשדרוג Fusaka של אתריום ושינויי תמחור גז) ו-ArbOS 61 \"Elara\" (הופעל ב-20.8.2026, תמחור גז רב-ממדי ומגבלת גודל חוזה של 96KB ל-Stylus). הבא בתור: תאימות לשדרוג Glamsterdam של אתריום, החלטה על חידוש הפעלת חוזי Stylus, המשך צמיחת רשתות Arbitrum במסגרת AEP, והדרך ל-Stage 2 (הגבלת מועצת הביטחון לבאגים שניתן להוכיח און-צ׳יין).",
+          en: "Next: Arbitrum ships through numbered ArbOS upgrades approved by the DAO. In 2026 these were ArbOS 51 \"Dia\" (January, Ethereum Fusaka compatibility and gas pricing changes) and ArbOS 61 \"Elara\" (activated 20 Aug 2026, multidimensional gas pricing and a 96 KB Stylus contract size limit). In 2026 the DAO also replaced Timeboost with PGA. Upcoming items (see the roadmap section): L1 pricing parameters for Ethereum's Glamsterdam upgrade (voted in November 2026), the Stylus Activation Contract AIP to resume Stylus through audited contracts, a vote on releasing the frozen Binance funds, the end of team and investor unlocks in March 2027, continued growth of Arbitrum chains under the Expansion Program, and the path to Stage 2 (restricting the Security Council to provable on-chain bugs).",
+          he: "הלאה: Arbitrum משדרגת דרך גרסאות ArbOS ממוספרות שה-DAO מאשר. ב-2026 אלה היו ArbOS 51 \"Dia\" (ינואר, תאימות לשדרוג Fusaka של אתריום ושינויי תמחור גז) ו-ArbOS 61 \"Elara\" (הופעל ב-20.8.2026, תמחור גז רב-ממדי ומגבלת גודל חוזה של 96KB ל-Stylus). ב-2026 ה-DAO גם החליף את Timeboost ב-PGA. הבא בתור (ראו את חלק מפת הדרכים): פרמטרי תמחור L1 לשדרוג Glamsterdam של אתריום (הוצבעו בנובמבר 2026), הצעת חוזה הפעלת Stylus לחידוש Stylus דרך חוזים שעברו ביקורת, הצבעה על שחרור כספי Binance שהוקפאו, סיום פתיחת הנעילות לצוות ולמשקיעים במרץ 2027, המשך צמיחת רשתות Arbitrum במסגרת AEP, והדרך ל-Stage 2 (הגבלת מועצת הביטחון לבאגים שניתן להוכיח און-צ׳יין).",
         },
         {
           en: "Most critical: the Arbitrum chains business (Expansion Program). It is the only revenue line that scales with adoption beyond Arbitrum One's own fees, and Robinhood Chain already contributed about 35% of the DAO's July 2026 income. Its success depends on the security reputation of the stack, which ties it directly to the Stylus and Security Council questions above.",
           he: "הרכיב הקריטי: עסקי רשתות Arbitrum (תוכנית AEP). זה מקור ההכנסה היחיד שגדל עם האימוץ מעבר לעמלות של Arbitrum One עצמה, ו-Robinhood Chain כבר תרמה כ-35% מהכנסות ה-DAO ביולי 2026. ההצלחה שלו תלויה במוניטין האבטחה של הטכנולוגיה, ולכן היא קשורה ישירות לשאלות Stylus ומועצת הביטחון שלמעלה.",
         },
       ],
-      sources: [SRC.docsArbos51, SRC.docsArbos61, SRC.robinhoodFactsheet, SRC.l2beat],
+      sources: [SRC.docsArbos51, SRC.docsArbos61, SRC.pgaAip, SRC.votesNov2026, SRC.stylusResume, SRC.binanceRelease, SRC.robinhoodFactsheet, SRC.l2beat],
     },
     {
       id: "7.2",
@@ -281,8 +281,8 @@ export const CHAPTER_7: ArbChapter = {
       kind: "analysis",
       answer: [
         {
-          en: "Suggested position (yours to defend): 3 out of 5, a small allocation of about 2 to 3% of a crypto venture portfolio. Reasoning: strong technology, real institutional adoption and growing DAO revenue, offset by a token with no direct value capture, a price that fell from an all-time high of about $2.39 (January 2024) to about $0.17 (October 2026), and continuing unlocks until March 2027.",
-          he: "עמדה מוצעת (שלכם להגן עליה): 3 מתוך 5, הקצאה קטנה של כ-2 עד 3% מתיק הון סיכון בקריפטו. נימוק: טכנולוגיה חזקה, אימוץ מוסדי אמיתי והכנסות DAO צומחות, מול טוקן ללא החזרת ערך ישירה, מחיר שירד משיא של כ-2.39 דולר (ינואר 2024) לכ-0.17 דולר (אוקטובר 2026), ופתיחת נעילות שנמשכת עד מרץ 2027.",
+          en: "Suggested position (yours to defend): 3 out of 5, a small allocation of about 2 to 3% of a crypto venture portfolio. Reasoning: strong technology, real institutional adoption and growing DAO revenue, offset by a token with no direct value capture, a price that fell from an all-time high of $2.39 (January 2024) to about $0.13 (18 Nov 2026), and continuing unlocks until March 2027.",
+          he: "עמדה מוצעת (שלכם להגן עליה): 3 מתוך 5, הקצאה קטנה של כ-2 עד 3% מתיק הון סיכון בקריפטו. נימוק: טכנולוגיה חזקה, אימוץ מוסדי אמיתי והכנסות DAO צומחות, מול טוקן ללא החזרת ערך ישירה, מחיר שירד משיא של 2.39 דולר (ינואר 2024) לכ-0.13 דולר (18.11.2026), ופתיחת נעילות שנמשכת עד מרץ 2027.",
         },
         {
           en: "Realistic failure in 3 years: large institutions follow the Robinhood model but choose other stacks or negotiate away license fees; activity on Arbitrum One migrates to app-specific chains and to Base; DAO revenue stays in single-digit millions while the treasury is spent on incentives; and a serious proof-system or VM bug forces a long Security Council intervention, damaging the security brand that the licensing business depends on.",

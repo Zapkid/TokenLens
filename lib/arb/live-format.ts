@@ -55,7 +55,17 @@ export function liveFacts(live: ArbLive | null, slot: ArbLiveSlot, lang: ArbLang
       }
       break;
     case "stablecoins":
-      if (live.stablecoins) add(t.stablecoins, formatCompactUsd(live.stablecoins.currentUsd), SRC.defillamaChain);
+      if (live.stablecoins) {
+        const s = live.stablecoins;
+        add(t.stablecoins, formatCompactUsd(s.currentUsd), SRC.defillamaChain);
+        const both = (s.nativeUsd ?? 0) + (s.bridgedUsd ?? 0);
+        if (s.nativeUsd !== null && both > 0) {
+          add(t.stablesNative, `${formatCompactUsd(s.nativeUsd)} (${Math.round((s.nativeUsd / both) * 100)}%)`, SRC.defillamaChain);
+        }
+        if (s.bridgedUsd !== null && both > 0) {
+          add(t.stablesBridged, `${formatCompactUsd(s.bridgedUsd)} (${Math.round((s.bridgedUsd / both) * 100)}%)`, SRC.defillamaChain);
+        }
+      }
       break;
     case "fees":
       if (live.fees30dUsd !== null) add(t.fees30d, formatCompactUsd(live.fees30dUsd), SRC.defillamaChain);
@@ -65,12 +75,30 @@ export function liveFacts(live: ArbLive | null, slot: ArbLiveSlot, lang: ArbLang
         const plus = live.github.truncated ? "+" : "";
         add(t.commits, `${formatNumber(live.github.commits30d)}${plus}`, SRC.github);
         add(t.contributors, `${formatNumber(live.github.contributors30d)}${plus}`, SRC.github);
-        add(t.repos, live.github.repos.join(", "), SRC.github);
+        add(t.repos, live.github.repos.map((r) => r.replace(/^OffchainLabs\//, "")).join(", "), SRC.offchainGit);
+        const rel = live.github.latestRelease;
+        if (rel) add(t.latestRelease, `${rel.tag} (${formatArbDate(rel.date, lang)})`, SRC.github);
       }
       break;
-    case "competitors":
-      for (const c of live.competitors ?? []) add(c.name, formatCompactUsd(c.tvlUsd), SRC.defillamaChain);
+    case "chains":
+      for (const c of live.chains ?? []) add(`${c.name} ${t.tvlShort}`, formatCompactUsd(c.tvlUsd), SRC.defillamaChain);
       break;
+    case "l2beat": {
+      const a = live.l2beat?.find((p) => p.slug === "arbitrum");
+      if (a) {
+        add(t.stage, a.stage, SRC.l2beat);
+        add(t.tvs, formatCompactUsd(a.tvsUsd), SRC.l2beat);
+        add(t.tvsCanonical, formatCompactUsd(a.canonicalUsd), SRC.l2beat);
+        add(t.tvsNative, formatCompactUsd(a.nativeUsd), SRC.l2beat);
+        add(t.tvsExternal, formatCompactUsd(a.externalUsd), SRC.l2beat);
+        const exit = a.risks.find((r) => r.name === "Exit Window");
+        if (exit) add(t.exitWindow, exit.value, SRC.l2beat);
+      }
+      for (const p of live.l2beat ?? []) {
+        if (p.slug !== "arbitrum") add(`${p.name}: ${t.stage}`, p.stage, SRC.l2beat);
+      }
+      break;
+    }
     case "trend": {
       const last = live.trend[live.trend.length - 1];
       if (last) {
