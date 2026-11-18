@@ -8,7 +8,9 @@ import {
   parseLlamaChains,
   parseLlamaFees,
   parseLlamaStables,
+  parseL2BeatSummary,
   parseLlamaTvl,
+  pickRepos,
   summarizeCommits,
 } from "../live";
 import { liveFacts } from "../live-format";
@@ -56,13 +58,21 @@ describe("arb live parsers (TL-111)", () => {
     expect(() => parseLlamaTvl([])).toThrow();
   });
 
-  it("sums all pegged stablecoin buckets", () => {
+  it("sums all pegged stablecoin buckets and splits native vs bridged", () => {
     const s = parseLlamaStables([
       { date: "100", totalCirculatingUSD: { peggedUSD: 10, peggedEUR: 2 } },
-      { date: "200", totalCirculatingUSD: { peggedUSD: 30 } },
+      {
+        date: "200",
+        totalCirculatingUSD: { peggedUSD: 30 },
+        totalMintedUSD: { peggedUSD: 22, peggedEUR: 1 },
+        totalBridgedToUSD: { peggedUSD: 7 },
+      },
     ]);
     expect(s.currentUsd).toBe(30);
     expect(s.series[0]).toEqual({ t: 100_000, v: 12 });
+    expect(s.nativeUsd).toBe(23);
+    expect(s.bridgedUsd).toBe(7);
+    expect(s.asOf).toBe(200_000);
   });
 
   it("reads 30 day fees and fails loudly when absent", () => {
@@ -70,15 +80,58 @@ describe("arb live parsers (TL-111)", () => {
     expect(() => parseLlamaFees({})).toThrow();
   });
 
-  it("filters the competitor set, Arbitrum first", () => {
+  it("filters chains to the Arbitrum ecosystem then competitors", () => {
     const c = parseLlamaChains([
       { name: "Ethereum", tvl: 1 },
       { name: "OP Mainnet", tvl: 3 },
+      { name: "Robinhood Chain", tvl: 5 },
       { name: "Arbitrum", tvl: 2 },
       { name: "Base", tvl: 4 },
     ]);
-    expect(c.map((x) => x.name)).toEqual(["Arbitrum", "Base", "OP Mainnet"]);
+    expect(c.map((x) => [x.name, x.group])).toEqual([
+      ["Arbitrum", "arbitrum"],
+      ["Robinhood Chain", "arbitrum"],
+      ["Base", "competitor"],
+      ["OP Mainnet", "competitor"],
+    ]);
     expect(() => parseLlamaChains([{ name: "Solana", tvl: 1 }])).toThrow();
+  });
+
+  it("parses the ETHBEAT (L2BEAT) summary: stage, value secured breakdown and risks", () => {
+    const p = parseL2BeatSummary({
+      projects: {
+        arbitrum: {
+          slug: "arbitrum",
+          name: "Arbitrum One",
+          stage: "Stage 1",
+          tvs: { breakdown: { total: 9, canonical: 3, native: 2, external: 4, stablecoin: 5 } },
+          risks: [{ name: "Exit Window", value: "None", sentiment: "bad" }, { name: 1 }],
+        },
+        robinhood: { slug: "robinhood", name: "Robinhood Chain", stage: "Stage 0", tvs: { breakdown: { total: 2 } } },
+        zk: { slug: "zksync", name: "ZKsync", stage: "Stage 1" },
+      },
+    });
+    expect(p.map((x) => x.slug)).toEqual(["arbitrum", "robinhood"]);
+    expect(p[0]).toMatchObject({ stage: "Stage 1", tvsUsd: 9, canonicalUsd: 3, nativeUsd: 2, externalUsd: 4, stablecoinUsd: 5 });
+    expect(p[0].risks).toEqual([{ name: "Exit Window", value: "None", sentiment: "bad" }]);
+    expect(p[1].canonicalUsd).toBeNull();
+    expect(() => parseL2BeatSummary({ projects: {} })).toThrow();
+    expect(() => parseL2BeatSummary(null)).toThrow();
+  });
+
+  it("picks core repos first, then recently pushed non-fork, non-archived ones", () => {
+    const repos = pickRepos(
+      [
+        { full_name: "OffchainLabs/nitro" },
+        { full_name: "OffchainLabs/fork", fork: true },
+        { full_name: "OffchainLabs/old", archived: true },
+        { full_name: "OffchainLabs/prysm" },
+        { full_name: "OffchainLabs/bold" },
+      ],
+      4,
+    );
+    expect(repos).toEqual(["OffchainLabs/nitro", "OffchainLabs/nitro-contracts", "OffchainLabs/prysm", "OffchainLabs/bold"]);
+    expect(pickRepos(null, 4)).toEqual(["OffchainLabs/nitro", "OffchainLabs/nitro-contracts"]);
   });
 
   it("dedupes commit authors by login, then email, then name", () => {
@@ -88,7 +141,15 @@ describe("arb live parsers (TL-111)", () => {
       { repo: "a/b", commits: [{ author: { login: "alice" } }, { author: { login: "ALICE" } }], truncated: false },
       { repo: "a/c", commits: [{ author: null, commit: { author: { email: "bob@x.io" } } }], truncated: true },
     ]);
-    expect(g).toEqual({ repos: ["a/b", "a/c"], commits30d: 3, contributors30d: 2, truncated: true });
+    expect(g).toEqual({
+      repos: ["a/b", "a/c"],
+      commits30d: 3,
+      contributors30d: 2,
+      truncated: true,
+      quietRepos: [],
+      latestRelease: null,
+    });
+    expect(summarizeCommits([{ repo: "a/quiet", commits: [], truncated: false }]).quietRepos).toEqual(["a/quiet"]);
   });
 
   it("indexes the trend to 100 on the first shared day", () => {
@@ -111,7 +172,7 @@ describe("arb live parsers (TL-111)", () => {
 describe("arb live facts formatting (TL-111)", () => {
   it("formats every slot with a source and skips missing data", () => {
     const live = arbFixture();
-    for (const slot of ["market", "supply", "tvl", "stablecoins", "fees", "github", "competitors", "trend"] as const) {
+    for (const slot of ["market", "supply", "tvl", "stablecoins", "fees", "github", "chains", "l2beat", "trend"] as const) {
       const facts = liveFacts(live, slot, "en");
       expect(facts.length).toBeGreaterThan(0);
       for (const f of facts) expect(f.source.url).toMatch(/^https:/);

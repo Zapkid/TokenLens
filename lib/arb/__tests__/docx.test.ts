@@ -36,7 +36,7 @@ describe("arb Word doc model (TL-112)", () => {
     const without = buildArbDocModel("en", null).blocks.map((b) => ("text" in b ? b.text : "")).join("\n");
     expect(without).not.toContain("Live data snapshot (Checked");
     const withLive = buildArbDocModel("en", arbFixture()).blocks.map((b) => ("text" in b ? b.text : "")).join("\n");
-    expect(withLive).toContain("Live data snapshot (Checked 1 Nov 2026 00:00 UTC)");
+    expect(withLive).toContain("Live data snapshot (Checked 18 Nov 2026 00:00 UTC)");
     expect(withLive).toContain("Synthetic fixture data");
     expect(withLive).toMatch(/Commits: 212 \(Source: GitHub/);
   });
@@ -48,6 +48,18 @@ describe("arb Word doc model (TL-112)", () => {
     expect(list.length).toBeGreaterThan(10);
     expect(new Set(list).size).toBe(list.length);
     expect([...list].sort((a, b) => a.localeCompare(b))).toEqual(list);
+  });
+
+  it("adds a data verification appendix only when live data exists", () => {
+    const heads = (live: boolean) =>
+      buildArbDocModel("en", live ? arbFixture() : null)
+        .blocks.filter((b) => b.type === "heading1")
+        .map((b) => ("text" in b ? b.text : ""));
+    expect(heads(true)).toContain("Data quality checks");
+    expect(heads(false)).not.toContain("Data quality checks");
+    const he = buildArbDocModel("he", arbFixture()).blocks.map((b) => ("text" in b ? b.text : "")).join("\n");
+    expect(he).toContain("בדיקות איכות נתונים");
+    expect(he).toMatch(/תקין: /);
   });
 
   it("names files by language", () => {

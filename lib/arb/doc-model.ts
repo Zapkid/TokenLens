@@ -1,12 +1,15 @@
 import {
+  ARB_CATEGORY_LABELS,
   ARB_CHAPTERS,
   ARB_GUIDELINES,
   ARB_RESEARCH_DATE,
   ARB_TIMELINE,
+  historyDateLabel,
 } from "./content";
 import { arbStrings, formatArbDate, formatArbDateTime, kindLabel } from "./i18n";
 import type { ArbLive } from "./live";
 import { liveFacts } from "./live-format";
+import { verifyArbLive, type ArbCheckStatus } from "./verify";
 import type { ArbLang, ArbSource } from "./types";
 
 // Language-specific, renderer-agnostic outline of the Word paper. Pure, so
@@ -68,7 +71,7 @@ export function buildArbDocModel(lang: ArbLang, live: ArbLive | null): ArbDocMod
         for (const e of ARB_TIMELINE) {
           blocks.push({
             type: "bullet",
-            text: `${formatArbDate(e.date, lang)}, ${e.category[lang]}: ${e.title[lang]}. ${e.detail[lang]} (${t.source}: ${e.source.label})`,
+            text: `${historyDateLabel(e.date, lang)}, ${ARB_CATEGORY_LABELS[e.category][lang]}: ${e.title[lang]}. ${e.detail[lang]} (${t.source}: ${e.source.label})`,
           });
           cite(e.source);
         }
@@ -90,6 +93,23 @@ export function buildArbDocModel(lang: ArbLang, live: ArbLive | null): ArbDocMod
         blocks.push({ type: "note", text: `${t.sources}: ${q.sources.map((s) => s.label).join("; ")}` });
         q.sources.forEach(cite);
       }
+    }
+  }
+
+  const checks = verifyArbLive(live, live ? Date.parse(live.fetchedAt) : undefined);
+  if (checks.length) {
+    const statusLabel: Record<ArbCheckStatus, string> = {
+      pass: t.statusPass,
+      warn: t.statusWarn,
+      fail: t.statusFail,
+      skip: t.statusSkip,
+    };
+    blocks.push({ type: "pageBreak" });
+    blocks.push({ type: "heading1", text: t.quality });
+    blocks.push({ type: "note", text: t.qualityIntro });
+    for (const c of checks) {
+      blocks.push({ type: "bullet", text: `${statusLabel[c.status]}: ${c.label[lang]}. ${c.detail[lang]}` });
+      c.sources.forEach(cite);
     }
   }
 
